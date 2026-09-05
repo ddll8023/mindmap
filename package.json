@@ -41,7 +41,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:unit": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "desktop:dev": "pnpm --filter @open-mindmap/desktop start",
+    "desktop:type-check": "pnpm --filter @open-mindmap/desktop type-check"
   },
   "peerDependencies": {
     "katex": ">=0.16",

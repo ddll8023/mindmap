@@ -11,6 +11,7 @@ export type {
   MindMapAIConfig,
   MindMapAIContentPart,
   MindMapAIRequestPayload,
+  MindMapPNGExportOptions,
   MindMapData,
   MindMapEvent,
   MindMapProps,

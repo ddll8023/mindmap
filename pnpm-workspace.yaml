@@ -1,0 +1,6 @@
+packages:
+  - apps/*
+allowBuilds:
+  fs-xattr: true
+  macos-alias: true
+nodeLinker: hoisted

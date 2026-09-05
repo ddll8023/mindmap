@@ -15,6 +15,7 @@ import type {
   MindMapRef,
   MindMapEvent,
   LayoutDirection,
+  MindMapPNGExportOptions,
   ThemeMode,
 } from "./types";
 import { computeEdgePath } from "./utils/layout";
@@ -996,11 +997,19 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
           nodes, edges, {}, activeTheme, plugins,
         );
       },
-      async exportToPNG() {
+      async exportToPNG(options?: MindMapPNGExportOptions) {
         const svg = buildExportSVGForPNG(
-          nodes, edges, {}, activeTheme, plugins,
+          nodes,
+          edges,
+          {
+            padding: options?.padding,
+            background: options?.background,
+            pngSafe: true,
+          },
+          activeTheme,
+          plugins,
         );
-        return exportToPNG(svg);
+        return exportToPNG(svg, options);
       },
       exportToOutline() {
         return toMarkdownMultiRoot(mapData, plugins);

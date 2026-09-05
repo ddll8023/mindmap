@@ -119,6 +119,12 @@ export interface MindMapAIConfig {
   request?: (payload: MindMapAIRequestPayload) => Promise<Response>
 }
 
+export interface MindMapPNGExportOptions {
+  scale?: number
+  padding?: number
+  background?: string
+}
+
 export interface MindMapProps {
   data?: MindMapData | MindMapData[]
   markdown?: string
@@ -143,7 +149,7 @@ export interface MindMapProps {
 
 export interface MindMapRef {
   exportToSVG(): string
-  exportToPNG(): Promise<Blob>
+  exportToPNG(options?: MindMapPNGExportOptions): Promise<Blob>
   exportToOutline(): string
   getMarkdown(): string
   getData(): MindMapData[]
