@@ -34,7 +34,7 @@ Override these on `.mindmap-container` (or any ancestor) to change theme values:
 |----------|-------------|---------------|--------------|
 | `--mindmap-root-bg` | Root node background | `#2C3E50` | `#4A6FA5` |
 | `--mindmap-root-text` | Root node text color | `#FFFFFF` | `#FFFFFF` |
-| `--mindmap-root-font-size` | Root node font size | `20px` | `20px` |
+| `--mindmap-root-font-size` | Root node font size | `32px` | `32px` |
 | `--mindmap-root-font-weight` | Root node font weight | `600` | `600` |
 | `--mindmap-root-font-family` | Root node font family | `system-ui, 'Segoe UI', Roboto, sans-serif` | _(same)_ |
 
@@ -43,7 +43,7 @@ Override these on `.mindmap-container` (or any ancestor) to change theme values:
 | Variable | Description | Light Default | Dark Default |
 |----------|-------------|---------------|--------------|
 | `--mindmap-node-text` | Child node text color | `#333333` | `#E0E0E0` |
-| `--mindmap-node-font-size` | Child node font size | `15px` | `15px` |
+| `--mindmap-node-font-size` | Child node font size | `18px` | `18px` |
 | `--mindmap-node-font-weight` | Child node font weight | `400` | `400` |
 | `--mindmap-node-font-family` | Child node font family | `system-ui, 'Segoe UI', Roboto, sans-serif` | _(same)_ |
 
@@ -51,7 +51,7 @@ Override these on `.mindmap-container` (or any ancestor) to change theme values:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `--mindmap-level1-font-size` | Level 1 font size | `16px` |
+| `--mindmap-level1-font-size` | Level 1 font size | `24px` |
 | `--mindmap-level1-font-weight` | Level 1 font weight | `500` |
 
 ### Edges / Connections

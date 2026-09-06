@@ -73,21 +73,21 @@ export interface ThemeColors {
 
 const SHARED = {
   root: {
-    fontSize: 20,
+    fontSize: 32,
     fontWeight: 600,
     fontFamily: "system-ui, 'Segoe UI', Roboto, sans-serif",
     paddingH: 24,
     paddingV: 12,
   },
   node: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: 400,
     fontFamily: "system-ui, 'Segoe UI', Roboto, sans-serif",
     paddingH: 8,
     paddingV: 6,
   },
   level1: {
-    fontSize: 16,
+    fontSize: 24,
     fontWeight: 500,
   },
   connection: {

@@ -38,6 +38,49 @@ function withExtension(name: string, extension: string): string {
     : `${name}${extension}`;
 }
 
+const LAST_EXPORT_DIRECTORY_FILE = "last-export-directory.json";
+let lastExportDirectory: string | undefined;
+
+function getExportDirectorySettingsPath(): string {
+  return path.join(app.getPath("userData"), LAST_EXPORT_DIRECTORY_FILE);
+}
+
+async function loadLastExportDirectory(): Promise<void> {
+  try {
+    const savedDirectory = JSON.parse(
+      await fs.readFile(getExportDirectorySettingsPath(), "utf8"),
+    ) as unknown;
+    if (typeof savedDirectory !== "string" || !savedDirectory) return;
+    if ((await fs.stat(savedDirectory)).isDirectory()) {
+      lastExportDirectory = savedDirectory;
+    }
+  } catch {
+    // Fall back to the Downloads folder when no valid preference is stored.
+  }
+}
+
+function getExportDefaultPath(suggestedName: string, extension: string): string {
+  const directory = lastExportDirectory ?? app.getPath("downloads");
+  return path.join(
+    directory,
+    withExtension(getSafeName(suggestedName, "mindmap"), extension),
+  );
+}
+
+async function rememberExportDirectory(filePath: string): Promise<void> {
+  const directory = path.dirname(filePath);
+  lastExportDirectory = directory;
+  try {
+    await writeFileAtomically(
+      getExportDirectorySettingsPath(),
+      JSON.stringify(directory),
+      "utf8",
+    );
+  } catch {
+    // A preference write failure must not make a successful export fail.
+  }
+}
+
 async function writeFileAtomically(
   filePath: string,
   data: string | Uint8Array,
@@ -100,15 +143,13 @@ async function saveSvg(payload: {
 }): Promise<{ canceled: boolean; filePath?: string }> {
   const result = await dialog.showSaveDialog({
     title: "导出 SVG",
-    defaultPath: path.join(
-      app.getPath("downloads"),
-      withExtension(getSafeName(payload.suggestedName, "mindmap"), ".svg"),
-    ),
+    defaultPath: getExportDefaultPath(payload.suggestedName, ".svg"),
     filters: [{ name: "SVG 图片", extensions: ["svg"] }],
   });
 
   if (result.canceled || !result.filePath) return { canceled: true };
   await writeFileAtomically(result.filePath, payload.content, "utf8");
+  await rememberExportDirectory(result.filePath);
   return { canceled: false, filePath: result.filePath };
 }
 
@@ -118,15 +159,13 @@ async function savePng(payload: {
 }): Promise<{ canceled: boolean; filePath?: string }> {
   const result = await dialog.showSaveDialog({
     title: "导出 PNG",
-    defaultPath: path.join(
-      app.getPath("downloads"),
-      withExtension(getSafeName(payload.suggestedName, "mindmap"), ".png"),
-    ),
+    defaultPath: getExportDefaultPath(payload.suggestedName, ".png"),
     filters: [{ name: "PNG 图片", extensions: ["png"] }],
   });
 
   if (result.canceled || !result.filePath) return { canceled: true };
   await writeFileAtomically(result.filePath, new Uint8Array(payload.data));
+  await rememberExportDirectory(result.filePath);
   return { canceled: false, filePath: result.filePath };
 }
 
@@ -136,15 +175,13 @@ async function saveXMind(payload: {
 }): Promise<{ canceled: boolean; filePath?: string }> {
   const result = await dialog.showSaveDialog({
     title: "导出 XMind",
-    defaultPath: path.join(
-      app.getPath("downloads"),
-      withExtension(getSafeName(payload.suggestedName, "mindmap"), ".xmind"),
-    ),
+    defaultPath: getExportDefaultPath(payload.suggestedName, ".xmind"),
     filters: [{ name: "XMind 文件", extensions: ["xmind"] }],
   });
 
   if (result.canceled || !result.filePath) return { canceled: true };
   await writeFileAtomically(result.filePath, new Uint8Array(payload.data));
+  await rememberExportDirectory(result.filePath);
   return { canceled: false, filePath: result.filePath };
 }
 
@@ -267,7 +304,8 @@ function createWindow(): void {
   });
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  await loadLastExportDirectory();
   registerIpcHandlers();
   buildApplicationMenu();
   createWindow();

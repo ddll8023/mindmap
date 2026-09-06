@@ -52,7 +52,7 @@ export function buildExportSVG(
   theme: ThemeColors = THEME,
   plugins?: MindMapPlugin[],
 ): string {
-  const { padding = 40, background = theme.canvas.bgColor, pngSafe = false } = options
+  const { padding = 40, pngSafe = false, background = pngSafe ? '#ffffff' : theme.canvas.bgColor } = options
   if (pngSafe) {
     for (const token of collectFormulas(nodes, plugins)) requireFormula(token.content, token.type === 'latex-block')
   }

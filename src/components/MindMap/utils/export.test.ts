@@ -39,6 +39,13 @@ describe('buildExportSVG escaping', () => {
     expect(svg.startsWith('<svg')).toBe(true)
     expect(svg.trimEnd().endsWith('</svg>')).toBe(true)
   })
+
+  it('uses a pure white background for PNG-safe exports by default', () => {
+    const { nodes, edges } = layoutMultiRoot([{ id: 'r', text: 'Root' }])
+    const svg = buildExportSVG(nodes, edges, { pngSafe: true })
+
+    expect(svg).toContain('<rect width="100%" height="100%" fill="#ffffff"/>')
+  })
 })
 
 describe('exportMindMapToSVG', () => {
