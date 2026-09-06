@@ -26,6 +26,7 @@ export interface MindMapCanvasProps {
   // --- Editor-only extras (omitted by the read-only viewer) ---
   readonly?: boolean;
   selectedNodeId?: string | null;
+  dropTargetId?: string | null;
   editingId?: string | null;
   pendingEditId?: string | null;
   editText?: string;
@@ -70,6 +71,7 @@ export function MindMapCanvas({
   dimmedNodes,
   readonly,
   selectedNodeId,
+  dropTargetId,
   editingId,
   pendingEditId,
   editText,
@@ -173,6 +175,7 @@ export function MindMapCanvas({
               isEditing={editingId === node.id}
               isPendingEdit={pendingEditId === node.id}
               isSelected={!readonly && selectedNodeId === node.id}
+              isDropTarget={!readonly && dropTargetId === node.id}
               isNew={newNodeIds.has(node.id)}
               isGhost={isInFloatingSubtree}
               isFilterDimmed={dimmedNodes.has(node.id)}

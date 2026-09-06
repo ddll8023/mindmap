@@ -1,6 +1,11 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 import type { MindMapData, LayoutNode, LayoutDirection } from '../types'
-import { getDescendantIds, swapSiblingsMulti, moveChildToSide } from '../utils/tree-ops'
+import {
+  getDescendantIds,
+  moveChildToSide,
+  moveNodeMulti,
+  swapSiblingsMulti,
+} from '../utils/tree-ops'
 
 interface UseDragParams {
   svgRef: React.RefObject<SVGSVGElement | null>
@@ -38,11 +43,14 @@ export function useDrag({
   const [draggingCanvas, setDraggingCanvas] = useState(false)
   const [floatingNodeId, setFloatingNodeId] = useState<string | null>(null)
   const [floatingPos, setFloatingPos] = useState<{ x: number; y: number } | null>(null)
+  const [dropTargetId, setDropTargetId] = useState<string | null>(null)
 
   const canvasDragStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 })
   const grabOffsetRef = useRef({ x: 0, y: 0 })
   const didDragRef = useRef(false)
   const lastSwapTimeRef = useRef(0)
+  const floatingNodeIdRef = useRef<string | null>(null)
+  const dropTargetRef = useRef<string | null>(null)
 
   // Touch state refs
   const touchStateRef = useRef<{
@@ -84,6 +92,54 @@ export function useDrag({
     [svgRef, pan, zoom],
   )
 
+  const updateDropTarget = useCallback((targetId: string | null) => {
+    if (dropTargetRef.current === targetId) return
+    dropTargetRef.current = targetId
+    setDropTargetId(targetId)
+  }, [])
+
+  const findDropTarget = useCallback(
+    (position: { x: number; y: number }, currentNodeId: string) => {
+      const draggedNode = nodeMap[currentNodeId]
+      if (!draggedNode) return null
+
+      const blockedIds = new Set([
+        currentNodeId,
+        ...getDescendantIds(currentNodeId, nodes),
+      ])
+      return nodes.find((node) => {
+        if (blockedIds.has(node.id) || node.id === draggedNode.parentId) {
+          return false
+        }
+        const isSameParent = node.parentId === draggedNode.parentId
+        // The center of a sibling is the reparent drop zone. Its upper and
+        // lower edges remain available for the existing sibling-swap gesture.
+        const verticalDropRadius = isSameParent ? node.height * 0.22 : node.height / 2
+        return (
+          Math.abs(position.x - node.x) <= node.width / 2 &&
+          Math.abs(position.y - node.y) <= verticalDropRadius
+        )
+      })?.id ?? null
+    },
+    [nodeMap, nodes],
+  )
+
+  const commitNodeDrop = useCallback(
+    (sourceNodeId: string | null) => {
+      const targetNodeId = dropTargetRef.current
+      if (sourceNodeId && targetNodeId) {
+        const moved = moveNodeMulti(mapData, sourceNodeId, targetNodeId)
+        if (moved) {
+          updateData(() => moved)
+          // The root split points are based on the previous hierarchy.
+          setSplitIndices({})
+        }
+      }
+      updateDropTarget(null)
+    },
+    [mapData, setSplitIndices, updateData, updateDropTarget],
+  )
+
   // Shared logic for updating floating position and checking swaps
   const updateFloatingAndSwap = useCallback(
     (clientX: number, clientY: number, currentFloatingId: string) => {
@@ -94,12 +150,16 @@ export function useDrag({
       }
       setFloatingPos(newFloatingPos)
 
+      const targetId = findDropTarget(svgPos, currentFloatingId)
+      updateDropTarget(targetId)
+      if (targetId) return
+
       const now = Date.now()
       if (now - lastSwapTimeRef.current > 500) {
         const draggedNode = nodeMap[currentFloatingId]
-        if (draggedNode && draggedNode.parentId) {
+        if (draggedNode) {
           // Cross-side detection for depth-1 nodes in "both" layout
-          if (draggedNode.depth === 1 && direction === 'both') {
+          if (draggedNode.parentId && draggedNode.depth === 1 && direction === 'both') {
             const currentSide = draggedNode.side
             const crossedToLeft = currentSide === 'right' && newFloatingPos.x < 0
             const crossedToRight = currentSide === 'left' && newFloatingPos.x > 0
@@ -129,12 +189,14 @@ export function useDrag({
           }
 
           // Collision detection for sibling swap
-          const siblings = nodes.filter(
-            (n) =>
-              n.parentId === draggedNode.parentId &&
-              n.id !== currentFloatingId &&
-              n.side === draggedNode.side,
-          )
+          const siblings = draggedNode.parentId
+            ? nodes.filter(
+                (n) =>
+                  n.parentId === draggedNode.parentId &&
+                  n.id !== currentFloatingId &&
+                  n.side === draggedNode.side,
+              )
+            : nodes.filter((n) => !n.parentId && n.id !== currentFloatingId)
 
           for (const sibling of siblings) {
             const threshold =
@@ -151,13 +213,15 @@ export function useDrag({
         }
       }
     },
-    [clientToSvg, nodeMap, nodes, updateData, direction, splitIndices, setSplitIndices, mapData],
+    [clientToSvg, findDropTarget, nodeMap, nodes, updateData, direction, splitIndices, setSplitIndices, mapData, updateDropTarget],
   )
 
   const handleCanvasMouseDown = useCallback(
     (e: React.MouseEvent) => {
       if (e.button !== 0) return
       didDragRef.current = false
+      floatingNodeIdRef.current = null
+      updateDropTarget(null)
       setDraggingCanvas(true)
       canvasDragStart.current = {
         x: e.clientX,
@@ -166,7 +230,7 @@ export function useDrag({
         panY: pan.y,
       }
     },
-    [pan],
+    [pan, updateDropTarget],
   )
 
   const handleMouseMove = useCallback(
@@ -177,19 +241,34 @@ export function useDrag({
           x: canvasDragStart.current.panX + (e.clientX - canvasDragStart.current.x),
           y: canvasDragStart.current.panY + (e.clientY - canvasDragStart.current.y),
         })
-      } else if (floatingNodeId) {
+      } else if (floatingNodeIdRef.current) {
         didDragRef.current = true
-        updateFloatingAndSwap(e.clientX, e.clientY, floatingNodeId)
+        updateFloatingAndSwap(e.clientX, e.clientY, floatingNodeIdRef.current)
       }
     },
-    [draggingCanvas, floatingNodeId, setPan, updateFloatingAndSwap],
+    [draggingCanvas, setPan, updateFloatingAndSwap],
+  )
+
+  const resetDragState = useCallback(
+    (commitDrop: boolean) => {
+      const sourceNodeId = floatingNodeIdRef.current
+      if (commitDrop) commitNodeDrop(sourceNodeId)
+      else updateDropTarget(null)
+      floatingNodeIdRef.current = null
+      setDraggingCanvas(false)
+      setFloatingNodeId(null)
+      setFloatingPos(null)
+    },
+    [commitNodeDrop, updateDropTarget],
   )
 
   const handleMouseUp = useCallback(() => {
-    setDraggingCanvas(false)
-    setFloatingNodeId(null)
-    setFloatingPos(null)
-  }, [])
+    resetDragState(true)
+  }, [resetDragState])
+
+  const handleMouseLeave = useCallback(() => {
+    resetDragState(false)
+  }, [resetDragState])
 
   const handleNodeMouseDown = useCallback(
     (e: React.MouseEvent, nodeId: string) => {
@@ -199,6 +278,9 @@ export function useDrag({
       didDragRef.current = false
       const node = nodeMap[nodeId]
       if (!node) return
+      lastSwapTimeRef.current = 0
+      floatingNodeIdRef.current = nodeId
+      updateDropTarget(null)
       setFloatingNodeId(nodeId)
       setFloatingPos({ x: node.x, y: node.y })
       const svgPos = clientToSvg(e.clientX, e.clientY)
@@ -207,7 +289,7 @@ export function useDrag({
         y: node.y - svgPos.y,
       }
     },
-    [nodeMap, clientToSvg, readonly],
+    [nodeMap, clientToSvg, readonly, updateDropTarget],
   )
 
   // --- Touch event handlers (native, registered with { passive: false }) ---
@@ -217,7 +299,6 @@ export function useDrag({
   const zoomRef = useRef(zoom)
   const nodeMapRef = useRef(nodeMap)
   const contentCenterRef = useRef(contentCenter)
-  const floatingNodeIdRef = useRef(floatingNodeId)
   useEffect(() => {
     panRef.current = pan
     zoomRef.current = zoom
@@ -279,9 +360,11 @@ export function useDrag({
         }
         // Clear any floating state from single-touch node drag
         if (floatingNodeIdRef.current) {
+          floatingNodeIdRef.current = null
           setFloatingNodeId(null)
           setFloatingPos(null)
         }
+        updateDropTarget(null)
         setDraggingCanvas(false)
         return
       }
@@ -301,6 +384,9 @@ export function useDrag({
           didDragRef.current = false
           const node = nodeMapRef.current[nodeId]
           if (node) {
+            lastSwapTimeRef.current = 0
+            floatingNodeIdRef.current = nodeId
+            updateDropTarget(null)
             setFloatingNodeId(nodeId)
             setFloatingPos({ x: node.x, y: node.y })
             const svgRect = svgEl.getBoundingClientRect()
@@ -323,6 +409,8 @@ export function useDrag({
         } else {
           // Start canvas pan
           didDragRef.current = false
+          floatingNodeIdRef.current = null
+          updateDropTarget(null)
           setDraggingCanvas(true)
           canvasDragStart.current = {
             x: touch.clientX,
@@ -388,13 +476,17 @@ export function useDrag({
         }
         setFloatingPos(newPos)
 
+        const targetId = findDropTarget({ x: svgX, y: svgY }, state.touchNodeId)
+        updateDropTarget(targetId)
+        if (targetId) return
+
         // Swap/cross-side detection
         const now = Date.now()
         if (now - lastSwapTimeRef.current > 500) {
           const draggedNode = nodeMapRef.current[state.touchNodeId]
-          if (draggedNode && draggedNode.parentId) {
+          if (draggedNode) {
             // Cross-side detection
-            if (draggedNode.depth === 1 && direction === 'both') {
+            if (draggedNode.parentId && draggedNode.depth === 1 && direction === 'both') {
               const currentSide = draggedNode.side
               const crossedToLeft = currentSide === 'right' && newPos.x < 0
               const crossedToRight = currentSide === 'left' && newPos.x > 0
@@ -417,12 +509,14 @@ export function useDrag({
             }
 
             // Sibling swap
-            const siblings = nodes.filter(
-              (n) =>
-                n.parentId === draggedNode.parentId &&
-                n.id !== state.touchNodeId &&
-                n.side === draggedNode.side,
-            )
+            const siblings = draggedNode.parentId
+              ? nodes.filter(
+                  (n) =>
+                    n.parentId === draggedNode.parentId &&
+                    n.id !== state.touchNodeId &&
+                    n.side === draggedNode.side,
+                )
+              : nodes.filter((n) => !n.parentId && n.id !== state.touchNodeId)
             for (const sibling of siblings) {
               const threshold = Math.max(draggedNode.height, sibling.height) * 0.6
               if (Math.abs(newPos.y - sibling.y) < threshold) {
@@ -451,6 +545,7 @@ export function useDrag({
           panX: panRef.current.x,
           panY: panRef.current.y,
         }
+        updateDropTarget(null)
         setDraggingCanvas(true)
         touchStateRef.current = {
           ...state,
@@ -462,6 +557,12 @@ export function useDrag({
 
       if (touches.length === 0) {
         // All fingers lifted
+        if (state.type === 'node-drag' && e.type !== 'touchcancel') {
+          commitNodeDrop(state.touchNodeId)
+        } else {
+          updateDropTarget(null)
+        }
+        floatingNodeIdRef.current = null
         setDraggingCanvas(false)
         setFloatingNodeId(null)
         setFloatingPos(null)
@@ -488,17 +589,34 @@ export function useDrag({
       svgEl.removeEventListener('touchend', handleTouchEnd)
       svgEl.removeEventListener('touchcancel', handleTouchEnd)
     }
-  }, [svgRef, setPan, setZoom, findNodeIdFromTarget, direction, mapData, splitIndices, setSplitIndices, updateData, nodes, readonly])
+  }, [
+    svgRef,
+    setPan,
+    setZoom,
+    findNodeIdFromTarget,
+    findDropTarget,
+    updateDropTarget,
+    commitNodeDrop,
+    direction,
+    mapData,
+    splitIndices,
+    setSplitIndices,
+    updateData,
+    nodes,
+    readonly,
+  ])
 
   return {
     draggingCanvas,
     floatingNodeId,
     floatingPos,
     floatingSubtreeIds,
+    dropTargetId,
     didDragRef,
     handleCanvasMouseDown,
     handleMouseMove,
     handleMouseUp,
+    handleMouseLeave,
     handleNodeMouseDown,
   }
 }

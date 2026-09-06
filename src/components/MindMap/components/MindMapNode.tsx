@@ -20,6 +20,7 @@ export interface MindMapNodeProps {
   isEditing: boolean;
   isPendingEdit: boolean;
   isSelected: boolean;
+  isDropTarget?: boolean;
   isNew: boolean;
   isGhost?: boolean;
   animClass: string;
@@ -582,6 +583,7 @@ export function MindMapNode({
   isEditing,
   isPendingEdit,
   isSelected,
+  isDropTarget = false,
   isNew,
   isGhost,
   animClass,
@@ -613,6 +615,7 @@ export function MindMapNode({
   const placeholderClass = node.placeholder ? "mindmap-node-placeholder" : "";
   const expandClass = expandDelay !== undefined ? "mindmap-node-expanding" : "";
   const dimmedClass = isFilterDimmed ? " mindmap-node-filter-dimmed" : "";
+  const dropTargetClass = isDropTarget ? " mindmap-node-drop-target" : "";
   const expandStyle =
     expandDelay !== undefined
       ? { animationDelay: `${expandDelay}ms` }
@@ -640,7 +643,7 @@ export function MindMapNode({
       <g
         key={node.id}
         transform={`translate(${nx}, ${ny})`}
-        className={`mindmap-node-g mindmap-node-root ${animClass} ${newClass} ${placeholderClass} ${expandClass}${isGhost ? ' mindmap-node-ghost' : ''}${dimmedClass}`}
+        className={`mindmap-node-g mindmap-node-root ${animClass} ${newClass} ${placeholderClass} ${expandClass}${isGhost ? ' mindmap-node-ghost' : ''}${dimmedClass}${dropTargetClass}`}
         data-branch-index={node.branchIndex}
         role="treeitem"
         aria-label={node.text}
@@ -660,8 +663,9 @@ export function MindMapNode({
           rx={node.height / 2}
           ry={node.height / 2}
           fill={bgColor}
-          stroke={isSelected ? theme.selection.strokeColor : "none"}
-          strokeWidth={isSelected ? 2.5 : 0}
+          stroke={isDropTarget || isSelected ? theme.selection.strokeColor : "none"}
+          strokeWidth={isDropTarget ? 3 : isSelected ? 2.5 : 0}
+          strokeDasharray={isDropTarget ? "6 4" : undefined}
         />
         {showInput ? (
           <foreignObject
@@ -798,7 +802,7 @@ export function MindMapNode({
     <g
       key={node.id}
       transform={`translate(${nx}, ${ny})`}
-      className={`mindmap-node-g mindmap-node-child ${animClass} ${newClass} ${placeholderClass} ${expandClass}${isGhost ? ' mindmap-node-ghost' : ''}${dimmedClass}`}
+      className={`mindmap-node-g mindmap-node-child ${animClass} ${newClass} ${placeholderClass} ${expandClass}${isGhost ? ' mindmap-node-ghost' : ''}${dimmedClass}${dropTargetClass}`}
       style={expandStyle}
       data-branch-index={node.branchIndex}
       role="treeitem"
@@ -816,9 +820,10 @@ export function MindMapNode({
         y={-node.height / 2}
         width={node.width}
         height={node.height}
-        fill={isSelected ? theme.selection.fillColor : "transparent"}
-        stroke={isSelected ? theme.selection.strokeColor : "none"}
-        strokeWidth={isSelected ? 1.5 : 0}
+        fill={isDropTarget || isSelected ? theme.selection.fillColor : "transparent"}
+        stroke={isDropTarget || isSelected ? theme.selection.strokeColor : "none"}
+        strokeWidth={isDropTarget ? 2.5 : isSelected ? 1.5 : 0}
+        strokeDasharray={isDropTarget ? "6 4" : undefined}
         rx={4}
       />
       {showInput ? (

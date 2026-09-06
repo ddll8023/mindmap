@@ -6,7 +6,9 @@ import {
   addSiblingMulti,
   removeNodeMulti,
   findSubtreeMulti,
+  moveNodeMulti,
   regenerateIds,
+  swapSiblingsMulti,
 } from './tree-ops'
 
 function sampleRoots(): MindMapData[] {
@@ -83,6 +85,36 @@ describe('addSibling / addSiblingMulti', () => {
     const next = addSiblingMulti(roots, 'b1', { id: 'b2', text: 'B2' })
     const b = next[0].children?.find((c) => c.id === 'b')
     expect(b?.children?.map((c) => c.id)).toEqual(['b1', 'b2'])
+  })
+})
+
+describe('swapSiblingsMulti', () => {
+  it('also swaps independent root nodes', () => {
+    const roots = sampleRoots()
+    const next = swapSiblingsMulti(roots, 'r1', 'r2')
+
+    expect(next.map((root) => root.id)).toEqual(['r2', 'r1'])
+    expect(roots.map((root) => root.id)).toEqual(['r1', 'r2'])
+  })
+})
+
+describe('moveNodeMulti', () => {
+  it('moves a complete subtree under the target without mutating the input', () => {
+    const roots = sampleRoots()
+    const snapshot = structuredClone(roots)
+    const next = moveNodeMulti(roots, 'a', 'b')
+
+    expect(roots).toEqual(snapshot)
+    expect(next?.[0].children?.map((child) => child.id)).toEqual(['b'])
+    expect(next?.[0].children?.[0].children?.map((child) => child.id)).toEqual(['b1', 'a'])
+  })
+
+  it('rejects self-drops, cycles, and drops onto the current parent', () => {
+    const roots = sampleRoots()
+
+    expect(moveNodeMulti(roots, 'a', 'a')).toBeNull()
+    expect(moveNodeMulti(roots, 'b', 'b1')).toBeNull()
+    expect(moveNodeMulti(roots, 'a', 'r1')).toBeNull()
   })
 })
 

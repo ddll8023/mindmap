@@ -248,6 +248,10 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
 
   useEffect(() => {
     if (markdown !== undefined) {
+      // A parent may serialize onDataChange back into the controlled markdown
+      // prop. Keep the current tree (and generated node ids) when the content
+      // is already equivalent, otherwise a newly added node cannot enter edit mode.
+      if (toMarkdownMultiRoot(mapDataRef.current, plugins) === markdown) return;
       const parsed = parseMindMapMarkdownInput(markdown, plugins);
       // eslint-disable-next-line react-hooks/set-state-in-effect -- controlled markdown prop must replace the editable internal tree
       setMapData(parsed.roots);
@@ -307,10 +311,12 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
     floatingNodeId,
     floatingPos,
     floatingSubtreeIds,
+    dropTargetId,
     didDragRef,
     handleCanvasMouseDown: startCanvasDrag,
     handleMouseMove,
     handleMouseUp,
+    handleMouseLeave,
     handleNodeMouseDown,
   } = useDrag({
     svgRef, zoom, pan, setPan, setZoom, nodeMap, nodes, updateData,
@@ -1062,7 +1068,7 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
         onMouseDown={handleCanvasMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
         onClick={handleCanvasClick}
         onKeyDown={handleKeyDown}
         onContextMenu={handleContextMenu}
@@ -1083,6 +1089,7 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
           dimmedNodes={tagFilterState.dimmedNodes}
           readonly={readonlyProp}
           selectedNodeId={readonlyProp ? null : selectedNodeId}
+          dropTargetId={readonlyProp ? null : dropTargetId}
           editingId={editingId}
           pendingEditId={pendingEditId}
           editText={editText}

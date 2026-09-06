@@ -39,8 +39,8 @@ English | [中文](README.zh-CN.md)
 - **Lightweight Viewer** — a standalone read-only component (`MindMapViewer`) with ~48% smaller bundle; import via `@xiangfa/mindmap/viewer` for minimal footprint
 - **Readonly mode** — display-only with pan/zoom/select but no editing; ideal for presentations and embeds
 - **Multiple root nodes** — build separate trees on the same canvas
-- **Drag & drop** — reorder siblings by dragging; drag root's children across the center line to rebalance sides
-- **Undo / redo** — canvas-level history for visual edits, imports, drag reorder, cut/paste, and programmatic replacements
+- **Drag & drop** — reorder siblings, drag root's children across the center line to rebalance sides, or drop a node onto another node to reparent its subtree
+- **Undo / redo** — canvas-level history for visual edits, imports, drag reorder/reparenting, cut/paste, and programmatic replacements
 - **Tag filtering** — filter nodes by tag and dim unrelated branches while preserving ancestor context
 - **Keyboard shortcuts** — Arrow keys to navigate, Tab/Shift+Enter to add child/sibling, Enter/F2 to edit, Delete to remove, Cmd/Ctrl+Z to undo, Cmd+C/V to copy/paste, Shift+ shortcuts for zoom & layout
 - **Markdown I/O** — feed a markdown list in, get a mind map out (great for AI streaming)
@@ -421,7 +421,7 @@ The toolbar includes zoom/history controls (bottom-left), tag filters (top-left)
 The mind map has full touch support out of the box:
 
 - **Single finger on canvas** — pan the view
-- **Single finger on node** — drag to reorder siblings
+- **Single finger on node** — drag to reorder siblings or drop onto another node to reparent its subtree
 - **Two-finger pinch** — zoom in/out (always centers on mind map content)
 
 No configuration needed — touch support is always active alongside mouse events.
@@ -736,7 +736,7 @@ interface CrossLink {
 | `Shift + M`            | Both layout (balanced)                      |
 | Scroll wheel           | Zoom in / out                               |
 | Click + drag on canvas | Pan                                         |
-| Click + drag on node   | Reorder among siblings                      |
+| Click + drag on node   | Reorder siblings or drop onto a node to reparent |
 | Right-click            | Open context menu                           |
 
 ## Utility Functions

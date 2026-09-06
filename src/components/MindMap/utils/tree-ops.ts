@@ -205,11 +205,63 @@ export function removeNodeMulti(
   return roots.map((root) => removeNode(root, targetId))
 }
 
+function containsNode(node: MindMapData, targetId: string): boolean {
+  if (node.id === targetId) return true
+  return node.children?.some((child) => containsNode(child, targetId)) ?? false
+}
+
+function findParentId(node: MindMapData, targetId: string): string | undefined {
+  if (node.children?.some((child) => child.id === targetId)) return node.id
+  for (const child of node.children ?? []) {
+    const parentId = findParentId(child, targetId)
+    if (parentId) return parentId
+  }
+  return undefined
+}
+
+function findParentIdMulti(roots: MindMapData[], targetId: string): string | undefined {
+  for (const root of roots) {
+    const parentId = findParentId(root, targetId)
+    if (parentId) return parentId
+  }
+  return undefined
+}
+
+/**
+ * Move a node and its complete subtree under another node.
+ * Returns null for self-drops, cycle-forming drops, and drops onto the
+ * node's current parent.
+ */
+export function moveNodeMulti(
+  roots: MindMapData[],
+  nodeId: string,
+  targetId: string,
+): MindMapData[] | null {
+  if (nodeId === targetId) return null
+
+  const subtree = findSubtreeMulti(roots, nodeId)
+  const target = findSubtreeMulti(roots, targetId)
+  if (!subtree || !target || containsNode(subtree, targetId)) return null
+  if (findParentIdMulti(roots, nodeId) === targetId) return null
+
+  const withoutNode = removeNodeMulti(roots, nodeId)
+  return addChildMulti(withoutNode, targetId, subtree)
+}
+
 export function swapSiblingsMulti(
   roots: MindMapData[],
   id1: string,
   id2: string,
 ): MindMapData[] {
+  const idx1 = roots.findIndex((root) => root.id === id1)
+  const idx2 = roots.findIndex((root) => root.id === id2)
+  if (idx1 !== -1 && idx2 !== -1) {
+    const next = [...roots]
+    const first = next[idx1]
+    next[idx1] = next[idx2]
+    next[idx2] = first
+    return next
+  }
   return roots.map((root) => swapSiblings(root, id1, id2))
 }
 

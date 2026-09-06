@@ -13,8 +13,9 @@ import {
   MindMap,
   MindMapTextEditor,
   stripInlineMarkdown,
+  toMarkdownMultiRoot,
 } from "@mindmap/core";
-import type { LayoutDirection, MindMapEvent, MindMapRef } from "@mindmap/core";
+import type { LayoutDirection, MindMapData, MindMapEvent, MindMapRef } from "@mindmap/core";
 import type { DesktopCommand } from "../shared/types";
 import { exportMindMapToXMind } from "../shared/xmind-export";
 import { CustomSelect, type CustomSelectOption } from "./components/CustomSelect";
@@ -79,6 +80,10 @@ function DesktopApp() {
     if (event.type === "directionChange") {
       setDirection(event.direction);
     }
+  }, []);
+
+  const handleMindMapDataChange = useCallback((data: MindMapData[]) => {
+    setMarkdown(toMarkdownMultiRoot(data, allPlugins));
   }, []);
 
   const runAction = useCallback(
@@ -341,7 +346,7 @@ function DesktopApp() {
               plugins={allPlugins}
               defaultDirection="right"
               onEvent={handleMindMapEvent}
-              readonly
+              onDataChange={handleMindMapDataChange}
               theme="auto"
               locale="zh-CN"
               toolbar={{ zoom: true, history: false, tags: true }}
