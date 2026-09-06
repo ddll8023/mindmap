@@ -61,12 +61,12 @@ async function openMarkdown(): Promise<{
   content?: string;
 }> {
   const result = await dialog.showOpenDialog({
-    title: "Import Markdown",
+    title: "导入 Markdown",
     properties: ["openFile"],
     filters: [
-      { name: "Markdown files", extensions: ["md", "markdown"] },
-      { name: "Text files", extensions: ["txt"] },
-      { name: "All files", extensions: ["*"] },
+      { name: "Markdown 文件", extensions: ["md", "markdown"] },
+      { name: "文本文件", extensions: ["txt"] },
+      { name: "所有文件", extensions: ["*"] },
     ],
   });
 
@@ -91,12 +91,12 @@ async function saveSvg(payload: {
   suggestedName: string;
 }): Promise<{ canceled: boolean; filePath?: string }> {
   const result = await dialog.showSaveDialog({
-    title: "Export SVG",
+    title: "导出 SVG",
     defaultPath: path.join(
       app.getPath("downloads"),
       withExtension(getSafeName(payload.suggestedName, "mindmap"), ".svg"),
     ),
-    filters: [{ name: "SVG image", extensions: ["svg"] }],
+    filters: [{ name: "SVG 图片", extensions: ["svg"] }],
   });
 
   if (result.canceled || !result.filePath) return { canceled: true };
@@ -109,12 +109,12 @@ async function savePng(payload: {
   suggestedName: string;
 }): Promise<{ canceled: boolean; filePath?: string }> {
   const result = await dialog.showSaveDialog({
-    title: "Export PNG",
+    title: "导出 PNG",
     defaultPath: path.join(
       app.getPath("downloads"),
       withExtension(getSafeName(payload.suggestedName, "mindmap"), ".png"),
     ),
-    filters: [{ name: "PNG image", extensions: ["png"] }],
+    filters: [{ name: "PNG 图片", extensions: ["png"] }],
   });
 
   if (result.canceled || !result.filePath) return { canceled: true };
@@ -139,21 +139,21 @@ function sendCommand(command: DesktopCommand): void {
 
 function buildApplicationMenu(): void {
   const fileMenu: MenuItemConstructorOptions = {
-    label: "File",
+    label: "文件",
     submenu: [
       {
-        label: "Import Markdown…",
+        label: "导入 Markdown…",
         accelerator: "CmdOrCtrl+O",
         click: () => sendCommand("import-markdown"),
       },
       { type: "separator" },
       {
-        label: "Export SVG…",
+        label: "导出 SVG…",
         accelerator: "CmdOrCtrl+Shift+S",
         click: () => sendCommand("export-svg"),
       },
       {
-        label: "Export PNG…",
+        label: "导出 PNG…",
         accelerator: "CmdOrCtrl+Alt+Shift+S",
         click: () => sendCommand("export-png"),
       },
@@ -166,7 +166,7 @@ function buildApplicationMenu(): void {
     ...(process.platform === "darwin"
       ? [
         {
-          label: app.name,
+          label: "开放思维导图",
           submenu: [
             { role: "about" },
             { type: "separator" },
@@ -182,9 +182,9 @@ function buildApplicationMenu(): void {
       ]
       : []),
     fileMenu,
-    { role: "editMenu" },
-    { role: "viewMenu" },
-    { role: "windowMenu" },
+    { label: "编辑", role: "editMenu" },
+    { label: "视图", role: "viewMenu" },
+    { label: "窗口", role: "windowMenu" },
   ];
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
@@ -196,7 +196,7 @@ function createWindow(): void {
     height: 920,
     minWidth: 1080,
     minHeight: 720,
-    title: "Open MindMap",
+    title: "开放思维导图",
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,

@@ -30,7 +30,6 @@ export type ThemeMode = 'light' | 'dark' | 'auto'
 export interface ToolbarConfig {
   zoom?: boolean
   history?: boolean
-  search?: boolean
   tags?: boolean
 }
 
@@ -82,7 +81,6 @@ export type MindMapEvent =
   | { type: 'undo'; canUndo: boolean; canRedo: boolean }
   | { type: 'redo'; canUndo: boolean; canRedo: boolean }
   | { type: 'historyChange'; canUndo: boolean; canRedo: boolean }
-  | { type: 'searchChange'; query: string; matchCount: number }
   | { type: 'tagFilterChange'; tags: string[] }
   | { type: 'modeChange'; mode: 'view' | 'text' }
   | { type: 'directionChange'; direction: LayoutDirection }
@@ -137,9 +135,7 @@ export interface MindMapProps {
   ai?: MindMapAIConfig
   selectedNodeId?: string | null
   onSelectedNodeChange?: (nodeId: string | null) => void
-  searchQuery?: string
   activeTags?: string[]
-  onSearchChange?: (query: string) => void
   onActiveTagsChange?: (tags: string[]) => void
   onDataChange?: (data: MindMapData[]) => void
   onEvent?: (event: MindMapEvent) => void
@@ -178,7 +174,6 @@ export interface MindMapViewerProps {
   messages?: Partial<import('./utils/i18n').MindMapMessages>
   toolbar?: boolean | ToolbarConfig
   plugins?: import('./plugins/types').MindMapPlugin[]
-  searchQuery?: string
   activeTags?: string[]
   onEvent?: (event: MindMapEvent) => void
 }

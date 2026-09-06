@@ -4,19 +4,16 @@ import { SectionHeading, SubHeading } from "../components/SectionHeading";
 export default function CustomStyling() {
   return (
     <>
-          <SectionHeading id="custom-styling">Custom Styling</SectionHeading>
+          <SectionHeading id="custom-styling">自定义样式</SectionHeading>
 
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            Open MindMap exposes <strong>30+ CSS custom properties</strong> and
-            semantic CSS classes on every SVG element. You can customize colors,
-            fonts, edges, and branch styles with plain CSS — no JavaScript
-            needed.
+            开放思维导图为每个 SVG 元素提供<strong>30 多个 CSS 自定义属性</strong>和语义化 CSS 类名。
+            只需使用 CSS 即可自定义颜色、字体、连接线和分支样式，无需编写 JavaScript。
           </p>
 
-          <SubHeading>CSS Custom Properties</SubHeading>
+          <SubHeading>CSS 自定义属性</SubHeading>
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            Override CSS variables on <code>.mindmap-container</code> to change
-            theme values globally:
+            在 <code>.mindmap-container</code> 上覆盖 CSS 变量，即可全局修改主题值：
           </p>
           <CodeBlock lang="css">{`.mindmap-container {
   --mindmap-canvas-bg: #f0f4f8;
@@ -27,25 +24,25 @@ export default function CustomStyling() {
 }`}</CodeBlock>
 
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mt-6 mb-4">
-            Available variable groups:
+            可用的变量分组：
           </p>
           <div className="docs-table-wrap my-6">
             <table className="docs-table">
               <thead>
                 <tr>
-                  <th>Group</th>
-                  <th>Variables</th>
+                  <th>分组</th>
+                  <th>变量</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>Canvas</td>
+                  <td>画布</td>
                   <td>
                     <code>--mindmap-canvas-bg</code>
                   </td>
                 </tr>
                 <tr>
-                  <td>Root Node</td>
+                  <td>根节点</td>
                   <td>
                     <code>--mindmap-root-bg</code>,{" "}
                     <code>--mindmap-root-text</code>,{" "}
@@ -55,7 +52,7 @@ export default function CustomStyling() {
                   </td>
                 </tr>
                 <tr>
-                  <td>Child Nodes</td>
+                  <td>子节点</td>
                   <td>
                     <code>--mindmap-node-text</code>,{" "}
                     <code>--mindmap-node-font-size</code>,{" "}
@@ -64,34 +61,34 @@ export default function CustomStyling() {
                   </td>
                 </tr>
                 <tr>
-                  <td>Level 1</td>
+                  <td>第 1 层</td>
                   <td>
                     <code>--mindmap-level1-font-size</code>,{" "}
                     <code>--mindmap-level1-font-weight</code>
                   </td>
                 </tr>
                 <tr>
-                  <td>Edges</td>
+                  <td>连接线</td>
                   <td>
                     <code>--mindmap-edge-width</code>
                   </td>
                 </tr>
                 <tr>
-                  <td>Selection</td>
+                  <td>选中状态</td>
                   <td>
                     <code>--mindmap-selection-stroke</code>,{" "}
                     <code>--mindmap-selection-fill</code>
                   </td>
                 </tr>
                 <tr>
-                  <td>Highlight</td>
+                  <td>高亮</td>
                   <td>
                     <code>--mindmap-highlight-text</code>,{" "}
                     <code>--mindmap-highlight-bg</code>
                   </td>
                 </tr>
                 <tr>
-                  <td>Add Button</td>
+                  <td>添加按钮</td>
                   <td>
                     <code>--mindmap-addbtn-fill</code>,{" "}
                     <code>--mindmap-addbtn-hover</code>,{" "}
@@ -99,7 +96,7 @@ export default function CustomStyling() {
                   </td>
                 </tr>
                 <tr>
-                  <td>Controls</td>
+                  <td>控制栏</td>
                   <td>
                     <code>--mindmap-controls-bg</code>,{" "}
                     <code>--mindmap-controls-text</code>,{" "}
@@ -107,7 +104,7 @@ export default function CustomStyling() {
                   </td>
                 </tr>
                 <tr>
-                  <td>Context Menu</td>
+                  <td>右键菜单</td>
                   <td>
                     <code>--mindmap-ctx-bg</code>,{" "}
                     <code>--mindmap-ctx-text</code>,{" "}
@@ -117,9 +114,9 @@ export default function CustomStyling() {
                   </td>
                 </tr>
                 <tr>
-                  <td>Branch Colors</td>
+                  <td>分支颜色</td>
                   <td>
-                    <code>--mindmap-branch-0</code> through{" "}
+                    <code>--mindmap-branch-0</code> 至{" "}
                     <code>--mindmap-branch-9</code>
                   </td>
                 </tr>
@@ -127,37 +124,36 @@ export default function CustomStyling() {
             </table>
           </div>
 
-          <SubHeading>CSS Class Selectors</SubHeading>
+          <SubHeading>CSS 类选择器</SubHeading>
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            All SVG elements have semantic CSS classes that you can target
-            directly. Since SVG presentation attributes have lower specificity
-            than CSS rules, your styles will take precedence:
+            所有 SVG 元素都有语义化 CSS 类名，可以直接选中。由于 SVG 表现属性的优先级低于 CSS 规则，
+            自定义样式会优先生效：
           </p>
-          <CodeBlock lang="css">{`/* Change root node background */
+          <CodeBlock lang="css">{`/* 修改根节点背景 */
 .mindmap-node-root .mindmap-node-bg {
   fill: #6c5ce7;
 }
 
-/* Make edges thicker */
+/* 加粗连接线 */
 .mindmap-edge {
   stroke-width: 3;
 }
 
-/* Style node underlines */
+/* 设置节点下划线样式 */
 .mindmap-node-underline {
   stroke-width: 3;
   stroke-linecap: square;
 }`}</CodeBlock>
 
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mt-6 mb-4">
-            Key classes:
+            主要类名：
           </p>
           <div className="docs-table-wrap my-6">
             <table className="docs-table">
               <thead>
                 <tr>
-                  <th>Class</th>
-                  <th>Target</th>
+                  <th>类名</th>
+                  <th>作用对象</th>
                 </tr>
               </thead>
               <tbody>
@@ -165,93 +161,90 @@ export default function CustomStyling() {
                   <td>
                     <code>.mindmap-node-root</code>
                   </td>
-                  <td>Root node group</td>
+                  <td>根节点组</td>
                 </tr>
                 <tr>
                   <td>
                     <code>.mindmap-node-child</code>
                   </td>
-                  <td>Child node group</td>
+                  <td>子节点组</td>
                 </tr>
                 <tr>
                   <td>
                     <code>.mindmap-node-bg</code>
                   </td>
-                  <td>Node background rect</td>
+                  <td>节点背景矩形</td>
                 </tr>
                 <tr>
                   <td>
                     <code>.mindmap-node-text</code>
                   </td>
-                  <td>Node text element</td>
+                  <td>节点文本元素</td>
                 </tr>
                 <tr>
                   <td>
                     <code>.mindmap-node-underline</code>
                   </td>
-                  <td>Child node underline</td>
+                  <td>子节点下划线</td>
                 </tr>
                 <tr>
                   <td>
                     <code>.mindmap-edge</code>
                   </td>
-                  <td>Connection line</td>
+                  <td>连接线</td>
                 </tr>
                 <tr>
                   <td>
                     <code>.mindmap-edge-label</code>
                   </td>
-                  <td>Edge label text</td>
+                  <td>连接线标签文本</td>
                 </tr>
                 <tr>
                   <td>
                     <code>.mindmap-add-btn</code>
                   </td>
-                  <td>Add child button</td>
+                  <td>添加子节点按钮</td>
                 </tr>
                 <tr>
                   <td>
                     <code>.mindmap-fold-btn</code>
                   </td>
-                  <td>Fold/unfold toggle</td>
+                  <td>折叠/展开切换</td>
                 </tr>
                 <tr>
                   <td>
                     <code>.mindmap-tag</code>
                   </td>
-                  <td>Tag badge</td>
+                  <td>标签徽章</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <SubHeading>Branch Colors</SubHeading>
+          <SubHeading>分支颜色</SubHeading>
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            Every node and edge has a <code>data-branch-index</code> attribute
-            (0–9) indicating which branch of the root it belongs to. Use this
-            for per-branch styling:
+            每个节点和连接线都有 <code>data-branch-index</code> 属性（0–9），表示它所属的根节点分支。
+            可以据此分别设置各分支的样式：
           </p>
-          <CodeBlock lang="css">{`/* Custom colors for first 3 branches */
+          <CodeBlock lang="css">{`/* 自定义前 3 个分支的颜色 */
 .mindmap-edge[data-branch-index="0"] { stroke: #e74c3c; }
 .mindmap-edge[data-branch-index="1"] { stroke: #2ecc71; }
 .mindmap-edge[data-branch-index="2"] { stroke: #3498db; }
 
-/* Also works on nodes */
+/* 对节点同样生效 */
 .mindmap-node-g[data-branch-index="0"] .mindmap-node-underline {
   stroke: #e74c3c;
 }`}</CodeBlock>
 
-          <SubHeading>SVG Export</SubHeading>
+          <SubHeading>SVG 导出</SubHeading>
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            Exported SVGs embed a <code>&lt;style&gt;</code> block with resolved
-            values and include the same semantic classes and{" "}
-            <code>data-branch-index</code> attributes. This means:
+            导出的 SVG 会嵌入包含最终值的 <code>&lt;style&gt;</code> 样式块，并保留相同的语义化类名和
+            <code>data-branch-index</code> 属性。这意味着：
           </p>
           <ul className="list-disc list-inside text-slate-600 dark:text-slate-400 leading-relaxed mb-4 space-y-1">
-            <li>Standalone SVG files render correctly without external CSS</li>
+            <li>独立的 SVG 文件无需外部 CSS 即可正常渲染</li>
             <li>
-              When embedded in HTML, the same CSS selectors can override the
-              exported styles
+              嵌入 HTML 后，可以使用相同的 CSS 选择器覆盖导出样式
             </li>
           </ul>
     </>

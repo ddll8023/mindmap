@@ -4,7 +4,7 @@ import { VitePlugin } from "@electron-forge/plugin-vite";
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
-    name: "Open MindMap",
+    name: "开放思维导图",
     appBundleId: "app.u14.openmindmap",
     ignore: [/^\/node_modules\//, /^\/out\//],
     prune: false,

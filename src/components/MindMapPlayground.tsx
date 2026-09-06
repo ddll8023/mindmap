@@ -4,25 +4,25 @@ import { MindMap, allPlugins } from "./MindMap";
 import type { MindMapRef } from "./MindMap";
 import { MindMapTextEditor } from "./MindMap/components/MindMapTextEditor";
 
-const DEFAULT_MARKDOWN = `Open MindMap
-- Getting Started
-  - Installation
+const DEFAULT_MARKDOWN = `开放思维导图
+- 快速开始
+  - 安装组件
     > npm install @xiangfa/mindmap
-  - Quick Setup
-  - Configuration
-- Core Features
-  - [x] Markdown Syntax
-  - [x] Real-time Rendering
-  - [-] AI Generation
-  - [ ] Plugin System
-- Integrations
+  - 快速上手
+  - 配置选项
+- 核心功能
+  - [x] Markdown 语法
+  - [x] 实时渲染
+  - [-] AI 生成
+  - [ ] 插件系统
+- 集成能力
   - React
   - TypeScript
   - Tailwind CSS
-- Use Cases
-  - Project Planning
-  - Knowledge Base
-  - Brainstorming`;
+- 使用场景
+  - 项目规划
+  - 知识库
+  - 头脑风暴`;
 
 interface MindMapPlaygroundProps {
   defaultMarkdown?: string;
@@ -54,7 +54,7 @@ function MindMapPlayground({
       );
 
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        throw new Error(`AI 请求失败（${response.status}）`);
       }
 
       const reader = response.body?.getReader();
@@ -87,7 +87,7 @@ function MindMapPlayground({
     } catch (error) {
       console.error("AI generation failed:", error);
       setError(
-        error instanceof Error ? error.message : "AI generation failed",
+        error instanceof Error ? error.message : "AI 生成失败",
       );
       setTimeout(() => setError(null), 5000);
     } finally {
@@ -122,8 +122,8 @@ function MindMapPlayground({
         <div className="lg:col-span-4 bg-slate-50 dark:bg-slate-800 flex flex-col border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-700">
           <div className="p-4 md:p-5 border-b border-slate-200/50 dark:border-slate-700/50 bg-white dark:bg-slate-900 flex items-center justify-between">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-              <a href="https://github.com/u14app/mindmap" target="_blank">
-                Open MindMap
+              <a href="https://github.com/u14app/mindmap" target="_blank" rel="noopener noreferrer">
+                开放思维导图
               </a>
             </span>
           </div>
@@ -150,7 +150,7 @@ function MindMapPlayground({
             >
               <input
                 className="bg-transparent border-none focus:ring-0 focus:outline-none flex-grow text-sm font-medium placeholder:text-slate-400 dark:placeholder:text-slate-500 dark:text-white min-w-0"
-                placeholder="Ask AI to generate a mind map..."
+                placeholder="让 AI 生成思维导图..."
                 type="text"
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
@@ -186,6 +186,7 @@ function MindMapPlayground({
               markdown={markdown}
               plugins={allPlugins}
               theme="auto"
+              locale="zh-CN"
             />
           </div>
         </div>

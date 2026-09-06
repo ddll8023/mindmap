@@ -93,9 +93,7 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
     ai,
     selectedNodeId: selectedNodeIdProp,
     onSelectedNodeChange,
-    searchQuery: searchQueryProp,
     activeTags: activeTagsProp,
-    onSearchChange,
     onActiveTagsChange,
     onDataChange,
     onEvent,
@@ -137,11 +135,8 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
   const [textContent, setTextContent] = useState('');
   const [foldOverrides, setFoldOverrides] = useState<Record<string, boolean>>({});
   const [fmTheme, setFmTheme] = useState<ThemeMode | undefined>(() => initParsed?.theme);
-  const [internalSearchQuery, setInternalSearchQuery] = useState('');
   const [internalActiveTags, setInternalActiveTags] = useState<string[]>([]);
-  const searchQuery = searchQueryProp !== undefined ? searchQueryProp : internalSearchQuery;
   const activeTags = activeTagsProp !== undefined ? activeTagsProp : internalActiveTags;
-  const [activeSearchIndex, setActiveSearchIndex] = useState(-1);
   const historyPastRef = useRef<MindMapHistorySnapshot[]>([]);
   const historyFutureRef = useRef<MindMapHistorySnapshot[]>([]);
   const [historyAvailability, setHistoryAvailability] = useState({
@@ -220,13 +215,6 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
     selectedNodeIdRef.current = nodeId;
     onSelectedNodeChange?.(nodeId);
   }, [onSelectedNodeChange, selectedNodeIdProp]);
-
-  const setSearchQueryControlled = useCallback((query: string) => {
-    if (searchQueryProp === undefined) {
-      setInternalSearchQuery(query);
-    }
-    onSearchChange?.(query);
-  }, [onSearchChange, searchQueryProp]);
 
   const setActiveTagsControlled = useCallback((tags: string[]) => {
     if (activeTagsProp === undefined) {
@@ -308,21 +296,20 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
 
   // --- Toolbar visibility ---
   const toolbarConfig = useMemo(() => {
-    if (toolbar === false) return { zoom: false, history: false, search: false, tags: false };
+    if (toolbar === false) return { zoom: false, history: false, tags: false };
     if (toolbar === true || toolbar === undefined) {
-      return { zoom: true, history: true, search: true, tags: true };
+      return { zoom: true, history: true, tags: true };
     }
     return {
       zoom: toolbar.zoom ?? true,
       history: toolbar.history ?? true,
-      search: toolbar.search ?? true,
       tags: toolbar.tags ?? true,
     };
   }, [toolbar]);
 
-  // --- Shared view layer (layout, pan/zoom, search, expand animation, remark) ---
+  // --- Shared view layer (layout, pan/zoom, tag filtering, expand animation, remark) ---
   const {
-    nodes, edges, nodeMap, searchState, expandDelays,
+    nodes, edges, nodeMap, tagFilterState, expandDelays,
     pan, setPan, zoom, setZoom,
     animateTo, autoFit, zoomIn, zoomOut,
     contentCenter, panToNode,
@@ -330,25 +317,9 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
     handleAutoFit, triggerExpandAnimation,
   } = useMindMapView({
     svgRef, mapData, direction, colorMap, setColorMap, foldOverrides,
-    splitIndices, plugins, readonly: readonlyProp, searchQuery, activeTags,
+    splitIndices, plugins, readonly: readonlyProp, activeTags,
     onZoomChange: (z) => emit({ type: 'zoomChange', zoom: z }),
   });
-
-  const activeSearchIndexForMatches = useMemo(() => {
-    const total = searchState.matchIds.length;
-    if (total === 0) return -1;
-    return activeSearchIndex < 0 || activeSearchIndex >= total
-      ? 0
-      : activeSearchIndex;
-  }, [activeSearchIndex, searchState.matchIds.length]);
-
-  useEffect(() => {
-    emit({
-      type: 'searchChange',
-      query: searchQuery,
-      matchCount: searchState.matchIds.length,
-    });
-  }, [emit, searchQuery, searchState.matchIds.length]);
 
   // --- Drag ---
   const {
@@ -746,21 +717,6 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
     emit({ type: 'nodeFocus', nodeId });
   }, [emit, nodeMap, panToNode, setSelectedNodeIdControlled]);
 
-  const handleSearchChange = useCallback((query: string) => {
-    setSearchQueryControlled(query);
-    setActiveSearchIndex(query.trim() ? 0 : -1);
-  }, [setSearchQueryControlled]);
-
-  const handleSearchStep = useCallback((delta: number) => {
-    const total = searchState.matchIds.length;
-    if (total === 0) return;
-    const baseIndex = activeSearchIndexForMatches < 0 ? 0 : activeSearchIndexForMatches;
-    const nextIndex = (baseIndex + delta + total) % total;
-    setActiveSearchIndex(nextIndex);
-    const nodeId = searchState.matchIds[nextIndex];
-    if (nodeId) handleFocusNode(nodeId);
-  }, [activeSearchIndexForMatches, handleFocusNode, searchState.matchIds]);
-
   const handleTagToggle = useCallback((tag: string) => {
     const next = activeTags.includes(tag)
       ? activeTags.filter((t) => t !== tag)
@@ -1122,7 +1078,7 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
         style={mode === 'text' ? { display: 'none' } : undefined}
         tabIndex={0}
         role="tree"
-        aria-label="Mind map"
+        aria-label="思维导图"
         onMouseDown={handleCanvasMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -1144,19 +1100,13 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
           draggingCanvas={draggingCanvas}
           expandDelays={expandDelays}
           newNodeIds={newNodeIds}
-          searchMatches={searchState.searchMatches}
-          dimmedNodes={searchState.dimmedNodes}
+          dimmedNodes={tagFilterState.dimmedNodes}
           readonly={readonlyProp}
           latexRenderer={latexRenderer}
           selectedNodeId={selectedNodeId}
           editingId={editingId}
           pendingEditId={pendingEditId}
           editText={editText}
-          activeMatchId={
-            activeSearchIndexForMatches >= 0
-              ? searchState.matchIds[activeSearchIndexForMatches] ?? null
-              : null
-          }
           floatingSubtreeIds={floatingSubtreeIds}
           onNodeMouseDown={handleNodeMouseDown}
           onNodeClick={handleNodeClick}
@@ -1246,26 +1196,19 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
         messages={t}
         showZoom={toolbarConfig.zoom && mode !== 'text'}
         showHistory={toolbarConfig.history && mode !== 'text' && !readonlyProp}
-        showSearch={toolbarConfig.search && mode !== 'text'}
         showTags={toolbarConfig.tags && mode !== 'text'}
         showModeToggle={!!textEditor}
         mode={mode}
         isFullscreen={isFullscreen}
         canUndo={canUndo}
         canRedo={canRedo}
-        searchQuery={searchQuery}
-        searchMatchCount={searchState.matchIds.length}
-        activeSearchIndex={activeSearchIndexForMatches}
-        availableTags={searchState.availableTags}
+        availableTags={tagFilterState.availableTags}
         activeTags={activeTags}
         onZoomIn={zoomIn}
         onZoomOut={zoomOut}
         onAutoFit={handleAutoFit}
         onUndo={handleUndo}
         onRedo={handleRedo}
-        onSearchChange={handleSearchChange}
-        onSearchPrevious={() => handleSearchStep(-1)}
-        onSearchNext={() => handleSearchStep(1)}
         onTagToggle={handleTagToggle}
         onClearTags={handleClearTags}
         onModeToggle={handleModeToggle}

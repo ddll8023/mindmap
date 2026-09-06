@@ -41,14 +41,9 @@ export interface MindMapMessages {
   importInvalidData: string
   importEmpty: string
 
-  // History / search / tags
+  // History / tags
   undo: string
   redo: string
-  search: string
-  searchPlaceholder: string
-  searchPrevious: string
-  searchNext: string
-  searchNoResults: string
   tagFilter: string
   clearFilters: string
 
@@ -104,11 +99,6 @@ const zhCN: MindMapMessages = {
 
   undo: '撤销',
   redo: '重做',
-  search: '搜索',
-  searchPlaceholder: '搜索节点...',
-  searchPrevious: '上一个匹配',
-  searchNext: '下一个匹配',
-  searchNoResults: '无匹配结果',
   tagFilter: '标签筛选',
   clearFilters: '清除筛选',
 
@@ -162,11 +152,6 @@ const enUS: MindMapMessages = {
 
   undo: 'Undo',
   redo: 'Redo',
-  search: 'Search',
-  searchPlaceholder: 'Search nodes...',
-  searchPrevious: 'Previous match',
-  searchNext: 'Next match',
-  searchNoResults: 'No matches',
   tagFilter: 'Filter tags',
   clearFilters: 'Clear filters',
 

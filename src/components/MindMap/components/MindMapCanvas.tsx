@@ -23,7 +23,6 @@ export interface MindMapCanvasProps {
   draggingCanvas: boolean;
   expandDelays: Record<string, number>;
   newNodeIds: Set<string>;
-  searchMatches: Set<string>;
   dimmedNodes: Set<string>;
   // --- Editor-only extras (omitted by the read-only viewer) ---
   readonly?: boolean;
@@ -32,7 +31,6 @@ export interface MindMapCanvasProps {
   editingId?: string | null;
   pendingEditId?: string | null;
   editText?: string;
-  activeMatchId?: string | null;
   /** Ids of the subtree currently being dragged (rendered as ghosts in place). */
   floatingSubtreeIds?: ReadonlySet<string>;
   /** Extra layer (e.g. the editor's floating drag copy) drawn above the nodes. */
@@ -69,7 +67,6 @@ export function MindMapCanvas({
   draggingCanvas,
   expandDelays,
   newNodeIds,
-  searchMatches,
   dimmedNodes,
   readonly,
   latexRenderer,
@@ -77,7 +74,6 @@ export function MindMapCanvas({
   editingId,
   pendingEditId,
   editText,
-  activeMatchId,
   floatingSubtreeIds,
   floatingSlot,
   onNodeMouseDown,
@@ -178,8 +174,6 @@ export function MindMapCanvas({
               isSelected={selectedNodeId === node.id}
               isNew={newNodeIds.has(node.id)}
               isGhost={isInFloatingSubtree}
-              isSearchMatch={searchMatches.has(node.id)}
-              isActiveMatch={activeMatchId === node.id}
               isFilterDimmed={dimmedNodes.has(node.id)}
               animClass={animClass}
               editText={editText ?? ""}

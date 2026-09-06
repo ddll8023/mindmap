@@ -41,7 +41,7 @@ English | [中文](README.zh-CN.md)
 - **Multiple root nodes** — build separate trees on the same canvas
 - **Drag & drop** — reorder siblings by dragging; drag root's children across the center line to rebalance sides
 - **Undo / redo** — canvas-level history for visual edits, imports, drag reorder, cut/paste, and programmatic replacements
-- **Search & tag filtering** — find nodes, jump between matches, and dim non-matching tag branches while preserving ancestor context
+- **Tag filtering** — filter nodes by tag and dim unrelated branches while preserving ancestor context
 - **Keyboard shortcuts** — Arrow keys to navigate, Tab/Shift+Enter to add child/sibling, Enter/F2 to edit, Delete to remove, Cmd/Ctrl+Z to undo, Cmd+C/V to copy/paste, Shift+ shortcuts for zoom & layout
 - **Markdown I/O** — feed a markdown list in, get a mind map out (great for AI streaming)
 - **i18n** — auto-detects browser language; built-in Chinese and English, fully customizable via props
@@ -51,7 +51,7 @@ English | [中文](README.zh-CN.md)
 - **Context menu** — right-click to add root nodes, import data, export, or change layout
 - **Layout modes** — left, right, or balanced (both) layout directions
 - **Mobile optimized** — full touch support with single-finger pan/drag and two-finger pinch-to-zoom centered on content
-- **Toolbar control** — show/hide zoom, history, search, and tag controls via the `toolbar` prop
+- **Toolbar control** — show/hide zoom, history, and tag controls via the `toolbar` prop
 - **Tiny footprint** — zero runtime dependencies beyond React
 
 ## Installation
@@ -413,12 +413,12 @@ Control the toolbar via the `toolbar` prop:
 <MindMap data={data} toolbar={false} />;
 
 {
-  /* Hide zoom controls while keeping history/search/tag controls */
+  /* Hide zoom controls while keeping history/tag controls */
 }
 <MindMap data={data} toolbar={{ zoom: false }} />;
 ```
 
-The toolbar includes zoom/history controls (bottom-left), search and tag filters (top-left), and text mode / fullscreen toggle buttons (bottom-right). The `toolbar` prop accepts `zoom`, `history`, `search`, and `tags` flags; text mode and fullscreen buttons remain available.
+The toolbar includes zoom/history controls (bottom-left), tag filters (top-left), and text mode / fullscreen toggle buttons (bottom-right). The `toolbar` prop accepts `zoom`, `history`, and `tags` flags; text mode and fullscreen buttons remain available.
 
 ### Mobile / Touch Support
 
@@ -594,16 +594,14 @@ Render mathematical formulas (requires [KaTeX](https://katex.org/)):
 | `locale`           | `string`                        | _auto_       | UI language (auto-detected from browser, or `'zh-CN'`, `'en-US'`, custom)      |
 | `messages`         | `Partial<MindMapMessages>`      | -            | Override any UI text string                                                    |
 | `readonly`         | `boolean`                       | `false`      | Display-only mode (no editing, no creating)                                    |
-| `toolbar`          | `boolean \| ToolbarConfig`      | `true`       | Show/hide zoom, history, search, and tag controls                              |
+| `toolbar`          | `boolean \| ToolbarConfig`      | `true`       | Show/hide zoom, history, and tag controls                                      |
 | `ai`               | `MindMapAIConfig`               | -            | AI generation configuration (API endpoint, key, model, attachments)            |
 | `selectedNodeId`   | `string \| null`                | -            | Controlled selected node id                                                    |
-| `searchQuery`      | `string`                        | -            | Controlled search query                                                        |
 | `activeTags`       | `string[]`                      | -            | Controlled active tag filters                                                  |
 | `plugins`          | `MindMapPlugin[]`               | `allPlugins` | Plugins to enable for extended syntax                                          |
 | `textEditor`       | `ComponentType`                 | -            | Pass `MindMapTextEditor` to enable text editing mode. Opt-in for tree-shaking. |
 | `onDataChange`     | `(data: MindMapData[]) => void` | -            | Called when the tree is modified by user interaction                           |
 | `onSelectedNodeChange` | `(nodeId: string \| null) => void` | -        | Called when selection changes                                                  |
-| `onSearchChange`   | `(query: string) => void`       | -            | Called when search text changes                                                |
 | `onActiveTagsChange` | `(tags: string[]) => void`    | -            | Called when active tag filters change                                          |
 
 ### ToolbarConfig
@@ -612,7 +610,6 @@ Render mathematical formulas (requires [KaTeX](https://katex.org/)):
 interface ToolbarConfig {
   zoom?: boolean; // show zoom controls (default: true)
   history?: boolean; // show undo/redo controls (default: true)
-  search?: boolean; // show search controls (default: true)
   tags?: boolean; // show tag filter chips (default: true)
 }
 ```
@@ -683,7 +680,6 @@ A lightweight read-only alternative to `MindMap`. Import from `@xiangfa/mindmap/
 | `messages`         | `Partial<MindMapMessages>`      | -        | Override any UI text string                                               |
 | `toolbar`          | `boolean \| ToolbarConfig`      | `true`   | Show/hide zoom controls                                                   |
 | `plugins`          | `MindMapPlugin[]`               | -        | Plugins to enable for extended syntax                                     |
-| `searchQuery`      | `string`                        | -        | Highlights matching nodes                                                 |
 | `activeTags`       | `string[]`                      | -        | Dims nodes outside matching tag branches                                  |
 | `onEvent`          | `(event: MindMapEvent) => void` | -        | Called on zoom, direction change, or node select events                   |
 

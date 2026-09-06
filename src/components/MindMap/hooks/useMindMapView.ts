@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LayoutDirection, MindMapData } from "../types";
 import type { MindMapPlugin } from "../plugins/types";
 import { layoutMultiRoot } from "../utils/layout";
-import { analyzeMindMapSearch } from "../utils/search";
+import { analyzeMindMapTagFilter } from "../utils/tag-filter";
 import { usePanZoom } from "./usePanZoom";
 import { useNewNodeAnimation } from "./useNewNodeAnimation";
 
@@ -24,7 +24,6 @@ export interface UseMindMapViewParams {
   splitIndices?: Record<string, number>;
   plugins?: MindMapPlugin[];
   readonly?: boolean;
-  searchQuery: string;
   activeTags: string[];
   /** Notified when the user changes zoom (skips the initial render). */
   onZoomChange?: (zoom: number) => void;
@@ -33,7 +32,7 @@ export interface UseMindMapViewParams {
 /**
  * Shared view layer for {@link MindMap} and {@link MindMapViewer}: turns the
  * tree data into laid-out nodes/edges and owns the purely visual concerns
- * (pan/zoom, branch-color persistence, search highlighting, expand animation,
+ * (pan/zoom, branch-color persistence, tag filtering, expand animation,
  * and the remark tooltip). Data ownership, drag/canvas-pan, and the entrance
  * auto-fit effect stay in the consuming component because they differ.
  */
@@ -47,7 +46,6 @@ export function useMindMapView({
   splitIndices,
   plugins,
   readonly = false,
-  searchQuery,
   activeTags,
   onZoomChange,
 }: UseMindMapViewParams) {
@@ -88,9 +86,9 @@ export function useMindMapView({
     return map;
   }, [nodes]);
 
-  const searchState = useMemo(
-    () => analyzeMindMapSearch(mapData, searchQuery, activeTags),
-    [mapData, searchQuery, activeTags],
+  const tagFilterState = useMemo(
+    () => analyzeMindMapTagFilter(mapData, activeTags),
+    [mapData, activeTags],
   );
 
   // --- Expand animation (BFS stagger from the expanded node) ---
@@ -170,7 +168,7 @@ export function useMindMapView({
     nodes,
     edges,
     nodeMap,
-    searchState,
+    tagFilterState,
     expandDelays,
     ...panZoom,
     newNodeIds,

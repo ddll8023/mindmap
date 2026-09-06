@@ -14,16 +14,16 @@ import {
 import type { MindMapRef } from "@mindmap/core";
 import type { DesktopCommand } from "../shared/types";
 
-const DEFAULT_MARKDOWN = `Open MindMap
-- Start with Markdown
-  - Write an outline
-  - Watch the map update
-- Shape the structure
-  - Use two spaces per level
-  - Add **bold** or #tags
-- Export the result
-  - SVG stays sharp at any size
-  - PNG supports 2x, 3x, and 4x`;
+const DEFAULT_MARKDOWN = `思维导图
+- 从 Markdown 开始
+  - 编写大纲
+  - 查看地图更新
+- 梳理结构
+  - 每级使用两个空格
+  - 添加 **粗体** 或 #标签
+- 导出结果
+  - SVG 在任意尺寸都清晰
+  - PNG 支持 2x、3x 和 4x`;
 
 type ExportScale = 2 | 3 | 4;
 
@@ -35,9 +35,9 @@ function getBaseName(fileName: string): string {
 function DesktopApp() {
   const mindMapRef = useRef<MindMapRef>(null);
   const [markdown, setMarkdown] = useState(DEFAULT_MARKDOWN);
-  const [fileName, setFileName] = useState("Untitled.md");
+  const [fileName, setFileName] = useState("未命名.md");
   const [pngScale, setPngScale] = useState<ExportScale>(3);
-  const [status, setStatus] = useState("Live preview");
+  const [status, setStatus] = useState("实时预览");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<"import" | "svg" | "png" | null>(null);
 
@@ -66,7 +66,7 @@ function DesktopApp() {
       const result = await window.desktopApi.openMarkdown();
       if (result.canceled || !result.content) return;
       setMarkdown(result.content);
-      setFileName(result.fileName ?? "Untitled.md");
+      setFileName(result.fileName ?? "未命名.md");
       setStatus(`已导入 ${result.fileName ?? "Markdown"}`);
     }, "import");
   }, [runAction]);
@@ -97,9 +97,9 @@ function DesktopApp() {
   const handleReset = useCallback(() => {
     if (busy) return;
     setMarkdown(DEFAULT_MARKDOWN);
-    setFileName("Untitled.md");
+    setFileName("未命名.md");
     setError(null);
-    setStatus("Live preview");
+    setStatus("实时预览");
   }, [busy]);
 
   const handleCommand = useCallback(
@@ -125,8 +125,8 @@ function DesktopApp() {
             <span className="brand-link brand-link-bottom" />
           </div>
           <div>
-            <div className="brand-kicker">OPEN MINDMAP</div>
-            <h1>Markdown to map</h1>
+            <div className="brand-kicker">开放思维导图</div>
+            <h1>Markdown 转思维导图</h1>
           </div>
         </div>
 
@@ -143,7 +143,7 @@ function DesktopApp() {
             disabled={busy !== null}
           >
             <FileUp size={16} strokeWidth={2.2} />
-            <span>Import Markdown</span>
+            <span>导入 Markdown</span>
           </button>
           <button
             className="toolbar-button"
@@ -164,8 +164,8 @@ function DesktopApp() {
               <FileImage size={16} />
               <span>PNG</span>
             </button>
-            <label className="scale-select" title="PNG export scale">
-              <span className="sr-only">PNG scale</span>
+            <label className="scale-select" title="PNG 导出倍数">
+              <span className="sr-only">PNG 倍数</span>
               <select
                 value={pngScale}
                 onChange={(event) => setPngScale(Number(event.target.value) as ExportScale)}
@@ -180,20 +180,20 @@ function DesktopApp() {
         </div>
       </header>
 
-      <section className="workspace-grid" aria-label="Mind map workspace">
+      <section className="workspace-grid" aria-label="思维导图工作区">
         <section className="editor-panel panel-surface">
           <div className="panel-heading">
             <div>
-              <span className="panel-eyebrow">SOURCE</span>
-              <h2>Write the structure</h2>
+              <span className="panel-eyebrow">源文本</span>
+              <h2>编写结构</h2>
             </div>
             <button
               className="icon-button"
               type="button"
               onClick={handleReset}
               disabled={busy !== null}
-              title="Reset example"
-              aria-label="Reset example"
+              title="重置示例"
+              aria-label="重置示例"
             >
               <RotateCcw size={15} />
             </button>
@@ -206,16 +206,16 @@ function DesktopApp() {
             />
           </div>
           <div className="editor-footer">
-            <span>Two spaces = one level</span>
-            <span>{markdown.length.toLocaleString()} chars</span>
+            <span>两个空格 = 一级</span>
+            <span>{markdown.length.toLocaleString()} 个字符</span>
           </div>
         </section>
 
         <section className="map-panel panel-surface">
           <div className="map-heading">
             <div>
-              <span className="panel-eyebrow">VISUAL OUTPUT</span>
-              <h2>Live mind map</h2>
+              <span className="panel-eyebrow">可视化结果</span>
+              <h2>实时思维导图</h2>
             </div>
             <div className="map-status">
               <span className="live-pulse" />
@@ -230,19 +230,20 @@ function DesktopApp() {
               plugins={allPlugins}
               readonly
               theme="auto"
-              toolbar={{ zoom: true, history: false, search: true, tags: true }}
+              locale="zh-CN"
+              toolbar={{ zoom: true, history: false, tags: true }}
             />
             <div className="map-hint">
               <Maximize2 size={13} />
-              Drag to pan · Scroll to zoom
+              拖动平移 · 滚轮缩放
             </div>
           </div>
         </section>
       </section>
 
       <footer className="desktop-statusbar">
-        <span className="statusbar-label">LOCAL WORKSPACE</span>
-        <span className="statusbar-copy">Your Markdown stays on this computer.</span>
+        <span className="statusbar-label">本地工作区</span>
+        <span className="statusbar-copy">你的 Markdown 会保存在这台电脑上。</span>
         {error && <span className="statusbar-error" role="alert">{error}</span>}
       </footer>
     </main>

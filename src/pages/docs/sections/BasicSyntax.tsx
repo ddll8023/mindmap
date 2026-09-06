@@ -4,28 +4,26 @@ import { SectionHeading } from "../components/SectionHeading";
 export default function BasicSyntax() {
   return (
     <>
-          <SectionHeading id="basic-syntax">Basic Syntax</SectionHeading>
+          <SectionHeading id="basic-syntax">基础语法</SectionHeading>
 
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-            Lines of text that do not begin with the{" "}
-            <code className="text-xs">-</code> list syntax are treated as{" "}
-            <strong>root nodes</strong>. A single mindmap can contain multiple
-            root nodes. The levels of the <code className="text-xs">-</code>{" "}
-            list syntax define the hierarchy of the node tree.
+            不以 <code className="text-xs">-</code> 列表标记开头的文本行会被视为
+            <strong>根节点</strong>。一张思维导图可以包含多个根节点，
+            <code className="text-xs">-</code> 列表标记的缩进层级决定节点树的层级关系。
           </p>
 
-          <CodeBlock lang="mindmap">{`Machine Learning
-- Supervised Learning
-  - Classification
-  - Regression
-  - Decision Trees
-- Unsupervised Learning
-  - Clustering
-  - Dimensionality Reduction
+          <CodeBlock lang="mindmap">{`机器学习
+- 监督学习
+  - 分类
+  - 回归
+  - 决策树
+- 无监督学习
+  - 聚类
+  - 降维
 
-Application Areas
-- Natural Language Processing
-- Computer Vision`}</CodeBlock>
+应用领域
+- 自然语言处理
+- 计算机视觉`}</CodeBlock>
     </>
   );
 }

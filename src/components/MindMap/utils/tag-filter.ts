@@ -1,29 +1,14 @@
 import type { MindMapData } from '../types'
-import { stripInlineMarkdown } from './inline-markdown'
 
-export interface MindMapSearchState {
+export interface MindMapTagFilterState {
   availableTags: string[]
-  searchMatches: Set<string>
   tagMatches: Set<string>
   tagContext: Set<string>
   dimmedNodes: Set<string>
-  matchIds: string[]
 }
 
 function normalize(value: string): string {
   return value.trim().toLocaleLowerCase()
-}
-
-function nodeSearchText(node: MindMapData): string {
-  return [
-    node.text,
-    node.remark,
-    node.multiLineContent?.join(' '),
-    node.tags?.join(' '),
-  ]
-    .filter(Boolean)
-    .map((part) => stripInlineMarkdown(String(part)))
-    .join(' ')
 }
 
 function walk(
@@ -39,33 +24,21 @@ function walk(
   }
 }
 
-export function analyzeMindMapSearch(
+export function analyzeMindMapTagFilter(
   roots: MindMapData[],
-  query: string,
   activeTags: string[],
-): MindMapSearchState {
-  const normalizedQuery = normalize(query)
+): MindMapTagFilterState {
   const normalizedTags = activeTags.map(normalize).filter(Boolean)
   const availableTags = new Set<string>()
-  const searchMatches = new Set<string>()
   const tagMatches = new Set<string>()
   const tagContext = new Set<string>()
   const allNodeIds: string[] = []
-  const matchIds: string[] = []
 
   walk(roots, (node, ancestors) => {
     allNodeIds.push(node.id)
 
     for (const tag of node.tags || []) {
       availableTags.add(tag)
-    }
-
-    if (
-      normalizedQuery &&
-      normalize(nodeSearchText(node)).includes(normalizedQuery)
-    ) {
-      searchMatches.add(node.id)
-      matchIds.push(node.id)
     }
 
     if (normalizedTags.length > 0) {
@@ -94,10 +67,8 @@ export function analyzeMindMapSearch(
     availableTags: Array.from(availableTags).sort((a, b) =>
       a.localeCompare(b),
     ),
-    searchMatches,
     tagMatches,
     tagContext,
     dimmedNodes,
-    matchIds,
   }
 }

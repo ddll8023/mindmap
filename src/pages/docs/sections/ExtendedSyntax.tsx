@@ -4,32 +4,30 @@ import { SectionHeading, SubHeading } from "../components/SectionHeading";
 export default function ExtendedSyntax() {
   return (
     <>
-          <SectionHeading id="extended-syntax">Extended Syntax</SectionHeading>
+          <SectionHeading id="extended-syntax">扩展语法</SectionHeading>
 
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-            Extended syntax features are provided through plugins. All 7
-            built-in plugins are enabled by default.
+            扩展语法功能通过插件提供，默认启用全部 7 个内置插件。
           </p>
 
-          {/* Dotted Lines */}
-          <SubHeading>Dotted Lines</SubHeading>
+          {/* 虚线 */}
+          <SubHeading>虚线</SubHeading>
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            Use <code className="text-xs">-.</code> instead of{" "}
-            <code className="text-xs">-</code> to render nodes with dotted edges
-            for weak relationships:
+            使用 <code className="text-xs">-.</code> 代替 <code className="text-xs">-</code>，
+            即可为弱关联关系的节点绘制虚线连接：
           </p>
-          <CodeBlock lang="mindmap">{`Machine Learning
-- Supervised Learning
-  - Classification
-  -. Feature Engineering`}</CodeBlock>
+          <CodeBlock lang="mindmap">{`机器学习
+- 监督学习
+  - 分类
+  -. 特征工程`}</CodeBlock>
 
           <div className="docs-table-wrap my-6">
             <table className="docs-table">
               <thead>
                 <tr>
-                  <th>Syntax</th>
-                  <th>Line Style</th>
-                  <th>Semantics</th>
+                  <th>语法</th>
+                  <th>线条样式</th>
+                  <th>含义</th>
                 </tr>
               </thead>
               <tbody>
@@ -37,132 +35,125 @@ export default function ExtendedSyntax() {
                   <td>
                     <code>-</code>
                   </td>
-                  <td>Solid</td>
-                  <td>Standard parent-child relationship</td>
+                  <td>实线</td>
+                  <td>标准的父子关系</td>
                 </tr>
                 <tr>
                   <td>
                     <code>-.</code>
                   </td>
-                  <td>Dotted</td>
-                  <td>Weak association / Optional / TBD</td>
+                  <td>虚线</td>
+                  <td>弱关联 / 可选关系 / 待定</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          {/* Multi-line */}
-          <SubHeading>Multi-line Node Content</SubHeading>
+          {/* 多行内容 */}
+          <SubHeading>多行节点内容</SubHeading>
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            Lines starting with <code className="text-xs">|</code> are appended
-            to the content of the preceding node and rendered as multi-line text
-            within that node:
+            以 <code className="text-xs">|</code> 开头的行会追加到前一个节点的内容中，
+            并在该节点内以多行文本显示：
           </p>
-          <CodeBlock lang="mindmap">{`Machine Learning
-- Supervised Learning
-  - Classification
-    | **Definition**: Mapping inputs to discrete categories.
-    | **Input**: Feature vector X
-    | **Output**: Class label Y
-  - Regression
-    | Continuous output values.
-    | Commonly used for prediction scenarios.`}</CodeBlock>
+          <CodeBlock lang="mindmap">{`机器学习
+- 监督学习
+  - 分类
+    | **定义**：将输入映射到离散类别。
+    | **输入**：特征向量 X
+    | **输出**：类别标签 Y
+  - 回归
+    | 连续的输出值。
+    | 常用于预测场景。`}</CodeBlock>
 
           <div className="docs-table-wrap my-6">
             <table className="docs-table">
               <thead>
                 <tr>
-                  <th>Syntax</th>
-                  <th>Display Mode</th>
-                  <th>Purpose</th>
+                  <th>语法</th>
+                  <th>显示方式</th>
+                  <th>用途</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td>
-                    <code>&gt; text</code>
+                    <code>&gt; 内容</code>
                   </td>
-                  <td>Tooltip / Hover</td>
-                  <td>Supplementary notes; space-saving</td>
+                  <td>提示框 / 悬停</td>
+                  <td>补充说明，节省空间</td>
                 </tr>
                 <tr>
                   <td>
-                    <code>| text</code>
+                    <code>| 内容</code>
                   </td>
-                  <td>In-node display</td>
-                  <td>When the node requires multi-line content</td>
+                  <td>节点内显示</td>
+                  <td>节点需要展示多行内容时</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          {/* Tags */}
-          <SubHeading>Tags</SubHeading>
+          {/* 标签 */}
+          <SubHeading>标签</SubHeading>
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            Use <code className="text-xs">#tag</code> to label nodes for easy
-            filtering and categorization:
+            使用 <code className="text-xs">#标签</code> 为节点添加标签，方便筛选和分类：
           </p>
-          <CodeBlock lang="mindmap">{`Tech Stack
-- React #frontend #javascript
-  - Next.js #framework #ssr
-  - Redux #state-management
-- Python #backend #ml
-  - FastAPI #framework
-  - PyTorch #ml #deep-learning
-- PostgreSQL #database #backend`}</CodeBlock>
+          <CodeBlock lang="mindmap">{`技术栈
+- React #前端 #JavaScript
+  - Next.js #框架 #SSR
+  - Redux #状态管理
+- Python #后端 #机器学习
+  - FastAPI #框架
+  - PyTorch #机器学习 #深度学习
+- PostgreSQL #数据库 #后端`}</CodeBlock>
 
-          {/* Cross-links */}
-          <SubHeading>Cross-node Connections</SubHeading>
+          {/* 交叉链接 */}
+          <SubHeading>节点间交叉连接</SubHeading>
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            Use <code className="text-xs">{"{#id}"}</code> to define node
-            anchors and <code className="text-xs">{"-> {#id}"}</code> to create
-            cross-branch connections:
+            使用 <code className="text-xs">{"{#id}"}</code> 定义节点锚点，使用
+            <code className="text-xs">{"-> {#id}"}</code> 创建跨分支连接：
           </p>
-          <CodeBlock lang="mindmap">{`System Architecture
-- Frontend {#frontend}
+          <CodeBlock lang="mindmap">{`系统架构
+- 前端 {#frontend}
   - React
-  - API Call -> {#api-gateway}
-- Backend
-  - API Gateway {#api-gateway}
+  - API 调用 -> {#api-gateway}
+- 后端
+  - API 网关 {#api-gateway}
     - REST
     - GraphQL
-  - Data Processing
-    - ETL Pipeline -> {#data-warehouse}
-- Data Layer
-  - Data Warehouse {#data-warehouse}
-  - Cache -> {#frontend}`}</CodeBlock>
+  - 数据处理
+    - ETL 流程 -> {#data-warehouse}
+- 数据层
+  - 数据仓库 {#data-warehouse}
+  - 缓存 -> {#frontend}`}</CodeBlock>
 
           <p className="text-sm text-slate-500 dark:text-slate-500 mt-3 mb-2">
-            Optional annotated connections:
+            可选的带标签连接：
           </p>
-          <CodeBlock>{`- API Call -> {#api-gateway} "HTTP/REST"`}</CodeBlock>
+          <CodeBlock>{`- API 调用 -> {#api-gateway} "HTTP/REST"`}</CodeBlock>
 
           <ul className="list-disc list-inside text-sm text-slate-500 space-y-1 mt-3 mb-6">
             <li>
-              <code className="text-xs">{"{#id}"}</code> — Define an anchor on a
-              node
+              <code className="text-xs">{"{#id}"}</code> — 在节点上定义锚点
             </li>
             <li>
-              <code className="text-xs">{"-> {#id}"}</code> — Solid cross-link
-              to anchor
+              <code className="text-xs">{"-> {#id}"}</code> — 指向锚点的实线交叉链接
             </li>
             <li>
-              <code className="text-xs">{'-> {#id} "label"'}</code> — Cross-link
-              with label
+              <code className="text-xs">{'-> {#id} "标签"'}</code> — 带标签的交叉链接
             </li>
             <li>
-              <code className="text-xs">{"-.> {#id}"}</code> — Dotted cross-link
+              <code className="text-xs">{"-.> {#id}"}</code> — 虚线交叉链接
             </li>
           </ul>
 
-          {/* Folding */}
-          <SubHeading>Folding Markers</SubHeading>
+          {/* 折叠 */}
+          <SubHeading>折叠标记</SubHeading>
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            Use <code className="text-xs">+</code> instead of{" "}
-            <code className="text-xs">-</code> to indicate that a node is
-            collapsed by default:
+            使用 <code className="text-xs">+</code> 代替 <code className="text-xs">-</code>，
+            表示节点默认折叠：
           </p>
-          <CodeBlock lang="mindmap">{`Project Structure
+          <CodeBlock lang="mindmap">{`项目结构
 - src/
   - components/
     - Button.tsx
@@ -177,17 +168,17 @@ export default function ExtendedSyntax() {
 
           <ul className="list-disc list-inside text-sm text-slate-500 space-y-1 mt-3 mb-6">
             <li>
-              <code className="text-xs">-</code> = Expanded (default)
+              <code className="text-xs">-</code> = 展开（默认）
             </li>
             <li>
-              <code className="text-xs">+</code> = Collapsed (click to expand)
+              <code className="text-xs">+</code> = 折叠（点击展开）
             </li>
           </ul>
 
           {/* LaTeX */}
-          <SubHeading>Formula Support (LaTeX)</SubHeading>
+          <SubHeading>公式支持（LaTeX）</SubHeading>
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            Render math formulas via{" "}
+            通过{" "}
             <a
               href="https://katex.org/"
               target="_blank"
@@ -198,41 +189,40 @@ export default function ExtendedSyntax() {
             </a>
             :
           </p>
-          <CodeBlock lang="mindmap">{`Loss Functions
+          <CodeBlock lang="mindmap">{`损失函数
 - MSE
   | $L = \\frac{1}{n}\\sum_{i=1}^{n}(y_i - \\hat{y}_i)^2$
-- Cross Entropy
+- 交叉熵
   | $L = -\\sum_{i} y_i \\log(\\hat{y}_i)$
-- KL Divergence
+- KL 散度
   | $D_{KL}(P \\| Q) = \\sum P(x) \\log\\frac{P(x)}{Q(x)}$`}</CodeBlock>
 
           <p className="text-sm text-slate-500 dark:text-slate-500 mt-3 mb-6">
-            Supports inline formulas with <code className="text-xs">$...$</code>{" "}
-            and block-level formulas with{" "}
-            <code className="text-xs">$$...$$</code>.
+            支持使用 <code className="text-xs">$...$</code> 编写行内公式，使用
+            <code className="text-xs">$$...$$</code> 编写块级公式。
           </p>
 
-          {/* Frontmatter */}
-          <SubHeading>Global Configuration (Front Matter)</SubHeading>
+          {/* 前置元数据 */}
+          <SubHeading>全局配置（前置元数据）</SubHeading>
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            Control overall behavior and styling with YAML front matter:
+            使用 YAML 前置元数据控制整体行为和样式：
           </p>
           <CodeBlock lang="mindmap">{`---
 direction: right
 theme: auto
 ---
 
-Machine Learning
-- Supervised Learning
-- Unsupervised Learning`}</CodeBlock>
+机器学习
+- 监督学习
+- 无监督学习`}</CodeBlock>
 
           <div className="docs-table-wrap my-6">
             <table className="docs-table">
               <thead>
                 <tr>
-                  <th>Field</th>
-                  <th>Values</th>
-                  <th>Description</th>
+                  <th>字段</th>
+                  <th>取值</th>
+                  <th>说明</th>
                 </tr>
               </thead>
               <tbody>
@@ -243,7 +233,7 @@ Machine Learning
                   <td>
                     <code>right</code> | <code>left</code> | <code>both</code>
                   </td>
-                  <td>Layout direction</td>
+                  <td>布局方向</td>
                 </tr>
                 <tr>
                   <td>
@@ -252,7 +242,7 @@ Machine Learning
                   <td>
                     <code>auto</code> | <code>light</code> | <code>dark</code>
                   </td>
-                  <td>Color theme</td>
+                  <td>颜色主题</td>
                 </tr>
               </tbody>
             </table>

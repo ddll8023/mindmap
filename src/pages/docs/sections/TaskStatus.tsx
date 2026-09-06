@@ -4,31 +4,30 @@ import { SectionHeading } from "../components/SectionHeading";
 export default function TaskStatus() {
   return (
     <>
-          <SectionHeading id="task-status">Task Status</SectionHeading>
+          <SectionHeading id="task-status">任务状态</SectionHeading>
 
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            Reuses Markdown task list syntax, ideal for project or learning
-            plans:
+            复用 Markdown 任务列表语法，适合项目计划或学习计划：
           </p>
 
-          <CodeBlock lang="mindmap">{`Learning Plan Q1
-- Basic Theory
-  - [x] Linear Algebra
-  - [x] Probability Theory
-  - [-] Optimization Theory
-  - [ ] Information Theory
-- Practical Projects
-  - [x] Handwritten Digit Recognition
-  - [-] Text Classification
-  - [ ] Image Segmentation`}</CodeBlock>
+          <CodeBlock lang="mindmap">{`第一季度学习计划
+- 基础理论
+  - [x] 线性代数
+  - [x] 概率论
+  - [-] 优化理论
+  - [ ] 信息论
+- 实践项目
+  - [x] 手写数字识别
+  - [-] 文本分类
+  - [ ] 图像分割`}</CodeBlock>
 
           <div className="docs-table-wrap my-6">
             <table className="docs-table">
               <thead>
                 <tr>
-                  <th>Syntax</th>
-                  <th>Meaning</th>
-                  <th>Visual</th>
+                  <th>语法</th>
+                  <th>含义</th>
+                  <th>显示</th>
                 </tr>
               </thead>
               <tbody>
@@ -36,21 +35,21 @@ export default function TaskStatus() {
                   <td>
                     <code>- [ ] text</code>
                   </td>
-                  <td>To Do</td>
+                  <td>待办</td>
                   <td>&#9744;</td>
                 </tr>
                 <tr>
                   <td>
                     <code>- [-] text</code>
                   </td>
-                  <td>In Progress</td>
+                  <td>进行中</td>
                   <td>&#9684;</td>
                 </tr>
                 <tr>
                   <td>
                     <code>- [x] text</code>
                   </td>
-                  <td>Completed</td>
+                  <td>已完成</td>
                   <td>&#9745;</td>
                 </tr>
               </tbody>

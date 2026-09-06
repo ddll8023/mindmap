@@ -5,9 +5,6 @@ import {
   IconMinus,
   IconUndo,
   IconRedo,
-  IconSearch,
-  IconChevronLeft,
-  IconChevronRight,
 } from './icons'
 
 export interface MindMapControlsProps {
@@ -16,16 +13,12 @@ export interface MindMapControlsProps {
   messages: MindMapMessages
   showZoom?: boolean
   showHistory?: boolean
-  showSearch?: boolean
   showTags?: boolean
   showModeToggle?: boolean
   mode: 'view' | 'text'
   isFullscreen: boolean
   canUndo?: boolean
   canRedo?: boolean
-  searchQuery?: string
-  searchMatchCount?: number
-  activeSearchIndex?: number
   availableTags?: string[]
   activeTags?: string[]
   onZoomIn: () => void
@@ -33,9 +26,6 @@ export interface MindMapControlsProps {
   onAutoFit: () => void
   onUndo?: () => void
   onRedo?: () => void
-  onSearchChange?: (query: string) => void
-  onSearchPrevious?: () => void
-  onSearchNext?: () => void
   onTagToggle?: (tag: string) => void
   onClearTags?: () => void
   onModeToggle: () => void
@@ -47,16 +37,12 @@ export function MindMapControls({
   messages,
   showZoom = true,
   showHistory = false,
-  showSearch = false,
   showTags = false,
   showModeToggle = true,
   mode,
   isFullscreen,
   canUndo = false,
   canRedo = false,
-  searchQuery = '',
-  searchMatchCount = 0,
-  activeSearchIndex = -1,
   availableTags = [],
   activeTags = [],
   onZoomIn,
@@ -64,9 +50,6 @@ export function MindMapControls({
   onAutoFit,
   onUndo,
   onRedo,
-  onSearchChange,
-  onSearchPrevious,
-  onSearchNext,
   onTagToggle,
   onClearTags,
   onModeToggle,
@@ -129,57 +112,6 @@ export function MindMapControls({
               </button>
             </>
           )}
-        </div>
-      )}
-
-      {showSearch && (
-        <div className="mindmap-search-controls" role="search">
-          <IconSearch size={15} />
-          <input
-            className="mindmap-search-input"
-            value={searchQuery}
-            placeholder={messages.searchPlaceholder}
-            aria-label={messages.search}
-            onChange={(e) => onSearchChange?.(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                if (searchMatchCount === 0) return
-                if (e.shiftKey) onSearchPrevious?.()
-                else onSearchNext?.()
-              } else if (e.key === 'Escape' && searchQuery) {
-                e.preventDefault()
-                onSearchChange?.('')
-              }
-            }}
-          />
-          <span className="mindmap-search-count" aria-live="polite">
-            {searchQuery
-              ? searchMatchCount > 0
-                ? `${activeSearchIndex + 1}/${searchMatchCount}`
-                : messages.searchNoResults
-              : ''}
-          </span>
-          <button
-            className="mindmap-ctrl-btn mindmap-search-step"
-            type="button"
-            title={messages.searchPrevious}
-            aria-label={messages.searchPrevious}
-            disabled={searchMatchCount === 0}
-            onClick={onSearchPrevious}
-          >
-            <IconChevronLeft size={15} />
-          </button>
-          <button
-            className="mindmap-ctrl-btn mindmap-search-step"
-            type="button"
-            title={messages.searchNext}
-            aria-label={messages.searchNext}
-            disabled={searchMatchCount === 0}
-            onClick={onSearchNext}
-          >
-            <IconChevronRight size={15} />
-          </button>
         </div>
       )}
 

@@ -95,19 +95,19 @@ function LandingPage() {
               className="text-lg font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2 no-underline"
             >
               <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white">
-                <img src="/logo.png" className="scale-150" alt="logo" />
+              <img src="/logo.png" className="scale-150" alt="开放思维导图标志" />
               </span>
-              <span className="hidden sm:block">Open MindMap</span>
+              <span className="hidden sm:block">开放思维导图</span>
             </a>
             <div className="flex ml-10 items-center gap-8 text-[13px] font-medium">
               <a className="text-slate-900 dark:text-white" href="#features">
-                Home
+                首页
               </a>
               <a
                 className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
                 href="#/docs"
               >
-                Docs
+                文档
               </a>
               <a
                 className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
@@ -124,7 +124,7 @@ function LandingPage() {
               href="#/live"
               className="bg-primary text-white px-4 py-1.5 rounded-full text-[13px] font-semibold transition-all hover:bg-primary/90 hover:scale-105"
             >
-              Get Started
+              开始使用
             </a>
           </div>
         </div>
@@ -140,19 +140,17 @@ function LandingPage() {
         <section className="max-w-7xl mx-auto px-4 md:px-6 pt-28 pb-16 text-center">
           <div className="hero-animate inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-[11px] font-bold tracking-wider uppercase mb-6 md:mb-8">
             <Terminal size={14} />
-            {`v${version}`} &middot; Open Source
+            {`v${version}`} &middot; 开源项目
           </div>
 
           <h1 className="hero-animate text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-6 md:mb-8 text-gradient leading-tight">
-            The AI-Native
+            面向 AI 的
             <br />
-            Mindmap for React.
+            React 思维导图。
           </h1>
 
           <p className="hero-animate-delayed text-base md:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed mb-8 md:mb-12 font-medium">
-            Transform complex mental models into structured visual systems with
-            natural language. Open source, extensible, and built for the modern
-            web.
+            用自然语言将复杂的思维模型转化为结构化的可视化系统。开源、可扩展，适合现代 Web 应用。
           </p>
 
           {/* npm install snippet */}
@@ -179,13 +177,13 @@ function LandingPage() {
               href="#demo"
               className="w-full sm:w-auto bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-3 md:py-3.5 rounded-full text-sm md:text-base font-semibold transition-all hover:bg-slate-800 dark:hover:bg-slate-100 hover:scale-[1.02] text-center"
             >
-              Start Building
+              开始构建
             </a>
             <a
               href="#demo"
               className="w-full sm:w-auto bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 px-8 py-3 md:py-3.5 rounded-full text-sm md:text-base font-semibold transition-all hover:bg-slate-50 dark:hover:bg-slate-700 hover:scale-[1.02] text-center"
             >
-              View Demo
+              查看演示
             </a>
           </div>
         </section>
@@ -212,32 +210,30 @@ function LandingPage() {
           <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 md:p-16 border border-slate-100 dark:border-slate-700 flex flex-col lg:flex-row items-center gap-8 lg:gap-16 overflow-hidden relative">
             <div className="flex-1 z-10">
               <span className="text-primary font-bold text-[11px] uppercase tracking-widest mb-4 block">
-                Core Engine
+                核心引擎
               </span>
               <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-4 md:mb-6">
-                Real-time AI Streaming.
+                实时 AI 流式生成。
               </h2>
               <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 leading-relaxed mb-6 md:mb-8">
-                Experience zero-latency visualization. As your LLM generates
-                tokens, Open MindMap constructs the layout in real-time,
-                handling thousands of nodes with pure SVG efficiency.
+                体验低延迟的可视化效果。LLM 生成内容时，开放思维导图会实时构建布局，并通过高效的纯 SVG 处理数千个节点。
               </p>
               <ul className="space-y-4">
                 <li className="flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
                   <CircleCheck className="text-primary" size={20} />
-                  Sub-10ms Layout Recalculation
+                  10 毫秒以内完成布局重算
                 </li>
                 <li className="flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
                   <CircleCheck className="text-primary" size={20} />
-                  Native Streaming Support
+                  原生支持流式输出
                 </li>
                 <li className="flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
                   <CircleCheck className="text-primary" size={20} />
-                  OpenAI-Compatible API
+                  兼容 OpenAI 的 API
                 </li>
                 <li className="flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
                   <CircleCheck className="text-primary" size={20} />
-                  Built-in AI Input with File Attachments
+                  内置 AI 输入和文件附件
                 </li>
               </ul>
             </div>
@@ -275,74 +271,73 @@ function LandingPage() {
         >
           <div className="text-center mb-10 md:mb-16">
             <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
-              Everything you need.
+              你需要的一切。
             </h2>
             <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium">
-              A complete mind-mapping toolkit — zero dependencies, pure SVG,
-              keyboard-first, and mobile-ready.
+              完整的思维导图工具包——零运行时依赖、纯 SVG、键盘优先，并适配移动端。
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {[
               {
                 icon: Bot,
-                title: "AI Generation",
-                desc: "Built-in AI input bar with OpenAI-compatible streaming and file attachments.",
+                title: "AI 生成",
+                desc: "内置 AI 输入栏，支持兼容 OpenAI 的流式输出和文件附件。",
               },
               {
                 icon: Image,
-                title: "Pure SVG Rendering",
-                desc: "No Canvas, no external layout engine. Crystal-sharp at any zoom level.",
+                title: "纯 SVG 渲染",
+                desc: "不使用 Canvas 或外部布局引擎，在任意缩放级别都保持清晰。",
               },
               {
                 icon: Smartphone,
-                title: "iOS-Style UI",
-                desc: "Frosted glass controls, rounded corners, and smooth animations.",
+                title: "iOS 风格界面",
+                desc: "磨砂玻璃控件、圆角设计和流畅动画。",
               },
               {
                 icon: Moon,
-                title: "Dark Mode",
-                desc: "Auto-detects prefers-color-scheme, or explicitly set light / dark.",
+                title: "深色模式",
+                desc: "自动跟随系统明暗偏好，也可手动指定浅色或深色主题。",
               },
               {
                 icon: Palette,
-                title: "CSS Customizable",
-                desc: "30+ CSS custom properties and semantic classes. Override colors, fonts, and branch styles with plain CSS.",
+                title: "CSS 可定制",
+                desc: "提供 30 多个 CSS 自定义属性和语义化类名，可直接覆盖颜色、字体和分支样式。",
               },
               {
                 icon: Keyboard,
-                title: "Keyboard First",
-                desc: "Enter to create, Delete to remove, Cmd+C/V to copy-paste, and more.",
+                title: "键盘优先",
+                desc: "Enter 新建、Delete 删除、Command+C/V 复制粘贴，以及更多快捷操作。",
               },
               {
                 icon: Package,
-                title: "Zero Dependencies",
-                desc: "Only React as a peer dependency. Tiny bundle, maximum performance.",
+                title: "零运行时依赖",
+                desc: "仅将 React 作为同级依赖，体积小、性能高。",
               },
               {
                 icon: MousePointerClick,
-                title: "Mobile & Touch",
-                desc: "Single-finger pan, two-finger pinch-to-zoom. Works everywhere.",
+                title: "移动端与触控",
+                desc: "支持单指平移和双指缩放，在各种设备上都能使用。",
               },
               {
                 icon: Languages,
-                title: "Internationalization",
-                desc: "Auto-detects browser language. Built-in en-US and zh-CN.",
+                title: "国际化",
+                desc: "自动识别浏览器语言，内置中文和英文界面。",
               },
               {
                 icon: Download,
-                title: "Export Anywhere",
-                desc: "SVG, high-DPI PNG, and Markdown export out of the box.",
+                title: "随处导出",
+                desc: "开箱即用地导出 SVG、高清 PNG 和 Markdown。",
               },
               {
                 icon: NotebookPen,
-                title: "Text Editor",
-                desc: "Opt-in syntax-highlighted markdown editor. Toggle between visual and text modes.",
+                title: "文本编辑器",
+                desc: "可选的 Markdown 语法高亮编辑器，可在可视化模式和文本模式之间切换。",
               },
               {
                 icon: Gauge,
-                title: "Lightweight Viewer",
-                desc: "Read-only MindMapViewer component with ~48% smaller bundle. Perfect for embeds and dashboards.",
+                title: "轻量查看器",
+                desc: "只读 MindMapViewer 组件，打包体积约减少 48%，适合嵌入页面和数据面板。",
               },
             ].map((f) => (
               <div
@@ -371,59 +366,58 @@ function LandingPage() {
         >
           <div className="text-center mb-10 md:mb-16">
             <span className="text-primary font-bold text-[11px] uppercase tracking-widest mb-4 block">
-              Extensible
+              可扩展
             </span>
             <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
-              Extend with Plugins.
+              使用插件扩展功能。
             </h2>
             <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium">
-              7 built-in plugins extend the core syntax. Mix and match, or build
-              your own.
+              内置 7 个插件扩展核心语法，可自由组合，也可以创建自己的插件。
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
               {
                 icon: Settings,
-                name: "Frontmatter",
+                name: "前置元数据",
                 syntax: "---\ndirection: right\ntheme: dark\n---",
-                desc: "Set direction and theme via YAML header",
+                desc: "通过 YAML 文件头设置方向和主题",
               },
               {
                 icon: Spline,
-                name: "Dotted Lines",
-                syntax: "-. Dashed child node",
-                desc: "Dashed connections for weak relationships",
+                name: "虚线",
+                syntax: "-. 虚线子节点",
+                desc: "为弱关联关系使用虚线连接",
               },
               {
                 icon: FoldVertical,
-                name: "Folding",
-                syntax: "+ Collapsed group\n  - Hidden child",
-                desc: "Collapsible node groups",
+                name: "折叠",
+                syntax: "+ 折叠分组\n  - 隐藏子节点",
+                desc: "支持折叠和展开节点分组",
               },
               {
                 icon: NotebookText,
-                name: "Multi-line",
-                syntax: "- Title\n  | Detail line 1\n  | Detail line 2",
-                desc: "Multi-line content within a single node",
+                name: "多行内容",
+                syntax: "- 标题\n  | 详细内容一\n  | 详细内容二",
+                desc: "在单个节点中展示多行内容",
               },
               {
                 icon: Tag,
-                name: "Tags",
-                syntax: "- React #frontend #lib",
-                desc: "Visual categorization with color-coded tags",
+                name: "标签",
+                syntax: "- React #前端 #组件",
+                desc: "使用带颜色的标签进行可视化分类",
               },
               {
                 icon: Workflow,
-                name: "Cross Links",
-                syntax: '- Node {#a}\n  -> {#b} "ref"',
-                desc: "Draw connections between any two nodes",
+                name: "交叉链接",
+                syntax: '- 节点 {#a}\n  -> {#b} "引用"',
+                desc: "在任意两个节点之间绘制连接",
               },
               {
                 icon: SquareFunction,
-                name: "LaTeX Math",
-                syntax: "- Inline: $E = mc^2$\n- Block: $$\\sum x_i$$",
-                desc: "Render math formulas via KaTeX",
+                name: "LaTeX 数学公式",
+                syntax: "- 行内：$E = mc^2$\n- 块级：$$\\sum x_i$$",
+                desc: "通过 KaTeX 渲染数学公式",
               },
             ].map((p) => (
               <div
@@ -456,23 +450,21 @@ function LandingPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
             <div>
               <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-4 md:mb-6">
-                Write Markdown.
+                编写 Markdown。
                 <br />
-                See Mind Maps.
+                查看思维导图。
               </h2>
               <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 leading-relaxed mb-6 md:mb-8">
-                Use familiar Markdown syntax to describe your ideas. Open
-                MindMap parses it in real-time and renders a beautiful,
-                interactive visualization.
+                使用熟悉的 Markdown 语法描述想法。开放思维导图会实时解析内容，并渲染出美观、可交互的可视化结果。
               </p>
               <ul className="space-y-4">
                 {[
-                  "Inline formatting — bold, italic, code, strikethrough, highlight",
-                  "Task checkboxes — todo, done, and in-progress states",
-                  "Remarks — attach multi-line notes to any node",
-                  "Multi-root — multiple independent trees on one canvas",
-                  "Drag & drop — reorder siblings by dragging nodes",
-                  "Text editing mode — toggle between visual and Markdown editing",
+                  "行内格式——粗体、斜体、代码、删除线和高亮",
+                  "任务复选框——待办、已完成和进行中状态",
+                  "备注——为任意节点附加多行说明",
+                  "多根节点——在同一画布上展示多个独立树",
+                  "拖放——通过拖动节点调整同级顺序",
+                  "文本编辑模式——在可视化编辑与 Markdown 编辑之间切换",
                 ].map((item) => (
                   <li
                     key={item}
@@ -495,20 +487,20 @@ function LandingPage() {
                   className="whitespace-pre"
                   dangerouslySetInnerHTML={{
                     __html: [
-                      `<span class="text-white font-bold">Project Roadmap</span>`,
-                      `<span class="text-slate-500">-</span> <span class="text-orange-300">**Phase 1**</span> — Foundation`,
-                      `  <span class="text-slate-500">-</span> <span class="text-green-400">[x]</span> Setup repository`,
-                      `  <span class="text-slate-500">-</span> <span class="text-green-400">[x]</span> Core architecture`,
-                      `  <span class="text-slate-500">-</span> <span class="text-amber-400">[-]</span> API design`,
-                      `    <span class="text-primary/60">&gt; REST endpoints defined</span>`,
-                      `    <span class="text-primary/60">&gt; GraphQL schema in progress</span>`,
-                      `<span class="text-slate-500">-</span> <span class="text-orange-300">*Phase 2*</span> — Features`,
-                      `  <span class="text-slate-500">-</span> <span class="text-slate-400">[ ]</span> User auth`,
-                      `  <span class="text-slate-500">-</span> <span class="text-slate-400">[ ]</span> <span class="text-rose-400">\`WebSocket\`</span> support`,
-                      `  <span class="text-slate-500">-</span> <span class="text-slate-400">[ ]</span> <span class="text-amber-400">==Dashboard==</span>`,
-                      `<span class="text-slate-500">-</span> Resources`,
-                      `  <span class="text-slate-500">-</span> <span class="text-blue-400">[Docs](https://docs.example.com)</span>`,
-                      `  <span class="text-slate-500">-</span> <span class="text-slate-400 line-through">~~Deprecated wiki~~</span>`,
+                      `<span class="text-white font-bold">项目路线图</span>`,
+                      `<span class="text-slate-500">-</span> <span class="text-orange-300">**阶段一**</span> — 基础`,
+                      `  <span class="text-slate-500">-</span> <span class="text-green-400">[x]</span> 初始化仓库`,
+                      `  <span class="text-slate-500">-</span> <span class="text-green-400">[x]</span> 核心架构`,
+                      `  <span class="text-slate-500">-</span> <span class="text-amber-400">[-]</span> API 设计`,
+                      `    <span class="text-primary/60">&gt; REST 接口已定义</span>`,
+                      `    <span class="text-primary/60">&gt; GraphQL 结构开发中</span>`,
+                      `<span class="text-slate-500">-</span> <span class="text-orange-300">*阶段二*</span> — 功能`,
+                      `  <span class="text-slate-500">-</span> <span class="text-slate-400">[ ]</span> 用户认证`,
+                      `  <span class="text-slate-500">-</span> <span class="text-slate-400">[ ]</span> <span class="text-rose-400">\`WebSocket\`</span> 支持`,
+                      `  <span class="text-slate-500">-</span> <span class="text-slate-400">[ ]</span> <span class="text-amber-400">==数据面板==</span>`,
+                      `<span class="text-slate-500">-</span> 资源`,
+                      `  <span class="text-slate-500">-</span> <span class="text-blue-400">[文档](https://docs.example.com)</span>`,
+                      `  <span class="text-slate-500">-</span> <span class="text-slate-400 line-through">~~已弃用的知识库~~</span>`,
                     ].join("\n"),
                   }}
                 />
@@ -527,30 +519,26 @@ function LandingPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
             <div>
               <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-4 md:mb-6">
-                Built for the React Ecosystem.
+                为 React 生态而生。
               </h2>
               <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 leading-relaxed mb-6 md:mb-8">
-                Drop a powerful mind-mapping engine into your application with a
-                single component. Fully controlled, typed, and extensible with a
-                rich plugin system.
+                只需一个组件，就能将强大的思维导图引擎接入应用。支持完全受控、类型安全，并可通过丰富的插件系统扩展。
               </p>
               <div className="grid grid-cols-2 gap-8">
                 <div>
                   <div className="font-bold text-slate-900 dark:text-white mb-1">
-                    TypeScript Native
+                    TypeScript 原生支持
                   </div>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
-                    First-class type definitions for every node and edge
-                    property.
+                    为每个节点和连接属性提供完善的类型定义。
                   </p>
                 </div>
                 <div>
                   <div className="font-bold text-slate-900 dark:text-white mb-1">
-                    Plugin System
+                    插件系统
                   </div>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
-                    Extend syntax with tags, cross-links, LaTeX, folding, and
-                    more.
+                    通过标签、交叉链接、LaTeX、折叠等功能扩展语法。
                   </p>
                 </div>
               </div>
@@ -587,35 +575,6 @@ function LandingPage() {
         </section>
 
         {/* --------------------------------------------------------------- */}
-        {/* Social Proof Section                                             */}
-        {/* --------------------------------------------------------------- */}
-        <section
-          className="max-w-7xl mx-auto px-4 md:px-6 mb-20 md:mb-40 text-center border-t border-slate-100 dark:border-slate-800 pt-16 md:pt-24"
-          data-animate
-        >
-          <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-slate-400 mb-10 md:mb-16">
-            Powering creative teams around the world
-          </p>
-          <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-16 md:gap-24 opacity-40 grayscale">
-            <div className="text-xl md:text-2xl font-black tracking-tighter">
-              PHENTOM
-            </div>
-            <div className="text-xl md:text-2xl font-black tracking-tighter">
-              ABXYOS
-            </div>
-            <div className="text-xl md:text-2xl font-black tracking-tighter italic underline decoration-4 decoration-primary">
-              KIENTIC
-            </div>
-            <div className="text-xl md:text-2xl font-black tracking-tighter uppercase">
-              Vertax
-            </div>
-            <div className="text-xl md:text-2xl font-black tracking-tighter font-serif">
-              Lumena
-            </div>
-          </div>
-        </section>
-
-        {/* --------------------------------------------------------------- */}
         {/* Final CTA Section                                                */}
         {/* --------------------------------------------------------------- */}
         <section
@@ -625,24 +584,23 @@ function LandingPage() {
           <div className="bg-slate-900 rounded-2xl p-8 md:p-20 text-center text-white relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,122,255,0.15)_0%,transparent_70%)]" />
             <h2 className="text-3xl text-white md:text-6xl font-bold mb-6 md:mb-8 relative z-10 tracking-tight">
-              Precision in Thought.
+              让思考更清晰。
             </h2>
             <p className="text-slate-400 text-base md:text-xl max-w-xl mx-auto mb-8 md:mb-12 relative z-10 leading-relaxed font-medium">
-              The open-source standard for visual thinking in the React
-              ecosystem.
+              面向 React 生态的开源可视化思维工具。
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 relative z-10">
               <a
                 href="#demo"
                 className="w-full sm:w-auto bg-primary text-white px-8 md:px-10 py-3.5 md:py-4 rounded-full text-base md:text-lg font-bold transition-all hover:bg-primary/90 hover:scale-[1.02] text-center"
               >
-                Get Started Free
+                免费开始使用
               </a>
               <a
                 href="#/docs"
                 className="w-full sm:w-auto bg-white/5 border border-white/10 text-white px-8 md:px-10 py-3.5 md:py-4 rounded-full text-base md:text-lg font-bold transition-all hover:bg-white/10 text-center"
               >
-                View Documentation
+                查看使用文档
               </a>
             </div>
           </div>
@@ -654,20 +612,20 @@ function LandingPage() {
       {/* ================================================================= */}
       <footer className="w-full py-8 px-4 md:px-8 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-12 md:mb-16">
             <div className="col-span-2 md:col-span-1">
               <div className="text-lg font-bold tracking-tight text-slate-900 dark:text-white mb-6">
-                Open MindMap
+                开放思维导图
               </div>
               <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                Open Source & Community Driven.
+                开源共建。
                 <br />
-                Built for the modern web.
+                为现代 Web 而生。
               </p>
             </div>
             <div>
               <h5 className="font-bold text-[11px] mb-6 uppercase tracking-widest text-slate-400">
-                Engineering
+                开发资源
               </h5>
               <ul className="space-y-4 text-[13px] font-semibold text-slate-600 dark:text-slate-400">
                 <li>
@@ -675,7 +633,7 @@ function LandingPage() {
                     className="hover:text-primary transition-colors"
                     href="#/docs"
                   >
-                    Documentation
+                    使用文档
                   </a>
                 </li>
                 <li>
@@ -683,7 +641,7 @@ function LandingPage() {
                     className="hover:text-primary transition-colors"
                     href="#/docs#api-reference"
                   >
-                    API Reference
+                    API 参考
                   </a>
                 </li>
                 <li>
@@ -691,7 +649,7 @@ function LandingPage() {
                     className="hover:text-primary transition-colors"
                     href="#/docs#getting-started"
                   >
-                    React SDK
+                    React 组件包
                   </a>
                 </li>
                 <li>
@@ -699,61 +657,7 @@ function LandingPage() {
                     className="hover:text-primary transition-colors"
                     href="#/docs#extended-syntax"
                   >
-                    Plugin Guide
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-bold text-[11px] mb-6 uppercase tracking-widest text-slate-400">
-                Community
-              </h5>
-              <ul className="space-y-4 text-[13px] font-semibold text-slate-600 dark:text-slate-400">
-                <li>
-                  <a className="hover:text-primary transition-colors" href="#">
-                    Discord
-                  </a>
-                </li>
-                <li>
-                  <a className="hover:text-primary transition-colors" href="#">
-                    Twitter
-                  </a>
-                </li>
-                <li>
-                  <a
-                    className="hover:text-primary transition-colors"
-                    href="https://github.com/u14app/mindmap"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    GitHub
-                  </a>
-                </li>
-                <li>
-                  <a className="hover:text-primary transition-colors" href="#">
-                    Changelog
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-bold text-[11px] mb-6 uppercase tracking-widest text-slate-400">
-                Legal
-              </h5>
-              <ul className="space-y-4 text-[13px] font-semibold text-slate-600 dark:text-slate-400">
-                <li>
-                  <a className="hover:text-primary transition-colors" href="#">
-                    Privacy
-                  </a>
-                </li>
-                <li>
-                  <a className="hover:text-primary transition-colors" href="#">
-                    Terms
-                  </a>
-                </li>
-                <li>
-                  <a className="hover:text-primary transition-colors" href="#">
-                    License
+                    插件指南
                   </a>
                 </li>
               </ul>
@@ -761,7 +665,7 @@ function LandingPage() {
           </div>
           <div className="flex flex-col md:flex-row justify-between items-center pt-6 border-t border-slate-100 dark:border-slate-800">
             <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">
-              &copy; 2026 Open MindMap. Open Source.
+              &copy; 2026 开放思维导图。开源项目。
             </p>
           </div>
         </div>

@@ -35,19 +35,19 @@ import UtilityFunctions from "./docs/sections/UtilityFunctions";
 // ---------------------------------------------------------------------------
 
 const SECTIONS = [
-  { id: "getting-started", title: "Getting Started", icon: Rocket },
-  { id: "basic-syntax", title: "Basic Syntax", icon: Code },
-  { id: "text-formatting", title: "Text Formatting", icon: Bold },
-  { id: "links-images", title: "Links & Images", icon: Link },
-  { id: "remarks", title: "Remarks", icon: MessageSquare },
-  { id: "comments", title: "Comments", icon: EyeOff },
-  { id: "task-status", title: "Task Status", icon: SquareCheckBig },
-  { id: "extended-syntax", title: "Extended Syntax", icon: Puzzle },
-  { id: "ai-generation", title: "AI Generation", icon: Bot },
-  { id: "custom-styling", title: "Custom Styling", icon: Palette },
-  { id: "api-reference", title: "API Reference", icon: Webhook },
-  { id: "keyboard-shortcuts", title: "Keyboard Shortcuts", icon: Keyboard },
-  { id: "utility-functions", title: "Utility Functions", icon: Wrench },
+  { id: "getting-started", title: "快速开始", icon: Rocket },
+  { id: "basic-syntax", title: "基础语法", icon: Code },
+  { id: "text-formatting", title: "文本格式", icon: Bold },
+  { id: "links-images", title: "链接与图片", icon: Link },
+  { id: "remarks", title: "备注", icon: MessageSquare },
+  { id: "comments", title: "注释", icon: EyeOff },
+  { id: "task-status", title: "任务状态", icon: SquareCheckBig },
+  { id: "extended-syntax", title: "扩展语法", icon: Puzzle },
+  { id: "ai-generation", title: "AI 生成", icon: Bot },
+  { id: "custom-styling", title: "自定义样式", icon: Palette },
+  { id: "api-reference", title: "API 参考", icon: Webhook },
+  { id: "keyboard-shortcuts", title: "键盘快捷键", icon: Keyboard },
+  { id: "utility-functions", title: "工具函数", icon: Wrench },
 ];
 
 // ---------------------------------------------------------------------------
@@ -132,19 +132,19 @@ function DocsPage() {
               className="text-lg font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2 no-underline"
             >
               <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white">
-                <img src="/logo.png" className="scale-150" alt="logo" />
+                <img src="/logo.png" className="scale-150" alt="开放思维导图标志" />
               </span>
-              <span className="hidden sm:block">Open MindMap</span>
+              <span className="hidden sm:block">开放思维导图</span>
             </a>
             <div className="flex ml-10 items-center gap-8 text-[13px] font-medium">
               <a
                 className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
                 href="#/"
               >
-                Home
+                首页
               </a>
               <a className="text-slate-900 dark:text-white" href="#/docs">
-                Docs
+                文档
               </a>
               <a
                 className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
@@ -165,7 +165,7 @@ function DocsPage() {
             }}
             className="hidden md:flex bg-primary text-white px-4 py-1.5 rounded-full text-[13px] font-semibold transition-all hover:bg-primary/90 hover:scale-105"
           >
-            Get Started
+                开始使用
           </a>
         </div>
       </nav>
@@ -249,20 +249,20 @@ function DocsPage() {
       {/* ================================================================= */}
       <footer className="w-full py-8 px-4 md:px-8 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-12 md:mb-16">
             <div className="col-span-2 md:col-span-1">
               <div className="text-lg font-bold tracking-tight text-slate-900 dark:text-white mb-6">
-                Open MindMap
+                开放思维导图
               </div>
               <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                Open Source & Community Driven.
+                开源共建。
                 <br />
-                Built for the modern web.
+                为现代 Web 而生。
               </p>
             </div>
             <div>
               <h5 className="font-bold text-[11px] mb-6 uppercase tracking-widest text-slate-400">
-                Engineering
+                开发资源
               </h5>
               <ul className="space-y-4 text-[13px] font-semibold text-slate-600 dark:text-slate-400">
                 <li>
@@ -270,7 +270,7 @@ function DocsPage() {
                     className="hover:text-primary transition-colors"
                     href="#/docs"
                   >
-                    Documentation
+                    使用文档
                   </a>
                 </li>
                 <li>
@@ -278,7 +278,7 @@ function DocsPage() {
                     className="hover:text-primary transition-colors"
                     href="#/docs#api-reference"
                   >
-                    API Reference
+                    API 参考
                   </a>
                 </li>
                 <li>
@@ -286,7 +286,7 @@ function DocsPage() {
                     className="hover:text-primary transition-colors"
                     href="#/docs#getting-started"
                   >
-                    React SDK
+                    React 组件包
                   </a>
                 </li>
                 <li>
@@ -294,61 +294,7 @@ function DocsPage() {
                     className="hover:text-primary transition-colors"
                     href="#/docs#extended-syntax"
                   >
-                    Plugin Guide
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-bold text-[11px] mb-6 uppercase tracking-widest text-slate-400">
-                Community
-              </h5>
-              <ul className="space-y-4 text-[13px] font-semibold text-slate-600 dark:text-slate-400">
-                <li>
-                  <a className="hover:text-primary transition-colors" href="#">
-                    Discord
-                  </a>
-                </li>
-                <li>
-                  <a className="hover:text-primary transition-colors" href="#">
-                    Twitter
-                  </a>
-                </li>
-                <li>
-                  <a
-                    className="hover:text-primary transition-colors"
-                    href="https://github.com/u14app/mindmap"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    GitHub
-                  </a>
-                </li>
-                <li>
-                  <a className="hover:text-primary transition-colors" href="#">
-                    Changelog
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-bold text-[11px] mb-6 uppercase tracking-widest text-slate-400">
-                Legal
-              </h5>
-              <ul className="space-y-4 text-[13px] font-semibold text-slate-600 dark:text-slate-400">
-                <li>
-                  <a className="hover:text-primary transition-colors" href="#">
-                    Privacy
-                  </a>
-                </li>
-                <li>
-                  <a className="hover:text-primary transition-colors" href="#">
-                    Terms
-                  </a>
-                </li>
-                <li>
-                  <a className="hover:text-primary transition-colors" href="#">
-                    License
+                    插件指南
                   </a>
                 </li>
               </ul>
@@ -356,7 +302,7 @@ function DocsPage() {
           </div>
           <div className="flex flex-col md:flex-row justify-between items-center pt-6 border-t border-slate-100 dark:border-slate-800">
             <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">
-              &copy; 2026 Open MindMap. Open Source.
+              &copy; 2026 开放思维导图。开源项目。
             </p>
           </div>
         </div>

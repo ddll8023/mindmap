@@ -4,71 +4,71 @@ import { SectionHeading } from "../components/SectionHeading";
 export default function TextFormatting() {
   return (
     <>
-          <SectionHeading id="text-formatting">Text Formatting</SectionHeading>
+          <SectionHeading id="text-formatting">文本格式</SectionHeading>
 
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-            Node text natively supports Markdown inline formatting:
+            节点文本原生支持 Markdown 行内格式：
           </p>
 
-          <CodeBlock lang="mindmap">{`Machine Learning
-- **Supervised Learning**
-- *Unsupervised Learning*
-- ~~Deprecated Method~~
-- \`K-Means Algorithm\`
-- ==Highlighted Topic==`}</CodeBlock>
+          <CodeBlock lang="mindmap">{`机器学习
+- **监督学习**
+- *无监督学习*
+- ~~已弃用的方法~~
+- \`K-Means 算法\`
+- ==重点主题==`}</CodeBlock>
 
           <div className="docs-table-wrap my-6">
             <table className="docs-table">
               <thead>
                 <tr>
-                  <th>Syntax</th>
-                  <th>Effect</th>
-                  <th>Use Case</th>
+                  <th>语法</th>
+                  <th>效果</th>
+                  <th>使用场景</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td>
-                    <code>**text**</code>
+                    <code>**内容**</code>
                   </td>
                   <td>
-                    <strong>Bold</strong>
+                    <strong>粗体</strong>
                   </td>
-                  <td>Emphasize important nodes</td>
+                  <td>强调重要节点</td>
                 </tr>
                 <tr>
                   <td>
-                    <code>*text*</code>
+                    <code>*内容*</code>
                   </td>
                   <td>
-                    <em>Italic</em>
+                    <em>斜体</em>
                   </td>
-                  <td>Supplementary notes/descriptions</td>
+                  <td>补充说明或描述</td>
                 </tr>
                 <tr>
                   <td>
-                    <code>~~text~~</code>
+                    <code>~~内容~~</code>
                   </td>
                   <td>
-                    <s>Strikethrough</s>
+                    <s>删除线</s>
                   </td>
-                  <td>Deprecated or completed items</td>
+                  <td>已弃用或已完成的项目</td>
                 </tr>
                 <tr>
                   <td>
-                    <code>`text`</code>
+                    <code>`内容`</code>
                   </td>
                   <td>
-                    <code>Code</code>
+                    <code>代码</code>
                   </td>
-                  <td>Technical terms or identifiers</td>
+                  <td>技术术语或标识符</td>
                 </tr>
                 <tr>
                   <td>
-                    <code>==text==</code>
+                    <code>==内容==</code>
                   </td>
-                  <td>Highlight</td>
-                  <td>Highlight key concepts</td>
+                  <td>高亮</td>
+                  <td>突出关键概念</td>
                 </tr>
               </tbody>
             </table>

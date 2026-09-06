@@ -32,7 +32,12 @@ export function CodeBlock({ children, lang }: { children: string; lang?: string 
       <pre className="text-[#cbd5e1] font-mono whitespace-pre overflow-x-auto">
         <code>{highlighted}</code>
       </pre>
-      <button onClick={handleCopy} className="docs-copy-btn">
+      <button
+        onClick={handleCopy}
+        className="docs-copy-btn"
+        title={copied ? "已复制" : "复制代码"}
+        aria-label={copied ? "已复制" : "复制代码"}
+      >
         {copied ? <Check size={16} /> : <Copy size={16} />}
       </button>
     </div>

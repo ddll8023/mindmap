@@ -4,40 +4,38 @@ import { SectionHeading, SubHeading } from "../components/SectionHeading";
 export default function GettingStarted() {
   return (
     <>
-          <SectionHeading id="getting-started">Getting Started</SectionHeading>
+          <SectionHeading id="getting-started">快速开始</SectionHeading>
 
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-            Open MindMap is a zero-dependency React component library for
-            interactive SVG-based mind maps. It supports Markdown input (AI
-            streaming ready), a plugin system for extended syntax, and exports
-            to SVG/PNG/Markdown.
+            开放思维导图是一款零运行时依赖的 React 组件库，用于创建可交互的 SVG 思维导图。
+            它支持 Markdown 输入（可接收 AI 流式输出）、扩展语法插件，并支持导出 SVG、PNG 和 Markdown。
           </p>
 
-          <SubHeading>Installation</SubHeading>
-          <CodeBlock lang="bash">{`# npm
+          <SubHeading>安装</SubHeading>
+          <CodeBlock lang="bash">{`# 使用 npm
 npm install @xiangfa/mindmap
 
-# pnpm
+# 使用 pnpm
 pnpm add @xiangfa/mindmap
 
-# yarn
+# 使用 yarn
 yarn add @xiangfa/mindmap`}</CodeBlock>
 
           <p className="text-sm text-slate-500 dark:text-slate-500 mt-3 mb-6">
-            For LaTeX math formula rendering, also install KaTeX (optional):
+            如需渲染 LaTeX 数学公式，还需安装 KaTeX（可选）：
           </p>
           <CodeBlock lang="bash">npm install katex</CodeBlock>
 
-          <SubHeading>Quick Start</SubHeading>
+          <SubHeading>快速上手</SubHeading>
           <CodeBlock lang="tsx">{`import { MindMap } from "@xiangfa/mindmap";
 import "@xiangfa/mindmap/style.css";
 
 const data = \`
-My Mind Map
-  - First Topic
-    - Sub-topic A
-    - Sub-topic B
-  - Second Topic
+我的思维导图
+  - 第一个主题
+    - 子主题 A
+    - 子主题 B
+  - 第二个主题
 \`;
 
 function App() {
@@ -46,113 +44,106 @@ function App() {
 
           <div className="bg-primary/5 dark:bg-primary/10 border border-primary/10 rounded-xl p-4 mt-4 mb-6">
             <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">
-              <span className="font-bold text-primary">Note:</span> The
-              component fills its parent container. Ensure the parent has an
-              explicit width and height.
+              <span className="font-bold text-primary">提示：</span>
+              组件会填充父容器，请确保父容器具有明确的宽度和高度。
             </p>
           </div>
 
-          <SubHeading>Markdown Input</SubHeading>
+          <SubHeading>Markdown 输入</SubHeading>
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            Pass a Markdown list directly — ideal for streaming AI responses:
+            可以直接传入 Markdown 列表，非常适合接收 AI 流式响应：
           </p>
           <CodeBlock lang="tsx">{`const markdown = \`
-Machine Learning
-  - Supervised Learning
-    - Classification
-    - Regression
-  - Unsupervised Learning
+机器学习
+  - 监督学习
+    - 分类
+    - 回归
+  - 无监督学习
 
-Application Areas
-  - Natural Language Processing
-  - Computer Vision
+应用领域
+  - 自然语言处理
+  - 计算机视觉
 \`;
 
 <MindMap markdown={markdown} />`}</CodeBlock>
           <p className="text-sm text-slate-500 dark:text-slate-500 mt-2 mb-6">
-            Separate different root node trees with blank lines in the Markdown.
+            在 Markdown 中使用空行分隔不同的根节点树。
           </p>
 
-          <SubHeading>Dark Mode</SubHeading>
-          <CodeBlock lang="tsx">{`<MindMap data={data} theme="auto" />  {/* Follow system (default) */}
-<MindMap data={data} theme="dark" />  {/* Always dark */}
-<MindMap data={data} theme="light" /> {/* Always light */}`}</CodeBlock>
+          <SubHeading>深色模式</SubHeading>
+          <CodeBlock lang="tsx">{`<MindMap data={data} theme="auto" />  {/* 跟随系统（默认） */}
+<MindMap data={data} theme="dark" />  {/* 始终使用深色 */}
+<MindMap data={data} theme="light" /> {/* 始终使用浅色 */}`}</CodeBlock>
 
-          <SubHeading>Layout Direction</SubHeading>
-          <CodeBlock lang="tsx">{`<MindMap data={data} defaultDirection="both" />  {/* Balanced (default) */}
-<MindMap data={data} defaultDirection="right" /> {/* All children on right */}
-<MindMap data={data} defaultDirection="left" />  {/* All children on left */}`}</CodeBlock>
+          <SubHeading>布局方向</SubHeading>
+          <CodeBlock lang="tsx">{`<MindMap data={data} defaultDirection="both" />  {/* 左右平衡（默认） */}
+<MindMap data={data} defaultDirection="right" /> {/* 所有子节点在右侧 */}
+<MindMap data={data} defaultDirection="left" />  {/* 所有子节点在左侧 */}`}</CodeBlock>
 
-          <SubHeading>Readonly Mode</SubHeading>
+          <SubHeading>只读模式</SubHeading>
           <CodeBlock lang="tsx">{`<MindMap data={data} readonly />`}</CodeBlock>
           <p className="text-sm text-slate-500 dark:text-slate-500 mt-2 mb-6">
-            Users can still pan, zoom, and select nodes but cannot create, edit,
-            or delete. The context menu hides edit actions.
+            用户仍然可以平移、缩放和选择节点，但不能新建、编辑或删除节点。右键菜单会隐藏编辑操作。
           </p>
 
-          <SubHeading>Lightweight Viewer</SubHeading>
+          <SubHeading>轻量查看器</SubHeading>
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            For read-only use cases where bundle size matters (dashboards, documentation, embeds),
-            use <code className="text-primary bg-primary/5 px-1.5 py-0.5 rounded text-sm">MindMapViewer</code> —
-            a standalone component with ~48% smaller bundle that excludes editing hooks, AI input,
-            context menu, and export utils.
+            对于关注打包体积的只读场景（数据面板、文档、嵌入页面），可以使用
+            <code className="text-primary bg-primary/5 px-1.5 py-0.5 rounded text-sm">MindMapViewer</code>。
+            这是一个独立组件，不包含编辑钩子、AI 输入、右键菜单和导出工具，打包体积约减少 48%。
           </p>
-          <CodeBlock lang="tsx">{`// Minimal bundle via sub-path import:
+          <CodeBlock lang="tsx">{`// 通过子路径导入获得最小体积：
 import { MindMapViewer } from "@xiangfa/mindmap/viewer";
 import "@xiangfa/mindmap/style.css";
 
 <MindMapViewer markdown={markdown} />
 
-// Or from the main entry (tree-shakeable):
+// 也可以从主入口导入（支持 Tree Shaking）：
 import { MindMapViewer } from "@xiangfa/mindmap";`}</CodeBlock>
           <p className="text-sm text-slate-500 dark:text-slate-500 mt-2 mb-6">
-            Supports all rendering features: themes, plugins, pan/zoom, fold toggle,
-            remark tooltips, and keyboard shortcuts. Does not include editing, drag-drop,
-            AI generation, context menu, export, or text editor.
+            支持主题、插件、平移缩放、折叠切换、备注提示和键盘快捷键等渲染功能。
+            不包含编辑、拖放排序、AI 生成、右键菜单、导出或文本编辑器。
           </p>
 
-          <SubHeading>Text Editor Mode</SubHeading>
+          <SubHeading>文本编辑模式</SubHeading>
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            Pass the <code className="text-primary bg-primary/5 px-1.5 py-0.5 rounded text-sm">MindMapTextEditor</code> component
-            to enable a built-in text editing mode with syntax highlighting. Users can toggle between the visual mind map and a
-            markdown text editor via a button in the bottom-right corner.
+            传入 <code className="text-primary bg-primary/5 px-1.5 py-0.5 rounded text-sm">MindMapTextEditor</code> 组件，
+            即可启用带语法高亮的文本编辑模式。用户可以通过右下角的按钮，在可视化思维导图和 Markdown 文本编辑器之间切换。
           </p>
           <CodeBlock lang="tsx">{`import { MindMap, MindMapTextEditor } from "@xiangfa/mindmap";
 
 <MindMap markdown={markdown} textEditor={MindMapTextEditor} />`}</CodeBlock>
           <p className="text-sm text-slate-500 dark:text-slate-500 mt-2 mb-6">
-            The text editor is opt-in and tree-shakeable — it is only bundled
-            when you import and pass it. If omitted, the text mode toggle button
-            is hidden.
+            文本编辑器是可选功能并支持 Tree Shaking，只有在导入并传入组件时才会被打包。
+            如果不传入，文本模式切换按钮会隐藏。
           </p>
 
-          <SubHeading>Plugins</SubHeading>
+          <SubHeading>插件</SubHeading>
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            All 7 built-in plugins are enabled by default. You can selectively
-            enable only what you need:
+            默认启用全部 7 个内置插件，也可以按需选择要启用的插件：
           </p>
           <CodeBlock lang="tsx">{`import {
   MindMap,
-  allPlugins,          // All 7 plugins
-  frontMatterPlugin,   // YAML frontmatter
-  dottedLinePlugin,    // Dotted edges
-  foldingPlugin,       // Collapsible nodes
-  multiLinePlugin,     // Multi-line content
-  tagsPlugin,          // Tag support
-  crossLinkPlugin,     // Cross-node references
-  latexPlugin,         // LaTeX math (requires KaTeX)
+  allPlugins,          // 全部 7 个插件
+  frontMatterPlugin,   // YAML 前置元数据
+  dottedLinePlugin,    // 虚线连接
+  foldingPlugin,       // 可折叠节点
+  multiLinePlugin,     // 多行内容
+  tagsPlugin,          // 标签支持
+  crossLinkPlugin,     // 节点间引用
+  latexPlugin,         // LaTeX 数学公式（需要 KaTeX）
 } from "@xiangfa/mindmap";
 
-{/* Use all plugins (default) */}
+{/* 使用全部插件（默认） */}
 <MindMap data={data} plugins={allPlugins} />
 
-{/* Only selected plugins */}
+{/* 只使用指定插件 */}
 <MindMap data={data} plugins={[foldingPlugin, tagsPlugin]} />
 
-{/* Disable all plugins */}
+{/* 禁用全部插件 */}
 <MindMap data={data} plugins={[]} />`}</CodeBlock>
 
-          <SubHeading>Ref API</SubHeading>
+          <SubHeading>Ref 接口</SubHeading>
           <CodeBlock lang="tsx">{`import { useRef } from "react";
 import { MindMap, type MindMapRef } from "@xiangfa/mindmap";
 
@@ -161,44 +152,41 @@ function App() {
 
   const handleExportPNG = async () => {
     const blob = await ref.current!.exportToPNG();
-    // ... download blob
+    // ... 下载 Blob
   };
 
   return <MindMap ref={ref} data={data} />;
 }`}</CodeBlock>
 
-          <SubHeading>Listening for Changes</SubHeading>
+          <SubHeading>监听变更</SubHeading>
           <CodeBlock lang="tsx">{`<MindMap
   data={data}
   onDataChange={(newData) => {
-    console.log("Mind map updated:", newData);
+    console.log("思维导图已更新：", newData);
   }}
 />`}</CodeBlock>
 
-          <SubHeading>i18n / Localization</SubHeading>
+          <SubHeading>国际化</SubHeading>
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-            UI language is automatically detected from the browser. Built-in
-            support for Chinese (<code className="text-xs">zh-CN</code>) and
-            English (<code className="text-xs">en-US</code>), with fallback to
-            English.
+            界面语言会自动从浏览器检测。组件内置中文（<code className="text-xs">zh-CN</code>）和英文（<code className="text-xs">en-US</code>）支持，未识别时回退到英文；需要固定中文时可传入 <code className="text-xs">locale="zh-CN"</code>。
           </p>
-          <CodeBlock lang="tsx">{`{/* Auto-detect (default) */}
+          <CodeBlock lang="tsx">{`{/* 自动检测（默认） */}
 <MindMap data={data} />
 
-{/* Force locale */}
+{/* 强制指定语言 */}
 <MindMap data={data} locale="zh-CN" />
 
-{/* Override specific strings */}
-<MindMap data={data} locale="zh-CN" messages={{ newNode: "New" }} />
+{/* 覆盖指定文案 */}
+<MindMap data={data} locale="zh-CN" messages={{ newNode: "新建" }} />
 
-{/* Fully custom language */}
+{/* 完全自定义语言 */}
 <MindMap
   data={data}
   messages={{
-    newNode: "Nuevo nodo",
-    zoomIn: "Acercar",
-    zoomOut: "Alejar",
-    // ... override any key from MindMapMessages
+    newNode: "新节点",
+    zoomIn: "放大",
+    zoomOut: "缩小",
+    // ... 覆盖 MindMapMessages 中的任意文案
   }}
 />`}</CodeBlock>
     </>

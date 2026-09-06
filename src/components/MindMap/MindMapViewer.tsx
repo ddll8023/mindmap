@@ -36,7 +36,6 @@ export const MindMapViewer = forwardRef<MindMapViewerRef, MindMapViewerProps>(fu
     messages: messageOverrides,
     toolbar = true,
     plugins: pluginsProp,
-    searchQuery = '',
     activeTags = [],
     onEvent,
   },
@@ -97,13 +96,13 @@ export const MindMapViewer = forwardRef<MindMapViewerRef, MindMapViewerProps>(fu
 
   // --- Shared view layer ---
   const {
-    nodes, edges, nodeMap, searchState, expandDelays,
+    nodes, edges, nodeMap, tagFilterState, expandDelays,
     pan, setPan, zoom, setZoom, animateTo, autoFit, zoomIn, zoomOut,
     newNodeIds, remarkTooltip, handleRemarkHover,
     handleAutoFit, triggerExpandAnimation,
   } = useMindMapView({
     svgRef, mapData, direction, colorMap, setColorMap, foldOverrides,
-    plugins, readonly: true, searchQuery, activeTags,
+    plugins, readonly: true, activeTags,
     onZoomChange: (z) => emit({ type: 'zoomChange', zoom: z }),
   });
 
@@ -207,8 +206,7 @@ export const MindMapViewer = forwardRef<MindMapViewerRef, MindMapViewerProps>(fu
           draggingCanvas={draggingCanvas}
           expandDelays={expandDelays}
           newNodeIds={newNodeIds}
-          searchMatches={searchState.searchMatches}
-          dimmedNodes={searchState.dimmedNodes}
+          dimmedNodes={tagFilterState.dimmedNodes}
           readonly
           onRemarkHover={handleRemarkHover}
           onFoldToggle={plugins ? handleFoldToggle : undefined}

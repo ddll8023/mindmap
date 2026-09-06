@@ -51,8 +51,6 @@ export interface MindMapNodeProps {
   onRemarkHover?: (nodeId: string | null) => void;
   onFoldToggle?: (nodeId: string) => void;
   expandDelay?: number;
-  isSearchMatch?: boolean;
-  isActiveMatch?: boolean;
   isFilterDimmed?: boolean;
   latexRenderer?: LatexRenderer;
 }
@@ -668,8 +666,6 @@ export function MindMapNode({
   onRemarkHover,
   onFoldToggle,
   expandDelay,
-  isSearchMatch,
-  isActiveMatch,
   isFilterDimmed,
   latexRenderer,
 }: MindMapNodeProps) {
@@ -680,8 +676,6 @@ export function MindMapNode({
   const newClass = isNew ? "mindmap-node-new" : "";
   const placeholderClass = node.placeholder ? "mindmap-node-placeholder" : "";
   const expandClass = expandDelay !== undefined ? "mindmap-node-expanding" : "";
-  const searchClass = isSearchMatch ? " mindmap-node-search-match" : "";
-  const activeMatchClass = isActiveMatch ? " mindmap-node-active-match" : "";
   const dimmedClass = isFilterDimmed ? " mindmap-node-filter-dimmed" : "";
   const expandStyle =
     expandDelay !== undefined
@@ -710,7 +704,7 @@ export function MindMapNode({
       <g
         key={node.id}
         transform={`translate(${nx}, ${ny})`}
-        className={`mindmap-node-g mindmap-node-root ${animClass} ${newClass} ${placeholderClass} ${expandClass}${isGhost ? ' mindmap-node-ghost' : ''}${searchClass}${activeMatchClass}${dimmedClass}`}
+        className={`mindmap-node-g mindmap-node-root ${animClass} ${newClass} ${placeholderClass} ${expandClass}${isGhost ? ' mindmap-node-ghost' : ''}${dimmedClass}`}
         data-branch-index={node.branchIndex}
         role="treeitem"
         aria-label={node.text}
@@ -872,7 +866,7 @@ export function MindMapNode({
     <g
       key={node.id}
       transform={`translate(${nx}, ${ny})`}
-      className={`mindmap-node-g mindmap-node-child ${animClass} ${newClass} ${placeholderClass}${isGhost ? ' mindmap-node-ghost' : ''}${searchClass}${activeMatchClass}${dimmedClass}`}
+      className={`mindmap-node-g mindmap-node-child ${animClass} ${newClass} ${placeholderClass}${isGhost ? ' mindmap-node-ghost' : ''}${dimmedClass}`}
       data-branch-index={node.branchIndex}
       role="treeitem"
       aria-label={node.text}

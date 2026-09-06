@@ -1,15 +1,10 @@
 import { expect, test } from '@playwright/test'
 
-test('mind map editor supports search, import, undo, and redo', async ({ page }) => {
+test('mind map editor supports import, undo, and redo', async ({ page }) => {
   await page.goto('/')
 
   const svg = page.locator('.mindmap-svg').first()
   await expect(svg).toBeVisible()
-
-  const searchControls = page.locator('.mindmap-search-controls').first()
-  await expect(searchControls).toBeVisible()
-  await searchControls.locator('.mindmap-search-input').fill('React')
-  await expect(searchControls.locator('.mindmap-search-count')).toHaveText('1/1')
 
   await svg.click()
   await svg.click({ button: 'right', position: { x: 320, y: 240 } })
@@ -58,7 +53,7 @@ test('mind map editor supports search, import, undo, and redo', async ({ page })
   const redo = page.locator('.mindmap-ctrl-redo')
   await expect(undo).toBeEnabled()
   await undo.click()
-  await expect(page.getByRole('treeitem', { name: 'Open MindMap' })).toBeVisible()
+  await expect(page.getByRole('treeitem', { name: '开放思维导图' })).toBeVisible()
   await expect(redo).toBeEnabled()
   await redo.click()
   await expect(page.getByRole('treeitem', { name: 'Imported Root' })).toBeVisible()
