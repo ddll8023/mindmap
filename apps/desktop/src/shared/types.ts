@@ -1,13 +1,14 @@
 export type DesktopCommand =
-  | "import-markdown"
+  | "import-xmind"
   | "export-svg"
   | "export-png";
 
-export interface OpenMarkdownResult {
+export interface OpenXMindResult {
   canceled: boolean;
   filePath?: string;
   fileName?: string;
   content?: string;
+  warnings?: string[];
 }
 
 export interface SaveExportResult {
@@ -16,7 +17,7 @@ export interface SaveExportResult {
 }
 
 export interface DesktopApi {
-  openMarkdown(): Promise<OpenMarkdownResult>;
+  openXMind(): Promise<OpenXMindResult>;
   saveSvg(content: string, suggestedName: string): Promise<SaveExportResult>;
   savePng(data: ArrayBuffer, suggestedName: string): Promise<SaveExportResult>;
   onCommand(listener: (command: DesktopCommand) => void): () => void;

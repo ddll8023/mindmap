@@ -2,7 +2,7 @@ import { contextBridge, ipcRenderer } from "electron";
 import type { DesktopApi, DesktopCommand } from "./shared/types";
 
 const desktopApi: DesktopApi = {
-  openMarkdown: () => ipcRenderer.invoke("document:open-markdown"),
+  openXMind: () => ipcRenderer.invoke("document:open-xmind"),
   saveSvg: (content, suggestedName) =>
     ipcRenderer.invoke("export:save-svg", { content, suggestedName }),
   savePng: (data, suggestedName) =>

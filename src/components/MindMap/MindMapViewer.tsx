@@ -119,6 +119,7 @@ export const MindMapViewer = forwardRef<MindMapViewerRef, MindMapViewerProps>(fu
   // --- Initial entrance ---
   const [initialReady, setInitialReady] = useState(false);
 
+  // Markdown/data updates preserve the current viewport; only initial and view-layout changes fit.
   useEffect(() => {
     const fit = autoFit();
     if (fit) {
@@ -137,7 +138,7 @@ export const MindMapViewer = forwardRef<MindMapViewerRef, MindMapViewerProps>(fu
     } else if (!initialReady) {
       requestAnimationFrame(() => setInitialReady(true));
     }
-  }, [nodes, autoFit, setZoom, setPan, initialReady, animateTo]);
+  }, [direction, plugins, autoFit, setZoom, setPan, initialReady, animateTo]);
 
   const handleDirectionChange = useCallback((dir: LayoutDirection) => {
     setDirection(dir);

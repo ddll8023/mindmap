@@ -42,7 +42,7 @@ const PNG_SCALE_OPTIONS: readonly CustomSelectOption<ExportScale>[] = [
 ];
 
 function getBaseName(fileName: string): string {
-  const withoutExtension = fileName.replace(/\.(?:md|markdown|txt)$/i, "");
+  const withoutExtension = fileName.replace(/\.(?:xmind|md|markdown|txt)$/i, "");
   return withoutExtension.trim() || "mindmap";
 }
 
@@ -89,13 +89,15 @@ function DesktopApp() {
     [busy],
   );
 
-  const handleImport = useCallback(async () => {
+  const handleImportXMind = useCallback(async () => {
     await runAction(async () => {
-      const result = await window.desktopApi.openMarkdown();
+      const result = await window.desktopApi.openXMind();
       if (result.canceled || !result.content) return;
       setMarkdown(result.content);
-      setFileName(result.fileName ?? "未命名.md");
-      setStatus(`已导入 ${result.fileName ?? "Markdown"}`);
+      setFileName(result.fileName ?? "未命名.xmind");
+      const warningSuffix = result.warnings?.length ? "（部分内容未转换）" : "";
+      setStatus(`已导入 ${result.fileName ?? "XMind"}${warningSuffix}`);
+      requestAnimationFrame(() => mindMapRef.current?.fitView());
     }, "import");
   }, [runAction]);
 
@@ -138,11 +140,11 @@ function DesktopApp() {
 
   const handleCommand = useCallback(
     (command: DesktopCommand) => {
-      if (command === "import-markdown") void handleImport();
+      if (command === "import-xmind") void handleImportXMind();
       if (command === "export-svg") void handleExportSvg();
       if (command === "export-png") void handleExportPng();
     },
-    [handleExportPng, handleExportSvg, handleImport],
+    [handleExportPng, handleExportSvg, handleImportXMind],
   );
 
   useEffect(() => window.desktopApi.onCommand(handleCommand), [handleCommand]);
@@ -159,7 +161,7 @@ function DesktopApp() {
             <span className="brand-link brand-link-bottom" />
           </div>
           <div>
-            <h1>Markdown 转思维导图</h1>
+            <h1>Markdown / XMind 转思维导图</h1>
           </div>
         </div>
 
@@ -181,11 +183,11 @@ function DesktopApp() {
           <button
             className="toolbar-button toolbar-button-primary"
             type="button"
-            onClick={() => void handleImport()}
+            onClick={() => void handleImportXMind()}
             disabled={busy !== null}
           >
             <FileUp size={16} strokeWidth={2.2} />
-            <span>导入 Markdown</span>
+            <span>导入 XMind</span>
           </button>
           <button
             className="toolbar-button"

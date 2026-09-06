@@ -69,6 +69,9 @@ importers:
 
   apps/desktop:
     dependencies:
+      '@ljheee/xmind-parser':
+        specifier: ^1.1.3
+        version: 1.1.3
       lucide-react:
         specifier: 1.20.0
         version: 1.20.0(react@19.2.4)
@@ -440,6 +443,10 @@ packages:
     engines: {node: '>=18.0.0'}
     peerDependencies:
       '@inquirer/prompts': '>= 3 < 8'
+
+  '@ljheee/xmind-parser@1.1.3':
+    resolution: {integrity: sha512-cAfbd8ANkOmyHgE3FZrCJwdyQv8ty0woMC6toSUvgo6Cm2crS3ibS+YKrTPDbDhjP6cJoVsoboRNdCWeDL5xMg==}
+    engines: {node: '>=14.8.0'}
 
   '@malept/cross-spawn-promise@2.0.0':
     resolution: {integrity: sha512-1DpKU0Z5ThltBwjNySMC14g0CkbyhCaz9FkhxqNsZI6uAPJXFS8cMXlBKo26FJ8ZuW6S9GCMcR9IO5k2X5/9Fg==}
@@ -3550,6 +3557,10 @@ snapshots:
     dependencies:
       '@inquirer/prompts': 6.0.1
       '@inquirer/type': 1.5.5
+
+  '@ljheee/xmind-parser@1.1.3':
+    dependencies:
+      '@xmldom/xmldom': 0.9.12
 
   '@malept/cross-spawn-promise@2.0.0':
     dependencies:

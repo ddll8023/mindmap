@@ -12,10 +12,14 @@ export function usePanZoom(
   // Keep refs in sync for stable callbacks
   const zoomRef = useRef(zoom)
   const panRef = useRef(pan)
+  const nodesRef = useRef(nodes)
   useEffect(() => {
     zoomRef.current = zoom
     panRef.current = pan
   })
+  useEffect(() => {
+    nodesRef.current = nodes
+  }, [nodes])
 
   // Content center for pinch-to-zoom centering
   const contentCenter = useMemo(() => {
@@ -63,12 +67,13 @@ export function usePanZoom(
 
   const autoFit = useCallback(() => {
     const svg = svgRef.current
-    if (!svg || nodes.length === 0) return
+    const currentNodes = nodesRef.current
+    if (!svg || currentNodes.length === 0) return
     const containerW = svg.clientWidth
     const containerH = svg.clientHeight
 
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity
-    for (const n of nodes) {
+    for (const n of currentNodes) {
       minX = Math.min(minX, n.x - n.width / 2)
       maxX = Math.max(maxX, n.x + n.width / 2)
       minY = Math.min(minY, n.y - n.height / 2)
@@ -91,7 +96,7 @@ export function usePanZoom(
       panX: containerW / 2 - centerX * z,
       panY: containerH / 2 - centerY * z,
     }
-  }, [svgRef, nodes])
+  }, [svgRef])
 
   // Register wheel handler with { passive: false } to allow preventDefault
   useEffect(() => {

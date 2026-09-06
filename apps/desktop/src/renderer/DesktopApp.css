@@ -53,6 +53,8 @@ select:focus-visible,
 }
 
 .desktop-topbar {
+  position: relative;
+  z-index: 20;
   display: flex;
   align-items: center;
   gap: 24px;

@@ -7,11 +7,13 @@ import {
   type MenuItemConstructorOptions,
 } from "electron/main";
 import { shell } from "electron/common";
+import { xmindBufferToKm } from "@ljheee/xmind-parser";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import type { DesktopCommand } from "./shared/types";
+import type { DesktopCommand, OpenXMindResult } from "./shared/types";
+import { convertXMindSheetsToMarkdown } from "./shared/xmind-markdown";
 
-const MAX_MARKDOWN_BYTES = 10 * 1024 * 1024;
+const MAX_XMIND_BYTES = 50 * 1024 * 1024;
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -54,18 +56,12 @@ async function writeFileAtomically(
   }
 }
 
-async function openMarkdown(): Promise<{
-  canceled: boolean;
-  filePath?: string;
-  fileName?: string;
-  content?: string;
-}> {
+async function openXMind(): Promise<OpenXMindResult> {
   const result = await dialog.showOpenDialog({
-    title: "导入 Markdown",
+    title: "导入 XMind",
     properties: ["openFile"],
     filters: [
-      { name: "Markdown 文件", extensions: ["md", "markdown"] },
-      { name: "文本文件", extensions: ["txt"] },
+      { name: "XMind 文件", extensions: ["xmind"] },
       { name: "所有文件", extensions: ["*"] },
     ],
   });
@@ -74,16 +70,28 @@ async function openMarkdown(): Promise<{
   if (result.canceled || !filePath) return { canceled: true };
 
   const fileStats = await fs.stat(filePath);
-  if (fileStats.size > MAX_MARKDOWN_BYTES) {
-    throw new Error("Markdown 文件超过 10 MB，暂不支持导入。");
+  if (fileStats.size > MAX_XMIND_BYTES) {
+    throw new Error("XMind 文件超过 50 MB，暂不支持导入。");
   }
 
-  return {
-    canceled: false,
-    filePath,
-    fileName: path.basename(filePath),
-    content: await fs.readFile(filePath, "utf8"),
-  };
+  const fileName = path.basename(filePath);
+  try {
+    const fileBuffer = await fs.readFile(filePath);
+    const arrayBuffer = Uint8Array.from(fileBuffer).buffer;
+    const sheets = await xmindBufferToKm(arrayBuffer);
+    const converted = convertXMindSheetsToMarkdown(sheets, fileName);
+
+    return {
+      canceled: false,
+      filePath,
+      fileName,
+      content: converted.markdown,
+      warnings: converted.warnings,
+    };
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : "文件格式无法识别";
+    throw new Error(`无法导入 XMind 文件：${reason}`);
+  }
 }
 
 async function saveSvg(payload: {
@@ -123,7 +131,7 @@ async function savePng(payload: {
 }
 
 function registerIpcHandlers(): void {
-  ipcMain.handle("document:open-markdown", openMarkdown);
+  ipcMain.handle("document:open-xmind", openXMind);
   ipcMain.handle("export:save-svg", (_event, payload: Parameters<typeof saveSvg>[0]) =>
     saveSvg(payload),
   );
@@ -142,9 +150,9 @@ function buildApplicationMenu(): void {
     label: "文件",
     submenu: [
       {
-        label: "导入 Markdown…",
+        label: "导入 XMind…",
         accelerator: "CmdOrCtrl+O",
-        click: () => sendCommand("import-markdown"),
+        click: () => sendCommand("import-xmind"),
       },
       { type: "separator" },
       {

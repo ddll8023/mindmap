@@ -330,7 +330,8 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
   // --- Initial entrance state ---
   const [initialReady, setInitialReady] = useState(false);
 
-  // --- Auto-fit on data change (suppressed during drag and node creation) ---
+  // --- Auto-fit on initial render and view-layout changes ---
+  // Markdown edits update the layout but must not move the user's viewport.
   useEffect(() => {
     if (floatingNodeId) return;
     if (pendingEditId) return;
@@ -352,7 +353,7 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
     } else if (!initialReady) {
       requestAnimationFrame(() => setInitialReady(true));
     }
-  }, [nodes, autoFit, floatingNodeId, pendingEditId, setZoom, setPan, initialReady, animateTo]);
+  }, [direction, splitIndices, plugins, readonlyProp, autoFit, floatingNodeId, pendingEditId, setZoom, setPan, initialReady, animateTo]);
 
   // Pan to newly created node (keep zoom, only pan)
   useEffect(() => {
