@@ -336,6 +336,7 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
   } = useDrag({
     svgRef, zoom, pan, setPan, setZoom, nodeMap, nodes, updateData,
     direction, splitIndices, setSplitIndices, mapData, contentCenter,
+    readonly: readonlyProp,
   });
 
   // --- Node Edit ---
@@ -394,20 +395,18 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
   const handleNodeClick = useCallback(
     (e: React.MouseEvent, nodeId: string) => {
       e.stopPropagation();
-      if (!didDragRef.current) {
-        setSelectedNodeIdControlled(nodeId);
-        emit({ type: 'nodeSelect', nodeId });
-      }
+      if (readonlyProp || didDragRef.current) return;
+      setSelectedNodeIdControlled(nodeId);
+      emit({ type: 'nodeSelect', nodeId });
     },
-    [didDragRef, emit, setSelectedNodeIdControlled],
+    [didDragRef, emit, readonlyProp, setSelectedNodeIdControlled],
   );
 
   const handleCanvasClick = useCallback(() => {
-    if (!didDragRef.current) {
-      setSelectedNodeIdControlled(null);
-      emit({ type: 'nodeSelect', nodeId: null });
-    }
-  }, [didDragRef, emit, setSelectedNodeIdControlled]);
+    if (readonlyProp || didDragRef.current) return;
+    setSelectedNodeIdControlled(null);
+    emit({ type: 'nodeSelect', nodeId: null });
+  }, [didDragRef, emit, readonlyProp, setSelectedNodeIdControlled]);
 
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -868,8 +867,9 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
         }
       }
 
-      // Arrow keys — move selection to the nearest node in that direction
+      // Arrow keys select nodes only in editable mode.
       if (
+        !readonlyProp &&
         !e.shiftKey &&
         (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight")
       ) {
@@ -1107,7 +1107,7 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
           dimmedNodes={tagFilterState.dimmedNodes}
           readonly={readonlyProp}
           latexRenderer={latexRenderer}
-          selectedNodeId={selectedNodeId}
+          selectedNodeId={readonlyProp ? null : selectedNodeId}
           editingId={editingId}
           pendingEditId={pendingEditId}
           editText={editText}

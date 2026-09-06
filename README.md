@@ -134,7 +134,7 @@ Display a mind map without allowing edits — perfect for presentations, documen
 <MindMap data={data} readonly />
 ```
 
-In readonly mode, users can still pan, zoom, and select nodes, but cannot create, edit, or delete nodes. The context menu hides editing actions (new root node, import) while keeping view-only actions (export, layout).
+In readonly mode, users can pan, zoom, and expand or collapse nodes, but clicking a node does not create a selection or edit state, and nodes cannot be created, edited, deleted, or dragged. The context menu hides editing actions (new root node, import) while keeping view-only actions (export, layout).
 
 ### Lightweight Viewer
 
@@ -596,12 +596,12 @@ Render mathematical formulas (requires [KaTeX](https://katex.org/)):
 | `readonly`         | `boolean`                       | `false`      | Display-only mode (no editing, no creating)                                    |
 | `toolbar`          | `boolean \| ToolbarConfig`      | `true`       | Show/hide zoom, history, and tag controls                                      |
 | `ai`               | `MindMapAIConfig`               | -            | AI generation configuration (API endpoint, key, model, attachments)            |
-| `selectedNodeId`   | `string \| null`                | -            | Controlled selected node id                                                    |
+| `selectedNodeId`   | `string \| null`                | -            | Controlled selected node id; readonly mode does not render click selection    |
 | `activeTags`       | `string[]`                      | -            | Controlled active tag filters                                                  |
 | `plugins`          | `MindMapPlugin[]`               | `allPlugins` | Plugins to enable for extended syntax                                          |
 | `textEditor`       | `ComponentType`                 | -            | Pass `MindMapTextEditor` to enable text editing mode. Opt-in for tree-shaking. |
 | `onDataChange`     | `(data: MindMapData[]) => void` | -            | Called when the tree is modified by user interaction                           |
-| `onSelectedNodeChange` | `(nodeId: string \| null) => void` | -        | Called when selection changes                                                  |
+| `onSelectedNodeChange` | `(nodeId: string \| null) => void` | -        | Called when selection changes in editable mode                                |
 | `onActiveTagsChange` | `(tags: string[]) => void`    | -            | Called when active tag filters change                                          |
 
 ### ToolbarConfig
@@ -655,8 +655,8 @@ interface MindMapAIConfig {
 | `setMarkdown(md)`   | `void`          | Parses Markdown, applies valid frontmatter, and emits `onDataChange` |
 | `importMarkdown(md)` | `void`         | Imports Markdown through editor history |
 | `importData(data)`  | `void`          | Imports JSON data through editor history |
-| `selectNode(id)`    | `void`          | Selects a node, or clears selection with `null` |
-| `focusNode(id)`     | `void`          | Selects and pans to a node             |
+| `selectNode(id)`    | `void`          | Selects a node in editable mode, or clears selection with `null` |
+| `focusNode(id)`     | `void`          | Pans to a node and selects it in editable mode |
 | `expandNode(id)`    | `void`          | Expands a folded node                  |
 | `collapseNode(id)`  | `void`          | Marks and collapses a node             |
 | `undo()` / `redo()` | `void`          | Moves through editor history           |

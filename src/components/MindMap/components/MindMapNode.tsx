@@ -84,7 +84,8 @@ function FoldToggle({
 
   return (
     <g
-      className="mindmap-fold-btn"
+      className={`mindmap-fold-btn${isCollapsed ? " is-collapsed" : ""}${x < 0 ? " is-left" : ""}`}
+      style={{ color: theme.node.textColor }}
       role="button"
       tabIndex={0}
       aria-label={isCollapsed ? expandLabel : collapseLabel}
@@ -96,27 +97,22 @@ function FoldToggle({
       }}
       onKeyDown={handleKeyDown}
     >
-      <circle cx={x} cy={0} r={9} fill={theme.addBtn.fill} />
-      <line
-        x1={x - 4}
-        y1={0}
-        x2={x + 4}
-        y2={0}
-        stroke={theme.addBtn.iconColor}
-        strokeWidth={2}
-        strokeLinecap="round"
+      <title>{isCollapsed ? expandLabel : collapseLabel}</title>
+      <circle className="mindmap-fold-hit" cx={x} cy={0} r={14} fill="transparent" />
+      <rect
+        className="mindmap-fold-surface"
+        x={x - 10} y={-10} width={20} height={20} rx={6}
+        fill="transparent" stroke="transparent" strokeWidth={1.5}
       />
-      {!isCollapsed && (
-        <line
-          x1={x}
-          y1={-4}
-          x2={x}
-          y2={4}
-          stroke={theme.addBtn.iconColor}
-          strokeWidth={2}
-          strokeLinecap="round"
+      {/* Keep icon rotation separate from its position and the node layout. */}
+      <g transform={`translate(${x}, 0)`} aria-hidden="true" pointerEvents="none">
+        <path
+          className="mindmap-fold-chevron"
+          d="M -2 -4 L 2 0 L -2 4"
+          fill="none" stroke="currentColor" strokeWidth={1.6}
+          strokeLinecap="round" strokeLinejoin="round"
         />
-      )}
+      </g>
     </g>
   );
 }
@@ -741,7 +737,7 @@ export function MindMapNode({
   const ny = node.y + (offset?.y ?? 0);
   const showInput = isEditing || isPendingEdit;
   const displayEditText = isPendingEdit && !isEditing ? "" : editText;
-  const newClass = isNew ? "mindmap-node-new" : "";
+  const newClass = isNew && expandDelay === undefined ? "mindmap-node-new" : "";
   const placeholderClass = node.placeholder ? "mindmap-node-placeholder" : "";
   const expandClass = expandDelay !== undefined ? "mindmap-node-expanding" : "";
   const dimmedClass = isFilterDimmed ? " mindmap-node-filter-dimmed" : "";
@@ -776,7 +772,7 @@ export function MindMapNode({
         data-branch-index={node.branchIndex}
         role="treeitem"
         aria-label={node.text}
-        tabIndex={-1}
+        tabIndex={readonlyProp ? undefined : -1}
         onMouseDown={(e) => onMouseDown(e, node.id)}
         onClick={(e) => onClick(e, node.id)}
         onDoubleClick={(e) => onDoubleClick(e, node.id, rawEditText)}
@@ -931,11 +927,12 @@ export function MindMapNode({
     <g
       key={node.id}
       transform={`translate(${nx}, ${ny})`}
-      className={`mindmap-node-g mindmap-node-child ${animClass} ${newClass} ${placeholderClass}${isGhost ? ' mindmap-node-ghost' : ''}${dimmedClass}`}
+      className={`mindmap-node-g mindmap-node-child ${animClass} ${newClass} ${placeholderClass} ${expandClass}${isGhost ? ' mindmap-node-ghost' : ''}${dimmedClass}`}
+      style={expandStyle}
       data-branch-index={node.branchIndex}
       role="treeitem"
       aria-label={node.text}
-      tabIndex={-1}
+      tabIndex={readonlyProp ? undefined : -1}
       onMouseDown={(e) => onMouseDown(e, node.id)}
       onClick={(e) => onClick(e, node.id)}
       onDoubleClick={(e) => onDoubleClick(e, node.id, rawEditText)}

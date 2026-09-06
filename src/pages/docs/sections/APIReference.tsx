@@ -100,7 +100,7 @@ export default function APIReference() {
                   <td>
                     <code>false</code>
                   </td>
-                  <td>只读模式（不可编辑或新建）</td>
+                  <td>只读模式（不可编辑、新建、拖拽或点击选中）</td>
                 </tr>
                 <tr>
                   <td>
@@ -137,7 +137,7 @@ export default function APIReference() {
                   <td><code>selectedNodeId</code></td>
                   <td><code>string | null</code></td>
                   <td>-</td>
-                  <td>受控的选中节点 ID</td>
+                  <td>受控的选中节点 ID；只读模式不显示点击选中效果</td>
                 </tr>
                 <tr>
                   <td><code>activeTags</code></td>
@@ -273,12 +273,12 @@ export default function APIReference() {
                 <tr>
                   <td><code>selectNode(id)</code></td>
                   <td><code>void</code></td>
-                  <td>选择节点或清除选择</td>
+                  <td>可编辑模式下选中节点或清除选择</td>
                 </tr>
                 <tr>
                   <td><code>focusNode(id)</code></td>
                   <td><code>void</code></td>
-                  <td>选择节点并将其平移到视图中</td>
+                  <td>将节点平移到视图中，并在可编辑模式下选中它</td>
                 </tr>
                 <tr>
                   <td><code>undo() / redo()</code></td>

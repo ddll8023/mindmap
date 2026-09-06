@@ -92,28 +92,38 @@ export function useMindMapView({
   );
 
   // --- Expand animation (BFS stagger from the expanded node) ---
-  const [expandingFromId, setExpandingFromId] = useState<string | null>(null);
+  const [expansion, setExpansion] = useState<{ nodeId: string } | null>(null);
   const triggerExpandAnimation = useCallback((nodeId: string) => {
-    setExpandingFromId(nodeId);
-    setTimeout(() => setExpandingFromId(null), 800);
+    setExpansion({ nodeId });
   }, []);
 
+  useEffect(() => {
+    if (!expansion) return;
+    // 180ms maximum stagger + 260ms entrance; cancel stale timers on retoggle.
+    const timer = setTimeout(() => setExpansion(null), 460);
+    return () => clearTimeout(timer);
+  }, [expansion]);
+
   const expandDelays = useMemo(() => {
-    if (!expandingFromId) return {};
+    if (!expansion) return {};
     const delays: Record<string, number> = {};
-    const queue: { id: string; depth: number }[] = [];
-    for (const n of nodes) {
-      if (n.parentId === expandingFromId) queue.push({ id: n.id, depth: 1 });
+    const children = new Map<string, string[]>();
+    for (const node of nodes) {
+      if (!node.parentId) continue;
+      const siblings = children.get(node.parentId) ?? [];
+      siblings.push(node.id);
+      children.set(node.parentId, siblings);
     }
-    while (queue.length > 0) {
-      const { id, depth } = queue.shift()!;
-      delays[id] = depth * 100; // 100ms stagger per depth level
-      for (const n of nodes) {
-        if (n.parentId === id) queue.push({ id: n.id, depth: depth + 1 });
+    const queue = (children.get(expansion.nodeId) ?? []).map((id) => ({ id, depth: 0 }));
+    for (let i = 0; i < queue.length; i++) {
+      const { id, depth } = queue[i];
+      delays[id] = Math.min(depth * 45, 180);
+      for (const childId of children.get(id) ?? []) {
+        queue.push({ id: childId, depth: depth + 1 });
       }
     }
     return delays;
-  }, [expandingFromId, nodes]);
+  }, [expansion, nodes]);
 
   // --- Pan / Zoom ---
   const panZoom = usePanZoom(svgRef, nodes);

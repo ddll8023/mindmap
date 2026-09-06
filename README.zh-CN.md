@@ -134,7 +134,7 @@ const markdown = `
 <MindMap data={data} readonly />
 ```
 
-在只读模式下，用户仍可平移、缩放和选择节点，但不能创建、编辑或删除节点。右键菜单会隐藏编辑操作（新建根节点、导入），保留仅查看操作（导出、布局）。
+在只读模式下，用户可以平移、缩放和展开/收起节点，但点击节点不会产生选中或编辑状态，也不能创建、编辑、删除或拖拽节点。右键菜单会隐藏编辑操作（新建根节点、导入），保留仅查看操作（导出、布局）。
 
 ### 轻量查看器
 
@@ -596,12 +596,12 @@ theme: dark
 | `readonly`         | `boolean`                       | `false`      | 仅显示模式（不可编辑、不可创建）                                           |
 | `toolbar`          | `boolean \| ToolbarConfig`      | `true`       | 显示/隐藏缩放、历史和标签控件                                              |
 | `ai`               | `MindMapAIConfig`               | -            | AI 生成配置（API 地址、密钥、模型、附件类型）                              |
-| `selectedNodeId`   | `string \| null`                | -            | 受控选中节点 id                                                            |
+| `selectedNodeId`   | `string \| null`                | -            | 受控选中节点 id；只读模式不显示点击选中效果                                |
 | `activeTags`       | `string[]`                      | -            | 受控标签筛选                                                               |
 | `plugins`          | `MindMapPlugin[]`               | `allPlugins` | 启用的扩展语法插件                                                         |
 | `textEditor`       | `ComponentType`                 | -            | 传入 `MindMapTextEditor` 以启用文本编辑模式。可选引入，支持 tree-shaking。 |
 | `onDataChange`     | `(data: MindMapData[]) => void` | -            | 用户交互修改树时调用                                                       |
-| `onSelectedNodeChange` | `(nodeId: string \| null) => void` | -    | 选中节点变化时调用                                                         |
+| `onSelectedNodeChange` | `(nodeId: string \| null) => void` | -    | 可编辑模式下选中节点变化时调用                                             |
 | `onActiveTagsChange` | `(tags: string[]) => void`    | -            | 标签筛选变化时调用                                                         |
 
 ### ToolbarConfig
@@ -655,8 +655,8 @@ interface MindMapAIConfig {
 | `setMarkdown(md)`   | `void`          | 解析 Markdown、应用有效 frontmatter，并触发 `onDataChange` |
 | `importMarkdown(md)` | `void`         | 通过编辑历史导入 Markdown    |
 | `importData(data)`  | `void`          | 通过编辑历史导入 JSON 数据   |
-| `selectNode(id)`    | `void`          | 选中节点，传入 `null` 清空选择 |
-| `focusNode(id)`     | `void`          | 选中并平移到指定节点         |
+| `selectNode(id)`    | `void`          | 在可编辑模式下选中节点，传入 `null` 清空选择 |
+| `focusNode(id)`     | `void`          | 平移到指定节点，并在可编辑模式下选中它 |
 | `expandNode(id)`    | `void`          | 展开折叠节点                 |
 | `collapseNode(id)`  | `void`          | 标记并折叠节点               |
 | `undo()` / `redo()` | `void`          | 在编辑历史中前进/后退        |

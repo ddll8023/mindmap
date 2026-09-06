@@ -16,6 +16,7 @@ interface UseDragParams {
   setSplitIndices: React.Dispatch<React.SetStateAction<Record<string, number>>>
   mapData: MindMapData[]
   contentCenter: { x: number; y: number }
+  readonly?: boolean
 }
 
 export function useDrag({
@@ -32,6 +33,7 @@ export function useDrag({
   setSplitIndices,
   mapData,
   contentCenter,
+  readonly = false,
 }: UseDragParams) {
   const [draggingCanvas, setDraggingCanvas] = useState(false)
   const [floatingNodeId, setFloatingNodeId] = useState<string | null>(null)
@@ -191,6 +193,7 @@ export function useDrag({
 
   const handleNodeMouseDown = useCallback(
     (e: React.MouseEvent, nodeId: string) => {
+      if (readonly) return
       e.stopPropagation()
       if (e.button !== 0) return
       didDragRef.current = false
@@ -204,7 +207,7 @@ export function useDrag({
         y: node.y - svgPos.y,
       }
     },
-    [nodeMap, clientToSvg],
+    [nodeMap, clientToSvg, readonly],
   )
 
   // --- Touch event handlers (native, registered with { passive: false }) ---
@@ -287,7 +290,7 @@ export function useDrag({
         const touch = touches[0]
         // Check if touch started on a node
         const nodeId = findNodeIdFromTarget(e.target)
-        if (nodeId) {
+        if (nodeId && !readonly) {
           // Skip drag if touch started on an add button
           let el = e.target as Element | null
           while (el && el !== svgEl) {
@@ -485,7 +488,7 @@ export function useDrag({
       svgEl.removeEventListener('touchend', handleTouchEnd)
       svgEl.removeEventListener('touchcancel', handleTouchEnd)
     }
-  }, [svgRef, setPan, setZoom, findNodeIdFromTarget, direction, mapData, splitIndices, setSplitIndices, updateData, nodes])
+  }, [svgRef, setPan, setZoom, findNodeIdFromTarget, direction, mapData, splitIndices, setSplitIndices, updateData, nodes, readonly])
 
   return {
     draggingCanvas,

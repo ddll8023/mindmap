@@ -83,7 +83,7 @@ function App() {
           <SubHeading>只读模式</SubHeading>
           <CodeBlock lang="tsx">{`<MindMap data={data} readonly />`}</CodeBlock>
           <p className="text-sm text-slate-500 dark:text-slate-500 mt-2 mb-6">
-            用户仍然可以平移、缩放和选择节点，但不能新建、编辑或删除节点。右键菜单会隐藏编辑操作。
+            用户仍然可以平移、缩放和展开/收起节点，但点击节点不会产生选中或编辑状态。
           </p>
 
           <SubHeading>轻量查看器</SubHeading>

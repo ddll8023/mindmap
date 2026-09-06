@@ -32,6 +32,11 @@
   cursor: pointer;
 }
 
+/* SVG graphics can show a browser focus ring after a mouse click. */
+.mindmap-node-g:focus {
+  outline: none;
+}
+
 .mindmap-node-ghost {
   opacity: 0.3;
 }
@@ -57,9 +62,43 @@
   outline: none;
 }
 
-.mindmap-fold-btn:focus-visible circle {
+.mindmap-fold-surface {
+  transition: fill 160ms ease, stroke 160ms ease;
+}
+
+.mindmap-fold-btn:hover .mindmap-fold-surface,
+.mindmap-fold-btn:focus-visible .mindmap-fold-surface {
+  fill: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.mindmap-fold-btn:focus-visible .mindmap-fold-surface {
   stroke: var(--mindmap-selection-stroke);
-  stroke-width: 2;
+}
+
+.mindmap-fold-chevron {
+  opacity: 0.45;
+  transform: rotate(90deg);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), opacity 160ms ease;
+}
+
+.mindmap-fold-btn.is-collapsed .mindmap-fold-chevron {
+  opacity: 0.7;
+  transform: rotate(0deg);
+}
+
+.mindmap-fold-btn.is-collapsed.is-left .mindmap-fold-chevron {
+  transform: rotate(180deg);
+}
+
+.mindmap-node-g:hover .mindmap-fold-chevron,
+.mindmap-fold-btn:focus-visible .mindmap-fold-chevron {
+  opacity: 1;
+}
+
+.mindmap-fold-btn:active .mindmap-fold-surface {
+  fill: color-mix(in srgb, currentColor 14%, transparent);
 }
 
 /* LaTeX overlays */
@@ -75,27 +114,23 @@
 
 /* Node animation for smooth transitions */
 .mindmap-node-animated {
-  transition: transform 0.3s ease-out;
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .mindmap-edge-animated {
-  transition: d 0.3s ease-out;
+  transition: d 260ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* New node appear animation (streaming) */
+/* Never animate transform on a positioned node: CSS overrides SVG translate.
+   The implicit final opacity preserves ghost and tag-filter states. */
 @keyframes mindmap-node-appear {
   from {
     opacity: 0;
-    transform: scale(0.85);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
   }
 }
 
 .mindmap-node-new {
-  animation: mindmap-node-appear 0.3s ease-out;
+  animation: mindmap-node-appear 260ms ease-out backwards;
 }
 
 /* Streaming placeholder node pulse animation */
@@ -113,35 +148,27 @@
   animation: mindmap-placeholder-pulse 1.5s ease-in-out infinite;
 }
 
-/* Fold expand animation for nodes */
-@keyframes mindmap-expand-appear {
-  from {
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.mindmap-node-expanding {
-  animation: mindmap-expand-appear 0.3s ease-out both;
-}
-
-/* Fold expand animation for edges (line drawing effect) */
-@keyframes mindmap-edge-draw {
-  from {
-    stroke-dashoffset: 300;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
+/* Nodes and their connections appear together, retaining dotted-line syntax. */
+.mindmap-node-expanding,
 .mindmap-edge-expanding {
-  stroke-dasharray: 300;
-  animation: mindmap-edge-draw 0.3s ease-out both;
+  animation: mindmap-node-appear 260ms ease-out backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mindmap-node-animated,
+  .mindmap-edge-animated,
+  .mindmap-canvas-ready,
+  .mindmap-fold-chevron,
+  .mindmap-fold-surface {
+    transition: none;
+  }
+
+  .mindmap-node-new,
+  .mindmap-node-expanding,
+  .mindmap-edge-expanding,
+  .mindmap-node-placeholder {
+    animation: none;
+  }
 }
 
 /* Edit input */

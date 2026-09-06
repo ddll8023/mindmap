@@ -4,6 +4,11 @@ import type { LayoutNode } from '../types'
 export function useNewNodeAnimation(nodes: LayoutNode[]): Set<string> {
   const [newNodeIds, setNewNodeIds] = useState<Set<string>>(new Set())
   const prevNodeIdsRef = useRef<Set<string>>(new Set())
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => () => {
+    if (timerRef.current !== null) clearTimeout(timerRef.current)
+  }, [])
 
   useEffect(() => {
     const currentIds = new Set(nodes.map((n) => n.id))
@@ -17,9 +22,12 @@ export function useNewNodeAnimation(nodes: LayoutNode[]): Set<string> {
       if (added.size > 0) {
         // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: detect new nodes and trigger animation
         setNewNodeIds(added)
-        const timer = setTimeout(() => setNewNodeIds(new Set()), 350)
-        prevNodeIdsRef.current = currentIds
-        return () => clearTimeout(timer)
+        if (timerRef.current !== null) clearTimeout(timerRef.current)
+        // Layout-only updates must not cancel removal of the animation class.
+        timerRef.current = setTimeout(() => {
+          setNewNodeIds(new Set())
+          timerRef.current = null
+        }, 300)
       }
     }
     prevNodeIdsRef.current = currentIds

@@ -119,7 +119,7 @@ export function MindMapCanvas({
                 stroke={edge.color}
                 strokeWidth={theme.connection.strokeWidth}
                 strokeLinecap="round"
-                strokeDasharray={isExpandingEdge ? undefined : edge.strokeDasharray}
+                strokeDasharray={edge.strokeDasharray}
                 markerEnd={edge.isCrossLink ? 'url(#mindmap-arrowhead)' : undefined}
                 opacity={edge.isCrossLink ? 0.7 : 1}
                 fill="none"
@@ -175,7 +175,7 @@ export function MindMapCanvas({
               node={node}
               isEditing={editingId === node.id}
               isPendingEdit={pendingEditId === node.id}
-              isSelected={selectedNodeId === node.id}
+              isSelected={!readonly && selectedNodeId === node.id}
               isNew={newNodeIds.has(node.id)}
               isGhost={isInFloatingSubtree}
               isFilterDimmed={dimmedNodes.has(node.id)}

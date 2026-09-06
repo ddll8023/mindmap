@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  ChevronLeft,
+  ChevronRight,
   Download,
   FileImage,
   FileUp,
-  Maximize2,
   RotateCcw,
 } from "lucide-react";
 import {
@@ -13,6 +14,7 @@ import {
 } from "@mindmap/core";
 import type { LayoutDirection, MindMapEvent, MindMapRef } from "@mindmap/core";
 import type { DesktopCommand } from "../shared/types";
+import { CustomSelect, type CustomSelectOption } from "./components/CustomSelect";
 
 const DEFAULT_MARKDOWN = `思维导图
 - 从 Markdown 开始
@@ -26,6 +28,18 @@ const DEFAULT_MARKDOWN = `思维导图
   - PNG 支持 2x、3x 和 4x`;
 
 type ExportScale = 2 | 3 | 4;
+
+const DIRECTION_OPTIONS: readonly CustomSelectOption<LayoutDirection>[] = [
+  { value: "right", label: "向右展开" },
+  { value: "left", label: "向左展开" },
+  { value: "both", label: "两侧展开" },
+];
+
+const PNG_SCALE_OPTIONS: readonly CustomSelectOption<ExportScale>[] = [
+  { value: 2, label: "2x" },
+  { value: 3, label: "3x" },
+  { value: 4, label: "4x" },
+];
 
 function getBaseName(fileName: string): string {
   const withoutExtension = fileName.replace(/\.(?:md|markdown|txt)$/i, "");
@@ -41,8 +55,10 @@ function DesktopApp() {
   const [status, setStatus] = useState("实时预览");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<"import" | "svg" | "png" | null>(null);
+  const [editorCollapsed, setEditorCollapsed] = useState(false);
 
   const baseName = useMemo(() => getBaseName(fileName), [fileName]);
+  const editorToggleLabel = editorCollapsed ? "显示 Markdown 编辑器" : "隐藏 Markdown 编辑器";
 
   const handleDirectionChange = useCallback((nextDirection: LayoutDirection) => {
     setDirection(nextDirection);
@@ -115,6 +131,11 @@ function DesktopApp() {
     setStatus("实时预览");
   }, [busy, handleDirectionChange]);
 
+  const handleToggleEditor = useCallback(() => {
+    setEditorCollapsed((collapsed) => !collapsed);
+    requestAnimationFrame(() => mindMapRef.current?.fitView());
+  }, []);
+
   const handleCommand = useCallback(
     (command: DesktopCommand) => {
       if (command === "import-markdown") void handleImport();
@@ -138,7 +159,6 @@ function DesktopApp() {
             <span className="brand-link brand-link-bottom" />
           </div>
           <div>
-            <div className="brand-kicker">开放思维导图</div>
             <h1>Markdown 转思维导图</h1>
           </div>
         </div>
@@ -149,19 +169,15 @@ function DesktopApp() {
         </div>
 
         <div className="desktop-actions">
-          <label className="direction-select" title="思维导图结构">
-            <span className="sr-only">思维导图结构</span>
-            <select
-              value={direction}
-              onChange={(event) => handleDirectionChange(event.target.value as LayoutDirection)}
-              disabled={busy !== null}
-              aria-label="思维导图结构"
-            >
-              <option value="right">向右展开</option>
-              <option value="left">向左展开</option>
-              <option value="both">两侧展开</option>
-            </select>
-          </label>
+          <CustomSelect
+            className="direction-select"
+            options={DIRECTION_OPTIONS}
+            value={direction}
+            onChange={handleDirectionChange}
+            disabled={busy !== null}
+            ariaLabel="思维导图结构"
+            title="思维导图结构"
+          />
           <button
             className="toolbar-button toolbar-button-primary"
             type="button"
@@ -190,39 +206,55 @@ function DesktopApp() {
               <FileImage size={16} />
               <span>PNG</span>
             </button>
-            <label className="scale-select" title="PNG 导出倍数">
-              <span className="sr-only">PNG 倍数</span>
-              <select
-                value={pngScale}
-                onChange={(event) => setPngScale(Number(event.target.value) as ExportScale)}
-                disabled={busy !== null}
-              >
-                <option value={2}>2x</option>
-                <option value={3}>3x</option>
-                <option value={4}>4x</option>
-              </select>
-            </label>
+            <CustomSelect
+              className="scale-select"
+              options={PNG_SCALE_OPTIONS}
+              value={pngScale}
+              onChange={setPngScale}
+              disabled={busy !== null}
+              ariaLabel="PNG 倍数"
+              title="PNG 导出倍数"
+            />
           </div>
         </div>
       </header>
 
-      <section className="workspace-grid" aria-label="思维导图工作区">
-        <section className="editor-panel panel-surface">
+      <section
+        className={`workspace-grid panel-surface${editorCollapsed ? " is-editor-collapsed" : ""}`}
+        aria-label="思维导图工作区"
+      >
+        <section
+          id="markdown-editor-panel"
+          className="editor-panel"
+          aria-label="Markdown 编辑器"
+          aria-hidden={editorCollapsed}
+          hidden={editorCollapsed}
+        >
           <div className="panel-heading">
-            <div>
-              <span className="panel-eyebrow">源文本</span>
-              <h2>编写结构</h2>
+            <h2>编写结构</h2>
+            <div className="panel-heading-actions">
+              <button
+                className="workspace-toggle"
+                type="button"
+                onClick={handleToggleEditor}
+                aria-expanded={!editorCollapsed}
+                aria-controls="markdown-editor-panel"
+                aria-label={editorToggleLabel}
+                title={editorToggleLabel}
+              >
+                <ChevronLeft size={17} />
+              </button>
+              <button
+                className="icon-button"
+                type="button"
+                onClick={handleReset}
+                disabled={busy !== null}
+                title="重置示例"
+                aria-label="重置示例"
+              >
+                <RotateCcw size={15} />
+              </button>
             </div>
-            <button
-              className="icon-button"
-              type="button"
-              onClick={handleReset}
-              disabled={busy !== null}
-              title="重置示例"
-              aria-label="重置示例"
-            >
-              <RotateCcw size={15} />
-            </button>
           </div>
           <div className="editor-stage">
             <MindMapTextEditor
@@ -237,15 +269,29 @@ function DesktopApp() {
           </div>
         </section>
 
-        <section className="map-panel panel-surface">
+        <section className="map-panel">
           <div className="map-heading">
-            <div>
-              <span className="panel-eyebrow">可视化结果</span>
+            <div className="map-heading-title">
+              {editorCollapsed && (
+                <button
+                  className="workspace-toggle"
+                  type="button"
+                  onClick={handleToggleEditor}
+                  aria-expanded={false}
+                  aria-controls="markdown-editor-panel"
+                  aria-label={editorToggleLabel}
+                  title={editorToggleLabel}
+                >
+                  <ChevronRight size={17} />
+                </button>
+              )}
               <h2>实时思维导图</h2>
             </div>
-            <div className="map-status">
-              <span className="live-pulse" />
-              {status}
+            <div className="map-heading-actions">
+              <div className="map-status">
+                <span className="live-pulse" />
+                {status}
+              </div>
             </div>
           </div>
           <div className="map-stage">
@@ -261,19 +307,15 @@ function DesktopApp() {
               locale="zh-CN"
               toolbar={{ zoom: true, history: false, tags: true }}
             />
-            <div className="map-hint">
-              <Maximize2 size={13} />
-              拖动平移 · 滚轮缩放
-            </div>
           </div>
         </section>
       </section>
 
-      <footer className="desktop-statusbar">
-        <span className="statusbar-label">本地工作区</span>
-        <span className="statusbar-copy">你的 Markdown 会保存在这台电脑上。</span>
-        {error && <span className="statusbar-error" role="alert">{error}</span>}
-      </footer>
+      {error && (
+        <footer className="desktop-statusbar">
+          <span className="statusbar-error" role="alert">{error}</span>
+        </footer>
+      )}
     </main>
   );
 }
