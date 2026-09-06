@@ -43,6 +43,7 @@ export const MindMapViewer = forwardRef<MindMapViewerRef, MindMapViewerProps>(fu
 ) {
   const svgRef = useRef<SVGSVGElement>(null);
   const plugins = pluginsProp && pluginsProp.length > 0 ? pluginsProp : undefined;
+  const foldingEnabled = plugins?.some((plugin) => plugin.name === "folding") ?? false;
 
   // --- Eagerly parse markdown on init ---
   const [initParsed] = useState(() =>
@@ -150,9 +151,14 @@ export const MindMapViewer = forwardRef<MindMapViewerRef, MindMapViewerProps>(fu
   }, [didDragRef, emit]);
 
   const handleFoldToggle = useCallback((nodeId: string) => {
-    if (!foldOverrides[nodeId]) triggerExpandAnimation(nodeId);
-    setFoldOverrides((prev) => ({ ...prev, [nodeId]: !prev[nodeId] }));
-  }, [foldOverrides, triggerExpandAnimation]);
+    const node = nodeMap[nodeId];
+    if (!node?.hasChildren) return;
+
+    const nextExpanded = node.isCollapsed === true;
+    if (nextExpanded) triggerExpandAnimation(nodeId);
+    setFoldOverrides((prev) => ({ ...prev, [nodeId]: nextExpanded }));
+    emit({ type: nextExpanded ? 'nodeExpand' : 'nodeCollapse', nodeId });
+  }, [emit, nodeMap, triggerExpandAnimation]);
 
   // Keyboard shortcuts (zoom + layout only)
   const handleKeyDown = useCallback(
@@ -209,7 +215,9 @@ export const MindMapViewer = forwardRef<MindMapViewerRef, MindMapViewerProps>(fu
           dimmedNodes={tagFilterState.dimmedNodes}
           readonly
           onRemarkHover={handleRemarkHover}
-          onFoldToggle={plugins ? handleFoldToggle : undefined}
+          onFoldToggle={foldingEnabled ? handleFoldToggle : undefined}
+          foldExpandLabel={t.expandNode}
+          foldCollapseLabel={t.collapseNode}
         />
       </svg>
 

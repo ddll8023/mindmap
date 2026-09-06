@@ -46,6 +46,8 @@ export interface MindMapCanvasProps {
   onAddChild?: (e: React.MouseEvent, parentId: string, side?: "left" | "right") => void;
   onRemarkHover?: (nodeId: string | null) => void;
   onFoldToggle?: (nodeId: string) => void;
+  foldExpandLabel?: string;
+  foldCollapseLabel?: string;
 }
 
 /**
@@ -86,6 +88,8 @@ export function MindMapCanvas({
   onAddChild,
   onRemarkHover,
   onFoldToggle,
+  foldExpandLabel,
+  foldCollapseLabel,
 }: MindMapCanvasProps) {
   const floating = floatingSubtreeIds ?? EMPTY_SET;
 
@@ -189,6 +193,8 @@ export function MindMapCanvas({
               onAddChild={onAddChild ?? noop}
               onRemarkHover={onRemarkHover}
               onFoldToggle={onFoldToggle}
+              foldExpandLabel={foldExpandLabel}
+              foldCollapseLabel={foldCollapseLabel}
               expandDelay={expandDelays[node.id]}
               readonly={readonly}
               plugins={plugins}

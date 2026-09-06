@@ -9,6 +9,41 @@ const shape = (n: MindMapData): unknown => ({
 })
 
 describe('markdown round-trip', () => {
+  it('parses ATX headings and their following lists as one hierarchy', () => {
+    const roots = parseMarkdownMultiRoot(`# Root
+
+## First section
+- Item A
+  - Detail A
+### Nested section
+- Item B
+## Second section
+- Item C`)
+
+    expect(roots.map(shape)).toEqual([
+      {
+        text: 'Root',
+        children: [
+          {
+            text: 'First section',
+            children: [
+              { text: 'Item A', children: [{ text: 'Detail A' }] },
+              { text: 'Nested section', children: [{ text: 'Item B' }] },
+            ],
+          },
+          { text: 'Second section', children: [{ text: 'Item C' }] },
+        ],
+      },
+    ])
+  })
+
+  it('removes heading markers without confusing #tags for headings', () => {
+    const roots = parseMarkdownMultiRoot('# Root\n- Topic #important')
+
+    expect(roots[0].text).toBe('Root')
+    expect(roots[0].children?.[0].text).toBe('Topic #important')
+  })
+
   it('is idempotent on structure across parse → serialize → parse', () => {
     const first = parseMarkdownMultiRoot('- Root\n  - A\n    - A1\n  - B')
     const round = parseMarkdownMultiRoot(toMarkdownMultiRoot(first))

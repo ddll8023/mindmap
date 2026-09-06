@@ -9,6 +9,8 @@ export interface MindMapMessages {
   layoutLeft: string
   layoutBoth: string
   layoutRight: string
+  expandNode?: string
+  collapseNode?: string
   textMode: string
   viewMode: string
   fullscreen: string
@@ -68,6 +70,8 @@ const zhCN: MindMapMessages = {
   layoutLeft: '向左排版',
   layoutBoth: '左右排版',
   layoutRight: '向右排版',
+  expandNode: '展开节点',
+  collapseNode: '收起节点',
   textMode: '文本模式',
   viewMode: '视图模式',
   fullscreen: '全屏',
@@ -121,6 +125,8 @@ const enUS: MindMapMessages = {
   layoutLeft: 'Left Layout',
   layoutBoth: 'Both Layout',
   layoutRight: 'Right Layout',
+  expandNode: 'Expand node',
+  collapseNode: 'Collapse node',
   textMode: 'Text Mode',
   viewMode: 'View Mode',
   fullscreen: 'Fullscreen',

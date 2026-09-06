@@ -38,6 +38,98 @@ function extractTaskStatus(text: string): { taskStatus?: TaskStatus; text: strin
   return { text }
 }
 
+interface MarkdownHeading {
+  rank: number
+  text: string
+}
+
+/**
+ * Convert ATX headings into the list-shaped outline understood by the parser.
+ *
+ * A heading-based outline is common in regular Markdown documents:
+ *
+ *   # Root
+ *   ## Section
+ *   - Item
+ *
+ * The list parser intentionally stays the single source of truth for building
+ * trees, so headings are normalized to synthetic list nodes before parsing.
+ * The first heading remains a bare root; lists below a heading are indented to
+ * make them children of that heading.
+ */
+function parseMarkdownHeading(line: string): MarkdownHeading | null {
+  const match = line.match(/^[ \t]{0,3}(#{1,6})(?:[ \t]+(.*?)\s*|[ \t]*)$/)
+  if (!match) return null
+
+  const text = (match[2] ?? '').replace(/[ \t]+#+[ \t]*$/, '').trim()
+  if (!text) return null
+
+  return { rank: match[1].length, text }
+}
+
+function isListNodeLine(line: string): boolean {
+  return /^\s*[-*+]\.?(?:\s+|$)/.test(line)
+}
+
+function normalizeMarkdownHeadings(md: string): string {
+  const lines = md.split('\n')
+  const headings = lines.map(parseMarkdownHeading)
+  const firstHeadingIndex = headings.findIndex(Boolean)
+  if (firstHeadingIndex === -1) return md
+
+  // A plain root before the first heading is already supported by the legacy
+  // syntax. Treat headings after it as children instead of replacing it.
+  const hasBareRootBeforeHeading = lines
+    .slice(0, firstHeadingIndex)
+    .some((line) => {
+      const trimmed = line.trim()
+      return Boolean(
+        trimmed &&
+        !/^%%/.test(trimmed) &&
+        !/^>/.test(trimmed) &&
+        !isListNodeLine(line),
+      )
+    })
+
+  const headingStack: { rank: number; depth: number }[] = []
+  let headingCount = 0
+  let currentHeadingDepth = -1
+
+  return lines
+    .map((line, index) => {
+      const heading = headings[index]
+      if (heading) {
+        while (
+          headingStack.length > 0 &&
+          headingStack[headingStack.length - 1].rank >= heading.rank
+        ) {
+          headingStack.pop()
+        }
+
+        const depth = headingStack.length + (hasBareRootBeforeHeading ? 1 : 0)
+        headingStack.push({ rank: heading.rank, depth })
+        currentHeadingDepth = depth
+
+        const isRootHeading = headingCount === 0 && !hasBareRootBeforeHeading
+        headingCount++
+        if (isRootHeading) return heading.text
+
+        // The parser's list level is relative to the bare root, so a heading
+        // at tree depth 1 is emitted at column 0, depth 2 at column 2, etc.
+        return `${'  '.repeat(Math.max(0, depth - 1))}- ${heading.text}`
+      }
+
+      if (currentHeadingDepth >= 0 && isListNodeLine(line)) {
+        // A list directly following a heading belongs to that heading even
+        // when the source Markdown leaves it at column 0.
+        return `${'  '.repeat(currentHeadingDepth)}${line}`
+      }
+
+      return line
+    })
+    .join('\n')
+}
+
 export function parseMarkdownList(md: string, plugins?: MindMapPlugin[]): MindMapData {
   const activePlugins = plugins && plugins.length > 0 ? plugins : undefined
 
@@ -48,7 +140,7 @@ export function parseMarkdownList(md: string, plugins?: MindMapPlugin[]): MindMa
     processedMd = runPreParseMarkdown(activePlugins, processedMd, ctx)
   }
 
-  const lines = processedMd.split('\n')
+  const lines = normalizeMarkdownHeadings(processedMd).split('\n')
   if (ctx) ctx.lines = lines
   const items: ParsedItem[] = []
   let bareRootText: string | null = null

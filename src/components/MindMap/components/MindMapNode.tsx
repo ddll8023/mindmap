@@ -50,9 +50,75 @@ export interface MindMapNodeProps {
   ) => void;
   onRemarkHover?: (nodeId: string | null) => void;
   onFoldToggle?: (nodeId: string) => void;
+  foldExpandLabel?: string;
+  foldCollapseLabel?: string;
   expandDelay?: number;
   isFilterDimmed?: boolean;
   latexRenderer?: LatexRenderer;
+}
+
+function FoldToggle({
+  node,
+  x,
+  theme,
+  onFoldToggle,
+  expandLabel = "Expand node",
+  collapseLabel = "Collapse node",
+}: {
+  node: LayoutNode;
+  x: number;
+  theme: ThemeColors;
+  onFoldToggle: (nodeId: string) => void;
+  expandLabel?: string;
+  collapseLabel?: string;
+}) {
+  if (!node.hasChildren) return null;
+
+  const isCollapsed = node.isCollapsed === true;
+  const handleKeyDown = (e: React.KeyboardEvent<SVGGElement>) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    e.stopPropagation();
+    onFoldToggle(node.id);
+  };
+
+  return (
+    <g
+      className="mindmap-fold-btn"
+      role="button"
+      tabIndex={0}
+      aria-label={isCollapsed ? expandLabel : collapseLabel}
+      aria-expanded={!isCollapsed}
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        onFoldToggle(node.id);
+      }}
+      onKeyDown={handleKeyDown}
+    >
+      <circle cx={x} cy={0} r={9} fill={theme.addBtn.fill} />
+      <line
+        x1={x - 4}
+        y1={0}
+        x2={x + 4}
+        y2={0}
+        stroke={theme.addBtn.iconColor}
+        strokeWidth={2}
+        strokeLinecap="round"
+      />
+      {!isCollapsed && (
+        <line
+          x1={x}
+          y1={-4}
+          x2={x}
+          y2={4}
+          stroke={theme.addBtn.iconColor}
+          strokeWidth={2}
+          strokeLinecap="round"
+        />
+      )}
+    </g>
+  );
 }
 
 // --- SVG token rendering helpers ---
@@ -665,6 +731,8 @@ export function MindMapNode({
   onAddChild,
   onRemarkHover,
   onFoldToggle,
+  foldExpandLabel,
+  foldCollapseLabel,
   expandDelay,
   isFilterDimmed,
   latexRenderer,
@@ -835,18 +903,15 @@ export function MindMapNode({
               />
             </g>
           )}
-        {/* Fold toggle for collapsed nodes */}
-        {node.collapsed !== undefined && readonlyProp && onFoldToggle && (
-          <g
-            className="mindmap-fold-btn"
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => {
-              e.stopPropagation();
-              onFoldToggle(node.id);
-            }}
-          >
-            <circle cx={node.width / 2 + 14} cy={0} r={6} fill={node.color} />
-          </g>
+        {readonlyProp && !isGhost && onFoldToggle && (
+          <FoldToggle
+            node={node}
+            x={direction === "left" ? -(node.width / 2 + 14) : node.width / 2 + 14}
+            theme={theme}
+            onFoldToggle={onFoldToggle}
+            expandLabel={foldExpandLabel}
+            collapseLabel={foldCollapseLabel}
+          />
         )}
       </g>
     );
@@ -971,18 +1036,15 @@ export function MindMapNode({
           />
         </g>
       )}
-      {/* Fold toggle for collapsed nodes */}
-      {node.collapsed !== undefined && readonlyProp && onFoldToggle && (
-        <g
-          className="mindmap-fold-btn"
-          onMouseDown={(e) => e.stopPropagation()}
-          onClick={(e) => {
-            e.stopPropagation();
-            onFoldToggle(node.id);
-          }}
-        >
-          <circle cx={addBtnOffset} cy={0} r={6} fill={node.color} />
-        </g>
+      {readonlyProp && !isGhost && onFoldToggle && (
+        <FoldToggle
+          node={node}
+          x={addBtnOffset}
+          theme={theme}
+          onFoldToggle={onFoldToggle}
+          expandLabel={foldExpandLabel}
+          collapseLabel={foldCollapseLabel}
+        />
       )}
     </g>
   );

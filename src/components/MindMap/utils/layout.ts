@@ -34,6 +34,8 @@ interface InternalNode {
   anchorId?: string
   crossLinks?: MindMapData['crossLinks']
   collapsed?: boolean
+  hasChildren: boolean
+  isCollapsed: boolean
   placeholder?: boolean
 }
 
@@ -119,6 +121,7 @@ function buildInternal(
   const textWidth = data.placeholder ? 60 : measureFormattedText(data.text, fontSize, fontWeight, data.taskStatus, !!data.remark)
   let width = textWidth + paddingH * 2
   let height = fontSize + paddingV * 2
+  const hasChildren = (data.children?.length ?? 0) > 0
 
   if (hasInlineImage(data.text)) {
     width = Math.max(width, INLINE_IMAGE_WIDTH + paddingH * 2)
@@ -131,6 +134,13 @@ function buildInternal(
     width = adjusted.width
     height = adjusted.height
   }
+
+  const foldOverride = layoutCtx?.foldOverrides[data.id]
+  const isCollapsed = hasChildren && (
+    foldOverride !== undefined
+      ? !foldOverride
+      : Boolean(data.collapsed && layoutCtx?.readonly)
+  )
 
   // Plugin: filter children (folding)
   let childrenData = data.children || []
@@ -182,6 +192,8 @@ function buildInternal(
     anchorId: data.anchorId,
     crossLinks: data.crossLinks,
     collapsed: data.collapsed,
+    hasChildren,
+    isCollapsed,
     placeholder: data.placeholder,
   }
 }
@@ -239,6 +251,8 @@ function collectNodes(node: InternalNode, result: LayoutNode[]): void {
     anchorId: node.anchorId,
     crossLinks: node.crossLinks,
     collapsed: node.collapsed,
+    hasChildren: node.hasChildren,
+    isCollapsed: node.isCollapsed,
     placeholder: node.placeholder,
   })
   for (const child of node.children) {

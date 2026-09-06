@@ -11,7 +11,7 @@ import {
   MindMap,
   MindMapTextEditor,
 } from "@mindmap/core";
-import type { MindMapRef } from "@mindmap/core";
+import type { LayoutDirection, MindMapEvent, MindMapRef } from "@mindmap/core";
 import type { DesktopCommand } from "../shared/types";
 
 const DEFAULT_MARKDOWN = `思维导图
@@ -37,11 +37,23 @@ function DesktopApp() {
   const [markdown, setMarkdown] = useState(DEFAULT_MARKDOWN);
   const [fileName, setFileName] = useState("未命名.md");
   const [pngScale, setPngScale] = useState<ExportScale>(3);
+  const [direction, setDirection] = useState<LayoutDirection>("right");
   const [status, setStatus] = useState("实时预览");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<"import" | "svg" | "png" | null>(null);
 
   const baseName = useMemo(() => getBaseName(fileName), [fileName]);
+
+  const handleDirectionChange = useCallback((nextDirection: LayoutDirection) => {
+    setDirection(nextDirection);
+    mindMapRef.current?.setDirection(nextDirection);
+  }, []);
+
+  const handleMindMapEvent = useCallback((event: MindMapEvent) => {
+    if (event.type === "directionChange") {
+      setDirection(event.direction);
+    }
+  }, []);
 
   const runAction = useCallback(
     async (action: () => Promise<void>, workingStatus: typeof busy) => {
@@ -98,9 +110,10 @@ function DesktopApp() {
     if (busy) return;
     setMarkdown(DEFAULT_MARKDOWN);
     setFileName("未命名.md");
+    handleDirectionChange("right");
     setError(null);
     setStatus("实时预览");
-  }, [busy]);
+  }, [busy, handleDirectionChange]);
 
   const handleCommand = useCallback(
     (command: DesktopCommand) => {
@@ -136,6 +149,19 @@ function DesktopApp() {
         </div>
 
         <div className="desktop-actions">
+          <label className="direction-select" title="思维导图结构">
+            <span className="sr-only">思维导图结构</span>
+            <select
+              value={direction}
+              onChange={(event) => handleDirectionChange(event.target.value as LayoutDirection)}
+              disabled={busy !== null}
+              aria-label="思维导图结构"
+            >
+              <option value="right">向右展开</option>
+              <option value="left">向左展开</option>
+              <option value="both">两侧展开</option>
+            </select>
+          </label>
           <button
             className="toolbar-button toolbar-button-primary"
             type="button"
@@ -228,6 +254,8 @@ function DesktopApp() {
               ref={mindMapRef}
               markdown={markdown}
               plugins={allPlugins}
+              defaultDirection="right"
+              onEvent={handleMindMapEvent}
               readonly
               theme="auto"
               locale="zh-CN"

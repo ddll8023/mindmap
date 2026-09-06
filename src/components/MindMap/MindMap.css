@@ -53,6 +53,15 @@
   cursor: pointer;
 }
 
+.mindmap-fold-btn:focus {
+  outline: none;
+}
+
+.mindmap-fold-btn:focus-visible circle {
+  stroke: var(--mindmap-selection-stroke);
+  stroke-width: 2;
+}
+
 /* LaTeX overlays */
 .mindmap-latex {
   overflow: visible;

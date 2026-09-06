@@ -54,6 +54,10 @@ export interface LayoutNode {
   anchorId?: string
   crossLinks?: CrossLink[]
   collapsed?: boolean
+  /** True when the node has children, including when they are currently hidden. */
+  hasChildren?: boolean
+  /** Runtime folding state used by the renderer; does not change the source data. */
+  isCollapsed?: boolean
   placeholder?: boolean
 }
 

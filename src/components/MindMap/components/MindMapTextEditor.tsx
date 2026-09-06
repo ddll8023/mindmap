@@ -12,33 +12,56 @@ import { highlightMindmapHTML } from '../utils/highlight'
 //  Uses innerText-compatible counting: each <div> child = one line
 // ================================================================
 
+function getBoundaryOffset(el: HTMLElement, container: Node, offset: number): number {
+  let total = 0
+  const children = el.childNodes
+
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]
+
+    // A selection boundary can be placed directly on the editor element
+    // between two line divs, rather than inside a text node.
+    if (container === el && offset <= i) return total
+
+    if (container === child || child.contains(container)) {
+      const range = document.createRange()
+      range.selectNodeContents(child)
+      range.setEnd(container, offset)
+      return total + range.toString().length
+    }
+
+    total += (child.textContent || '').length
+    if (i < children.length - 1) total += 1
+  }
+
+  return total
+}
+
 function saveCaret(el: HTMLElement): number {
   const sel = window.getSelection()
   if (!sel || sel.rangeCount === 0) return 0
 
   const range = sel.getRangeAt(0)
+  return getBoundaryOffset(el, range.startContainer, range.startOffset)
+}
 
-  // Walk through el's child divs (lines) and count characters up to the caret
-  let offset = 0
-  const children = el.childNodes
-
-  for (let i = 0; i < children.length; i++) {
-    const child = children[i]
-    if (range.startContainer === child || child.contains(range.startContainer)) {
-      // Caret is inside this child — count offset within it
-      const innerRange = document.createRange()
-      innerRange.selectNodeContents(child)
-      innerRange.setEnd(range.startContainer, range.startOffset)
-      offset += innerRange.toString().length
-      return offset
-    }
-    // Add this line's text length + 1 for the \n between lines
-    offset += (child.textContent || '').length
-    if (i < children.length - 1) offset += 1 // \n separator
+function getSelectionOffsets(el: HTMLElement): { start: number; end: number } {
+  const sel = window.getSelection()
+  if (!sel || sel.rangeCount === 0) {
+    const offset = saveCaret(el)
+    return { start: offset, end: offset }
   }
 
-  // Fallback: caret might be directly in el (e.g. empty editor)
-  return offset
+  const range = sel.getRangeAt(0)
+  const isInsideEditor = (node: Node) => node === el || el.contains(node)
+  if (!isInsideEditor(range.startContainer) || !isInsideEditor(range.endContainer)) {
+    const offset = saveCaret(el)
+    return { start: offset, end: offset }
+  }
+
+  const start = getBoundaryOffset(el, range.startContainer, range.startOffset)
+  const end = getBoundaryOffset(el, range.endContainer, range.endOffset)
+  return start <= end ? { start, end } : { start: end, end: start }
 }
 
 function restoreCaret(el: HTMLElement, offset: number): void {
@@ -299,10 +322,10 @@ export function MindMapTextEditor({
       if (!el) return
 
       const text = getPlainText(el)
-      const pos = saveCaret(el)
+      const { start, end } = getSelectionOffsets(el)
 
-      const newText = text.slice(0, pos) + pastedText + text.slice(pos)
-      const newPos = pos + pastedText.length
+      const newText = text.slice(0, start) + pastedText + text.slice(end)
+      const newPos = start + pastedText.length
 
       isInternalEdit.current = true
       lastExternalValue.current = newText

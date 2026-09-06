@@ -86,3 +86,45 @@ describe('folding plugin fold-override precedence (B2-6)', () => {
     expect(ids(nodes)).toContain('gc1')
   })
 })
+
+describe('runtime node folding metadata', () => {
+  const root: MindMapData = {
+    id: 'root',
+    text: 'Root',
+    children: [
+      { id: 'open', text: 'Open', children: [{ id: 'open-child', text: 'Child' }] },
+      { id: 'leaf', text: 'Leaf' },
+      { id: 'initial', text: 'Initial', collapsed: true, children: [{ id: 'initial-child', text: 'Child' }] },
+    ],
+  }
+
+  it('marks every branch as collapsible, including initially collapsed branches', () => {
+    const { nodes } = layoutMultiRoot([root], 'right', {}, {}, [foldingPlugin], true, {})
+    const open = nodes.find((node) => node.id === 'open')
+    const leaf = nodes.find((node) => node.id === 'leaf')
+    const initial = nodes.find((node) => node.id === 'initial')
+
+    expect(open).toMatchObject({ hasChildren: true, isCollapsed: false })
+    expect(leaf).toMatchObject({ hasChildren: false, isCollapsed: false })
+    expect(initial).toMatchObject({ hasChildren: true, isCollapsed: true })
+    expect(nodes.some((node) => node.id === 'initial-child')).toBe(false)
+  })
+
+  it('reflects runtime collapse and expand overrides without changing source data', () => {
+    const collapsed = layoutMultiRoot([root], 'right', {}, {}, [foldingPlugin], true, { open: false })
+    const expanded = layoutMultiRoot([root], 'right', {}, {}, [foldingPlugin], true, { initial: true })
+
+    expect(collapsed.nodes.find((node) => node.id === 'open')).toMatchObject({
+      hasChildren: true,
+      isCollapsed: true,
+    })
+    expect(collapsed.nodes.some((node) => node.id === 'open-child')).toBe(false)
+    expect(expanded.nodes.find((node) => node.id === 'initial')).toMatchObject({
+      hasChildren: true,
+      isCollapsed: false,
+    })
+    expect(expanded.nodes.some((node) => node.id === 'initial-child')).toBe(true)
+    expect(root.children?.[0].collapsed).toBeUndefined()
+    expect(root.children?.[2].collapsed).toBe(true)
+  })
+})

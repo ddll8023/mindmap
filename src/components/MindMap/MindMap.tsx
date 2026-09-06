@@ -105,6 +105,7 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const plugins = pluginsProp && pluginsProp.length > 0 ? pluginsProp : undefined;
+  const foldingEnabled = plugins?.some((plugin) => plugin.name === "folding") ?? false;
 
   // --- Eagerly parse markdown on init to avoid first-frame flash ---
   const [initParsed] = useState(() =>
@@ -731,20 +732,23 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
   }, [emit, setActiveTagsControlled]);
 
   const handleFoldToggle = useCallback((nodeId: string) => {
+    const node = nodeMap[nodeId];
+    if (!node?.hasChildren) return;
+
+    const nextExpanded = node.isCollapsed === true;
     pushCurrentHistory();
-    const isExpanding = !foldOverridesRef.current[nodeId];
-    if (isExpanding) {
+    if (nextExpanded) {
       triggerExpandAnimation(nodeId);
       emit({ type: 'nodeExpand', nodeId });
     } else {
       emit({ type: 'nodeCollapse', nodeId });
     }
     setFoldOverrides((prev) => {
-      const next = { ...prev, [nodeId]: !prev[nodeId] };
+      const next = { ...prev, [nodeId]: nextExpanded };
       foldOverridesRef.current = next;
       return next;
     });
-  }, [emit, pushCurrentHistory, triggerExpandAnimation]);
+  }, [emit, nodeMap, pushCurrentHistory, triggerExpandAnimation]);
 
   const handleExpandNode = useCallback((nodeId: string) => {
     pushCurrentHistory();
@@ -1117,7 +1121,9 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
           onEditCancel={cancelEdit}
           onAddChild={handleAddChild}
           onRemarkHover={handleRemarkHover}
-          onFoldToggle={plugins ? handleFoldToggle : undefined}
+          onFoldToggle={foldingEnabled ? handleFoldToggle : undefined}
+          foldExpandLabel={t.expandNode}
+          foldCollapseLabel={t.collapseNode}
           floatingSlot={floatingNodeId && floatingPos && (() => {
             const rootNode = nodeMap[floatingNodeId];
             if (!rootNode) return null;
