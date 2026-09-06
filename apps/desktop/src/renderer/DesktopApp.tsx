@@ -11,6 +11,7 @@ import {
   allPlugins,
   MindMap,
   MindMapTextEditor,
+  stripInlineMarkdown,
 } from "@mindmap/core";
 import type { LayoutDirection, MindMapEvent, MindMapRef } from "@mindmap/core";
 import type { DesktopCommand } from "../shared/types";
@@ -44,6 +45,12 @@ const PNG_SCALE_OPTIONS: readonly CustomSelectOption<ExportScale>[] = [
 function getBaseName(fileName: string): string {
   const withoutExtension = fileName.replace(/\.(?:xmind|md|markdown|txt)$/i, "");
   return withoutExtension.trim() || "mindmap";
+}
+
+function getExportBaseName(ref: MindMapRef | null, fallback: string): string {
+  const rootText = ref?.getData()[0]?.text;
+  const plainRootText = rootText ? stripInlineMarkdown(rootText).trim() : "";
+  return getBaseName(plainRootText || fallback);
 }
 
 function DesktopApp() {
@@ -105,7 +112,8 @@ function DesktopApp() {
     await runAction(async () => {
       const svg = mindMapRef.current?.exportToSVG();
       if (!svg) throw new Error("思维导图尚未准备好。");
-      const result = await window.desktopApi.saveSvg(svg, `${baseName}.svg`);
+      const exportBaseName = getExportBaseName(mindMapRef.current, baseName);
+      const result = await window.desktopApi.saveSvg(svg, `${exportBaseName}.svg`);
       if (result.canceled) return;
       setStatus(`SVG 已导出到 ${result.filePath ?? "目标文件"}`);
     }, "svg");
@@ -115,9 +123,10 @@ function DesktopApp() {
     await runAction(async () => {
       const blob = await mindMapRef.current?.exportToPNG({ scale: pngScale });
       if (!blob) throw new Error("思维导图尚未准备好。");
+      const exportBaseName = getExportBaseName(mindMapRef.current, baseName);
       const result = await window.desktopApi.savePng(
         await blob.arrayBuffer(),
-        `${baseName}-${pngScale}x.png`,
+        `${exportBaseName}.png`,
       );
       if (result.canceled) return;
       setStatus(`高清 PNG（${pngScale}x）已导出`);
