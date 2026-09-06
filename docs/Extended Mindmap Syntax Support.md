@@ -130,7 +130,9 @@ Loss Functions
   | $D_{KL}(P \| Q) = \sum P(x) \log\frac{P(x)}{Q(x)}$
 ```
 
-Supports inline formulas with `$...$` and block-level formulas with `$$...$$`, following standard Markdown math syntax conventions.
+Supports inline formulas with `$...$` and display-mode formulas with `$$...$$`. The LaTeX plugin uses locally bundled MathJax to generate self-contained SVG paths, so formulas remain available in SVG and PNG exports without a CDN or external math fonts. The React ref PNG export waits for formula rendering and layout to finish; invalid formulas reject the export instead of silently exporting the source text.
+
+The delimiters are recognized by the mindmap inline parser. A formula must be contained in one parsed text line; it is not a standalone Markdown block outside a node.
 
 ---
 

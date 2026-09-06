@@ -22,9 +22,8 @@ pnpm add @xiangfa/mindmap
 yarn add @xiangfa/mindmap`}</CodeBlock>
 
           <p className="text-sm text-slate-500 dark:text-slate-500 mt-3 mb-6">
-            如需渲染 LaTeX 数学公式，还需安装 KaTeX（可选）：
+            数学公式由本地 MathJax 按需渲染为 SVG 路径，支持 PNG 导出，无需额外安装 KaTeX。
           </p>
-          <CodeBlock lang="bash">npm install katex</CodeBlock>
 
           <SubHeading>快速上手</SubHeading>
           <CodeBlock lang="tsx">{`import { MindMap } from "@xiangfa/mindmap";
@@ -131,7 +130,7 @@ import { MindMapViewer } from "@xiangfa/mindmap";`}</CodeBlock>
   multiLinePlugin,     // 多行内容
   tagsPlugin,          // 标签支持
   crossLinkPlugin,     // 节点间引用
-  latexPlugin,         // LaTeX 数学公式（需要 KaTeX）
+  latexPlugin,         // LaTeX 数学公式（纯 SVG，支持 PNG 导出）
 } from "@xiangfa/mindmap";
 
 {/* 使用全部插件（默认） */}

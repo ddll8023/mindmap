@@ -34,7 +34,7 @@
 - **备注** — 通过 `>` 语法为节点附加多行备注
 - **文本编辑模式** — 在可视化思维导图与纯文本 Markdown 编辑之间切换
 - **全屏模式** — 将组件扩展为全屏显示
-- **LaTeX 数学公式** — 渲染 `$...$` 行内公式和 `$$...$$` 块级公式（需安装 KaTeX）
+- **LaTeX 数学公式** — 渲染 `$...$` 行内公式和 `$$...$$` 块级公式，使用纯 SVG 路径，支持高清 PNG 导出
 - **跨链接** — 通过 `{#anchor}` / `-> {#target}` 在任意节点间绘制连线
 - **轻量查看器** — 独立的只读组件（`MindMapViewer`），体积减少约 48%；通过 `@xiangfa/mindmap/viewer` 导入以获得最小打包体积
 - **只读模式** — 仅显示，支持平移/缩放/选择但不可编辑；适合演示和嵌入
@@ -67,11 +67,7 @@ pnpm add @xiangfa/mindmap
 yarn add @xiangfa/mindmap
 ```
 
-如需 LaTeX 数学公式渲染，还需安装 KaTeX（可选）：
-
-```bash
-npm install katex
-```
+公式使用本地打包的 MathJax 按需渲染，无需额外安装 KaTeX，也不依赖 CDN。PNG 导出会等待公式路径就绪并重新布局；无效公式将中止导出并提示错误。
 
 ## 快速开始
 
@@ -305,7 +301,7 @@ import {
   multiLinePlugin, // 多行内容
   tagsPlugin, // 标签支持
   crossLinkPlugin, // 跨节点引用
-  latexPlugin, // LaTeX 数学公式（需安装 KaTeX）
+  latexPlugin, // LaTeX 数学公式（纯 SVG，支持 PNG 导出）
 } from "@xiangfa/mindmap";
 
 {
@@ -574,7 +570,7 @@ theme: dark
 
 ### LaTeX 数学公式 _（插件）_
 
-渲染数学公式（需安装 [KaTeX](https://katex.org/)）：
+通过本地 [MathJax](https://www.mathjax.org/) SVG 路径渲染数学公式：
 
 ```
 - 行内公式：$E = mc^2$

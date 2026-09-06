@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
           cssCodeSplit: false,
           emptyOutDir: false,
           rollupOptions: {
-            external: ["react", "react-dom", "react/jsx-runtime", "katex"],
+            external: ["react", "react-dom", "react/jsx-runtime"],
             output: [
               // ESM with preserved modules for tree-shaking
               {
@@ -37,7 +37,6 @@ export default defineConfig(({ mode }) => ({
                   react: "React",
                   "react-dom": "ReactDOM",
                   "react/jsx-runtime": "ReactJSXRuntime",
-                  katex: "katex",
                 },
               },
             ],

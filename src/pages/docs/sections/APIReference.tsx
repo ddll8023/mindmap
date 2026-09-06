@@ -217,7 +217,10 @@ export default function APIReference() {
                   <td>
                     <code>{"Promise<Blob>"}</code>
                   </td>
-                  <td>生成高清 PNG Blob</td>
+                  <td>
+                    异步生成高清 PNG Blob；包含公式时会等待本地 MathJax SVG 路径和布局准备完成。
+                    无效公式或超出 Canvas 尺寸限制时会拒绝 Promise。
+                  </td>
                 </tr>
                 <tr>
                   <td>

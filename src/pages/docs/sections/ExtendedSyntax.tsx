@@ -180,12 +180,12 @@ export default function ExtendedSyntax() {
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
             通过{" "}
             <a
-              href="https://katex.org/"
+              href="https://www.mathjax.org/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline"
             >
-              KaTeX
+              MathJax
             </a>
             :
           </p>
@@ -199,7 +199,7 @@ export default function ExtendedSyntax() {
 
           <p className="text-sm text-slate-500 dark:text-slate-500 mt-3 mb-6">
             支持使用 <code className="text-xs">$...$</code> 编写行内公式，使用
-            <code className="text-xs">$$...$$</code> 编写块级公式。
+            <code className="text-xs">$$...$$</code> 编写块级公式。预览与 PNG 导出使用同一份 SVG 字形路径；无效公式会阻止 PNG 导出并提示错误。
           </p>
 
           {/* 前置元数据 */}

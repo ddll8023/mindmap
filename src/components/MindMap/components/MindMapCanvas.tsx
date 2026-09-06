@@ -3,7 +3,6 @@ import type { Edge, LayoutDirection, LayoutNode } from "../types";
 import type { ThemeColors } from "../utils/theme";
 import type { MindMapPlugin } from "../plugins/types";
 import { MindMapNode } from "./MindMapNode";
-import type { LatexRenderer } from "./MindMapNode";
 import { runRenderOverlay } from "../plugins/runner";
 
 const noop = () => {};
@@ -26,7 +25,6 @@ export interface MindMapCanvasProps {
   dimmedNodes: Set<string>;
   // --- Editor-only extras (omitted by the read-only viewer) ---
   readonly?: boolean;
-  latexRenderer?: LatexRenderer;
   selectedNodeId?: string | null;
   editingId?: string | null;
   pendingEditId?: string | null;
@@ -71,7 +69,6 @@ export function MindMapCanvas({
   newNodeIds,
   dimmedNodes,
   readonly,
-  latexRenderer,
   selectedNodeId,
   editingId,
   pendingEditId,
@@ -198,7 +195,6 @@ export function MindMapCanvas({
               expandDelay={expandDelays[node.id]}
               readonly={readonly}
               plugins={plugins}
-              latexRenderer={latexRenderer}
             />
           );
         })}

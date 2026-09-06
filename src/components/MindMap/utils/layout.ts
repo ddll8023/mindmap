@@ -2,6 +2,7 @@ import type { MindMapData, LayoutNode, Edge, LayoutDirection, TaskStatus } from 
 import type { MindMapPlugin } from '../plugins/types'
 import type { LayoutContext } from '../plugins/types'
 import { BRANCH_COLORS, THEME } from './theme'
+import { measureNodeContent } from './content-layout'
 import { INLINE_IMAGE_HEIGHT, INLINE_IMAGE_WIDTH, hasInlineImage, stripInlineMarkdown } from './inline-markdown'
 import {
   runAdjustNodeSize,
@@ -118,7 +119,10 @@ function buildInternal(
   const paddingH = isRoot ? THEME.root.paddingH : THEME.node.paddingH
   const paddingV = isRoot ? THEME.root.paddingV : THEME.node.paddingV
 
-  const textWidth = data.placeholder ? 60 : measureFormattedText(data.text, fontSize, fontWeight, data.taskStatus, !!data.remark)
+  const content = !data.placeholder && plugins?.some((plugin) => plugin.name === 'latex')
+    ? measureNodeContent(data, fontSize, fontWeight, isRoot ? THEME.root.fontFamily : THEME.node.fontFamily, plugins)
+    : undefined
+  const textWidth = data.placeholder ? 60 : content?.width ?? measureFormattedText(data.text, fontSize, fontWeight, data.taskStatus, !!data.remark)
   let width = textWidth + paddingH * 2
   let height = fontSize + paddingV * 2
   const hasChildren = (data.children?.length ?? 0) > 0
@@ -134,6 +138,8 @@ function buildInternal(
     width = adjusted.width
     height = adjusted.height
   }
+
+  if (content) height = Math.max(height, content.height + paddingV * 2)
 
   const foldOverride = layoutCtx?.foldOverrides[data.id]
   const isCollapsed = hasChildren && (

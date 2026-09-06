@@ -34,7 +34,7 @@ English | [中文](README.zh-CN.md)
 - **Remarks** — multi-line remarks attached to nodes via `>` syntax
 - **Text editing mode** — toggle between visual mind map and plain-text markdown editing
 - **Full-screen mode** — expand the component to fill the viewport
-- **LaTeX math** — render `$...$` inline and `$$...$$` display formulas (requires KaTeX)
+- **LaTeX math** — render `$...$` inline and `$$...$$` display formulas as SVG paths, including high-resolution PNG export
 - **Cross-links** — draw edges between arbitrary nodes via `{#anchor}` / `-> {#target}`
 - **Lightweight Viewer** — a standalone read-only component (`MindMapViewer`) with ~48% smaller bundle; import via `@xiangfa/mindmap/viewer` for minimal footprint
 - **Readonly mode** — display-only with pan/zoom/select but no editing; ideal for presentations and embeds
@@ -67,11 +67,7 @@ pnpm add @xiangfa/mindmap
 yarn add @xiangfa/mindmap
 ```
 
-For LaTeX math rendering, also install KaTeX (optional):
-
-```bash
-npm install katex
-```
+LaTeX rendering uses locally bundled MathJax, loaded on demand. No additional KaTeX installation or CDN is needed. PNG export waits for formula paths and layout to be ready; invalid formulas reject the export.
 
 ## Quick Start
 
@@ -305,7 +301,7 @@ import {
   multiLinePlugin, // multi-line content
   tagsPlugin, // hashtag support
   crossLinkPlugin, // cross-references
-  latexPlugin, // LaTeX math (requires KaTeX)
+  latexPlugin, // LaTeX math (SVG paths, including PNG export)
 } from "@xiangfa/mindmap";
 
 {
@@ -574,7 +570,7 @@ Draw edges between arbitrary nodes:
 
 ### LaTeX Math _(plugin)_
 
-Render mathematical formulas (requires [KaTeX](https://katex.org/)):
+Render mathematical formulas using local [MathJax](https://www.mathjax.org/) SVG paths:
 
 ```
 - Inline math: $E = mc^2$

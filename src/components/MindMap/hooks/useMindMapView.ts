@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { getFormulaRevision, initFormulaEngine, subscribeFormulaEngine } from '../utils/formula';
+import { parseInlineMarkdown } from '../utils/inline-markdown';
 import type { LayoutDirection, MindMapData } from "../types";
 import type { MindMapPlugin } from "../plugins/types";
 import { layoutMultiRoot } from "../utils/layout";
@@ -49,10 +51,32 @@ export function useMindMapView({
   activeTags,
   onZoomChange,
 }: UseMindMapViewParams) {
+  const formulaRevision = useSyncExternalStore(subscribeFormulaEngine, getFormulaRevision, () => 0);
+  const formulasEnabled = useMemo(() => {
+    if (!plugins?.some((plugin) => plugin.name === 'latex')) return false;
+    const pending = [...mapData];
+    while (pending.length) {
+      const node = pending.pop()!;
+      if ([node.text, ...(node.multiLineContent ?? [])].some((text) =>
+        parseInlineMarkdown(text, plugins).some((token) => token.type === 'latex-inline' || token.type === 'latex-block'),
+      )) return true;
+      pending.push(...(node.children ?? []));
+    }
+    return false;
+  }, [mapData, plugins]);
+  useEffect(() => {
+    if (formulasEnabled) {
+      // Preview keeps visible source on failure; PNG retries and reports the error.
+      void initFormulaEngine().catch(() => {});
+    }
+  }, [formulasEnabled]);
+
   // --- Layout ---
   const { nodes, edges } = useMemo(
-    () =>
-      layoutMultiRoot(
+    () => {
+      // Engine readiness invalidates geometry, not just the formula overlay.
+      void formulaRevision;
+      return layoutMultiRoot(
         mapData,
         direction,
         colorMap,
@@ -60,8 +84,9 @@ export function useMindMapView({
         plugins,
         readonly,
         foldOverrides,
-      ),
-    [mapData, direction, colorMap, splitIndices, plugins, readonly, foldOverrides],
+      );
+    },
+    [mapData, direction, colorMap, splitIndices, plugins, readonly, foldOverrides, formulaRevision],
   );
 
   // Persist colors for level-1 nodes (so they survive swaps)

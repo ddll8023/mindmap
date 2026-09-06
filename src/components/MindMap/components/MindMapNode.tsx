@@ -1,23 +1,15 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo } from "react";
+import { measureNodeContent } from '../utils/content-layout';
+import { buildFormulaOverlays } from '../utils/inline-markdown';
 import type { LayoutNode, LayoutDirection } from "../types";
 import type { ThemeColors } from "../utils/theme";
 import type { MindMapPlugin } from "../plugins/types";
 import type { TokenLayout } from "../utils/inline-markdown";
-import {
-  INLINE_IMAGE_HEIGHT,
-  parseInlineMarkdown,
-  computeTokenLayouts,
-} from "../utils/inline-markdown";
+import { INLINE_IMAGE_HEIGHT } from "../utils/inline-markdown";
 import {
   runRenderNodeDecoration,
   runRenderInlineToken,
 } from "../plugins/runner";
-export interface LatexRenderer {
-  getKatexSync: () => unknown;
-  onKatexReady: (cb: () => void) => void;
-  renderLatexToHtml: (tex: string, displayMode: boolean) => string | null;
-  loadKatexStyle: () => void;
-}
 
 const MONO_FONT =
   "'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace";
@@ -54,7 +46,6 @@ export interface MindMapNodeProps {
   foldCollapseLabel?: string;
   expandDelay?: number;
   isFilterDimmed?: boolean;
-  latexRenderer?: LatexRenderer;
 }
 
 function FoldToggle({
@@ -309,7 +300,6 @@ function SvgNodeContent({
   plugins,
   highlightTextColor,
   highlightBgColor,
-  latexRenderer,
 }: {
   node: LayoutNode;
   fontSize: number;
@@ -320,50 +310,13 @@ function SvgNodeContent({
   plugins?: MindMapPlugin[];
   highlightTextColor?: string;
   highlightBgColor?: string;
-  latexRenderer?: LatexRenderer;
 }) {
-  // Re-render when KaTeX finishes loading
-  const [katexReady, setKatexReady] = useState(() => !!latexRenderer?.getKatexSync());
-  useEffect(() => {
-    if (!katexReady && latexRenderer) {
-      latexRenderer.onKatexReady(() => setKatexReady(true));
-    }
-  }, [katexReady, latexRenderer]);
-
-  const { layouts, textContentWidth, taskIconWidth, totalWidth } =
-    useMemo(() => {
-      const tokens = parseInlineMarkdown(node.text, plugins);
-      const layouts = computeTokenLayouts(
-        tokens,
-        fontSize,
-        fontWeight,
-        fontFamily,
-      );
-      const textContentWidth =
-        layouts.length > 0
-          ? layouts[layouts.length - 1].x + layouts[layouts.length - 1].width
-          : 0;
-
-      const iconSize = fontSize * 0.85;
-      const iconGap = node.taskStatus ? 4 : 0;
-      const taskIconWidth = node.taskStatus ? iconSize + iconGap : 0;
-
-      const remarkFontSize = fontSize * 0.7;
-      const remarkGap = node.remark ? 4 : 0;
-      const remarkWidth = node.remark ? remarkFontSize + remarkGap : 0;
-
-      const totalWidth = taskIconWidth + textContentWidth + remarkWidth;
-
-      return { layouts, textContentWidth, taskIconWidth, totalWidth };
-    }, [
-      node.text,
-      node.taskStatus,
-      node.remark,
-      fontSize,
-      fontWeight,
-      fontFamily,
-      plugins,
-    ]);
+  const content = useMemo(() => measureNodeContent(node, fontSize, fontWeight, fontFamily, plugins),
+    [node, fontSize, fontWeight, fontFamily, plugins]);
+  const { layouts, width: textContentWidth } = content.main;
+  const taskIconWidth = node.taskStatus ? fontSize * 0.85 + 4 : 0;
+  const remarkWidth = node.remark ? fontSize * 0.7 + 4 : 0;
+  const totalWidth = taskIconWidth + textContentWidth + remarkWidth;
 
   const startX = -totalWidth / 2;
   const textStartX = startX + taskIconWidth;
@@ -375,8 +328,6 @@ function SvgNodeContent({
 
   // Multi-line content offset
   const multiLineContent = node.multiLineContent;
-  const lineHeight = fontSize * 1.4;
-  const multiLineStartY = fontSize / 2 + 8;
 
   return (
     <g className="mindmap-node-content">
@@ -426,6 +377,7 @@ function SvgNodeContent({
       {/* Text element with tspan segments */}
       <text
         className="mindmap-node-text"
+        xmlSpace="preserve"
         textAnchor="start"
         dominantBaseline="central"
         x={textStartX}
@@ -434,9 +386,11 @@ function SvgNodeContent({
         fontWeight={fontWeight}
         fontFamily={fontFamily}
       >
-        {layouts.map((layout, i) =>
-          renderTokenTspan(layout, i, plugins, highlightTextColor),
-        )}
+        {layouts.map((layout, i) => (
+          <tspan key={i} x={textStartX + layout.x}>
+            {renderTokenTspan(layout, i, plugins, highlightTextColor)}
+          </tspan>
+        ))}
       </text>
 
       {layouts.map((layout, i) => {
@@ -458,63 +412,18 @@ function SvgNodeContent({
         );
       })}
 
-      {/* LaTeX foreignObject overlays (rendered outside <text> since SVG text can't contain foreignObject) */}
-      {katexReady && latexRenderer &&
-        layouts.map((layout, i) => {
-          const { token } = layout;
-          if (token.type !== "latex-inline" && token.type !== "latex-block")
-            return null;
-          const html = latexRenderer.renderLatexToHtml(
-            token.content,
-            token.type === "latex-block",
-          );
-          if (!html) return null;
-          latexRenderer.loadKatexStyle();
-          // Center the foreignObject on the token's center point
-          const tokenCenterX = textStartX + layout.x + layout.width / 2;
-          const foWidth = Math.max(layout.width * 2.5, 120);
-          const foHeight = fontSize * 2;
-          return (
-            <foreignObject
-              className="mindmap-latex"
-              key={`latex-fo-${i}`}
-              x={tokenCenterX - foWidth / 2}
-              y={-foHeight / 2}
-              width={foWidth}
-              height={foHeight}
-            >
-              <div
-                className="mindmap-latex-content"
-                style={{
-                  fontSize: fontSize * 0.75,
-                  lineHeight: `${foHeight}px`,
-                  color: textColor,
-                }}
-                dangerouslySetInnerHTML={{ __html: html }}
-              />
-            </foreignObject>
-          );
-        })}
+      <g className="mindmap-formula-overlays" dangerouslySetInnerHTML={{
+        __html: buildFormulaOverlays(layouts, textStartX, 0, fontSize, textColor),
+      }} />
 
       {/* Multi-line content (from | lines) with inline markdown support */}
       {multiLineContent &&
         multiLineContent.length > 0 &&
-        multiLineContent.map((line, i) => {
+        content.multiLines.map((line, i) => {
           const mlFontSize = fontSize * 0.85;
-          const mlTokens = parseInlineMarkdown(line, plugins);
-          const mlLayouts = computeTokenLayouts(
-            mlTokens,
-            mlFontSize,
-            400,
-            fontFamily,
-          );
-          const mlWidth =
-            mlLayouts.length > 0
-              ? mlLayouts[mlLayouts.length - 1].x +
-                mlLayouts[mlLayouts.length - 1].width
-              : 0;
-          const mlStartX = -mlWidth / 2;
-          const mlY = multiLineStartY + i * lineHeight;
+          const mlLayouts = line.layouts;
+          const mlStartX = -line.width / 2;
+          const mlY = line.y;
           const mlBgRectY = mlY - mlFontSize / 2 - 2;
           const mlBgRectH = mlFontSize + 4;
           return (
@@ -553,6 +462,7 @@ function SvgNodeContent({
               })}
               <text
                 className="mindmap-multiline-text"
+                xmlSpace="preserve"
                 x={mlStartX}
                 y={mlY}
                 textAnchor="start"
@@ -563,9 +473,11 @@ function SvgNodeContent({
                 fontFamily={fontFamily}
                 opacity={0.8}
               >
-                {mlLayouts.map((layout, j) =>
-                  renderTokenTspan(layout, j, plugins, highlightTextColor),
-                )}
+                {mlLayouts.map((layout, j) => (
+                  <tspan key={j} x={mlStartX + layout.x}>
+                    {renderTokenTspan(layout, j, plugins, highlightTextColor)}
+                  </tspan>
+                ))}
               </text>
               {mlLayouts.map((layout, j) => {
                 const { token } = layout;
@@ -585,46 +497,9 @@ function SvgNodeContent({
                   </image>
                 );
               })}
-              {/* LaTeX foreignObject overlays for multi-line content */}
-              {katexReady && latexRenderer &&
-                mlLayouts.map((layout, j) => {
-                  const { token } = layout;
-                  if (
-                    token.type !== "latex-inline" &&
-                    token.type !== "latex-block"
-                  )
-                    return null;
-                  const html = latexRenderer.renderLatexToHtml(
-                    token.content,
-                    token.type === "latex-block",
-                  );
-                  if (!html) return null;
-                  latexRenderer.loadKatexStyle();
-                  const mlTokenCenterX = mlStartX + layout.x + layout.width / 2;
-                  const mlFoWidth = Math.max(layout.width * 2.5, 120);
-                  const mlFoHeight = mlFontSize * 2;
-                  return (
-                    <foreignObject
-                      className="mindmap-latex"
-                      key={`ml-latex-fo-${i}-${j}`}
-                      x={mlTokenCenterX - mlFoWidth / 2}
-                      y={mlY - mlFoHeight / 2}
-                      width={mlFoWidth}
-                      height={mlFoHeight}
-                    >
-                      <div
-                        className="mindmap-latex-content"
-                        style={{
-                          fontSize: mlFontSize * 0.75,
-                          lineHeight: `${mlFoHeight}px`,
-                          color: textColor,
-                          opacity: 0.8,
-                        }}
-                        dangerouslySetInnerHTML={{ __html: html }}
-                      />
-                    </foreignObject>
-                  );
-                })}
+              <g className="mindmap-formula-overlays" opacity={0.8} dangerouslySetInnerHTML={{
+                __html: buildFormulaOverlays(mlLayouts, mlStartX, mlY, mlFontSize, textColor),
+              }} />
             </g>
           );
         })}
@@ -634,11 +509,9 @@ function SvgNodeContent({
         node.tags.length > 0 &&
         (() => {
           const tagFontSize = fontSize * 0.65;
-          const tagY =
-            fontSize / 2 +
-            6 +
-            (multiLineContent ? multiLineContent.length * lineHeight : 0);
-          let tagX = -totalWidth / 2;
+          const tagY = content.tagY;
+          const tagRowWidth = node.tags!.reduce((sum, tag) => sum + tag.length * tagFontSize * 0.65 + 10, 0) + (node.tags!.length - 1) * 4;
+          let tagX = -tagRowWidth / 2;
           return node.tags!.map((tag, i) => {
             const tagWidth = tag.length * tagFontSize * 0.65 + 10;
             const x = tagX;
@@ -731,7 +604,6 @@ export function MindMapNode({
   foldCollapseLabel,
   expandDelay,
   isFilterDimmed,
-  latexRenderer,
 }: MindMapNodeProps) {
   const nx = node.x + (offset?.x ?? 0);
   const ny = node.y + (offset?.y ?? 0);
@@ -825,7 +697,6 @@ export function MindMapNode({
             plugins={plugins}
             highlightTextColor={theme.highlight.textColor}
             highlightBgColor={theme.highlight.bgColor}
-            latexRenderer={latexRenderer}
           />
         )}
         {/* Plugin decorations */}
@@ -919,7 +790,7 @@ export function MindMapNode({
   const fontWeight =
     node.depth === 1 ? theme.level1.fontWeight : theme.node.fontWeight;
   const textW = node.width - theme.node.paddingH * 2;
-  const underlineY = fontSize / 2 + 4;
+  const underlineY = Math.max(fontSize / 2 + 4, measureNodeContent(node, fontSize, fontWeight, theme.node.fontFamily, plugins).main.bottom + 4);
   const addBtnOffset =
     node.side === "left" ? -node.width / 2 - 18 : node.width / 2 + 18;
 
@@ -989,7 +860,6 @@ export function MindMapNode({
             plugins={plugins}
             highlightTextColor={theme.highlight.textColor}
             highlightBgColor={theme.highlight.bgColor}
-            latexRenderer={latexRenderer}
           />
           <line
             className="mindmap-node-underline"

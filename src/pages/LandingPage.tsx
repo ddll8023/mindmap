@@ -417,7 +417,7 @@ function LandingPage() {
                 icon: SquareFunction,
                 name: "LaTeX 数学公式",
                 syntax: "- 行内：$E = mc^2$\n- 块级：$$\\sum x_i$$",
-                desc: "通过 KaTeX 渲染数学公式",
+                desc: "数学公式以 SVG 路径渲染，支持高清 PNG 导出",
               },
             ].map((p) => (
               <div

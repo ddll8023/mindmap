@@ -1,6 +1,6 @@
 # Open MindMap
 
-> A beautiful, zero-dependency, interactive mind map component for React. Natively supports AI stream output with Markdown list syntax and iOS-style UI. Pure SVG rendering, plugin system, dark mode, keyboard-first, and mobile optimized.
+> A beautiful, interactive mind map component for React. Natively supports AI stream output with Markdown list syntax and iOS-style UI. SVG-based rendering, local on-demand MathJax formula paths, plugin system, dark mode, keyboard-first, and mobile optimized.
 
 - npm: [@xiangfa/mindmap](https://www.npmjs.com/package/@xiangfa/mindmap)
 - GitHub: [u14app/mindmap](https://github.com/u14app/mindmap)
@@ -13,10 +13,7 @@
 npm install @xiangfa/mindmap
 ```
 
-Optional (for LaTeX math rendering):
-```bash
-npm install katex
-```
+LaTeX formulas use locally bundled MathJax SVG paths on demand. No extra KaTeX installation or CDN is required. PNG export waits for formula rendering and rejects invalid formulas.
 
 ## Quick Start
 
@@ -45,7 +42,7 @@ The component fills its parent container. Ensure the parent has explicit dimensi
 - **Data input**: Alternatively pass structured `MindMapData` objects via the `data` prop.
 - **AI streaming**: The component natively renders mind maps from streaming markdown. Feed tokens as they arrive from an LLM.
 - **Built-in AI generation**: Set the `ai` prop with an OpenAI-compatible endpoint to enable a natural language input bar. Supports text, image, and PDF attachments.
-- **Pure SVG**: All rendering uses SVG elements. No canvas, no external layout engines. Sharp at any zoom level.
+- **SVG rendering**: The mind map and formula glyphs use SVG elements and paths. Canvas is used only when rasterizing an export to PNG; no external layout engine or remote formula resource is required.
 
 ## Props
 
@@ -69,7 +66,7 @@ The component fills its parent container. Ensure the parent has explicit dimensi
 Access via `useRef<MindMapRef>`:
 
 - `exportToSVG()` — returns SVG string
-- `exportToPNG()` — returns Promise\<Blob\> (high-DPI PNG)
+- `exportToPNG()` — returns Promise\<Blob\> (high-DPI PNG; waits for local formula paths and rejects invalid formulas)
 - `exportToOutline()` — returns markdown list string
 - `getData()` / `setData(data)` — get/set tree data
 - `setMarkdown(md)` — parse markdown and replace tree
@@ -87,7 +84,7 @@ import "@xiangfa/mindmap/style.css";
 <MindMapViewer markdown={markdown} />;
 ```
 
-~48% smaller bundle. Supports themes, plugins, pan/zoom, fold toggle. No editing, drag-drop, AI, context menu, or export.
+~48% smaller bundle. Supports themes, plugins, pan/zoom, fold toggle. No editing, drag-drop, AI, context menu, or export. Formula rendering is loaded only when LaTeX tokens are present.
 
 ## Plugin System
 
@@ -112,7 +109,7 @@ Plugins extend ~20 hook points across parsing, serialization, layout, rendering,
 - **Multi-line** (plugin): `|` continuation lines
 - **Tags** (plugin): `#tag` at end of node text
 - **Cross-links** (plugin): `{#anchor}` and `-> {#target}`
-- **LaTeX** (plugin): `$...$` inline, `$$...$$` display (requires KaTeX)
+- **LaTeX** (plugin): `$...$` inline, `$$...$$` display; rendered with local MathJax SVG paths and included in PNG exports
 
 ## Data Structure
 

@@ -2,7 +2,9 @@ import type { LayoutDirection, LayoutNode, Edge, MindMapData, ThemeMode } from '
 import type { ThemeColors } from './theme'
 import type { MindMapPlugin } from '../plugins/types'
 import { THEME, generateExportStyles, getTheme } from './theme'
-import { buildSvgNodeTextString } from './inline-markdown'
+import { buildSvgNodeTextString, parseInlineMarkdown } from './inline-markdown'
+import { initFormulaEngine, requireFormula } from './formula'
+import { measureNodeContent } from './content-layout'
 import { runExportNodeDecoration, runExportOverlay } from '../plugins/runner'
 import { layoutMultiRoot } from './layout'
 import { parseMindMapMarkdownInput } from './input'
@@ -51,6 +53,9 @@ export function buildExportSVG(
   plugins?: MindMapPlugin[],
 ): string {
   const { padding = 40, background = theme.canvas.bgColor, pngSafe = false } = options
+  if (pngSafe) {
+    for (const token of collectFormulas(nodes, plugins)) requireFormula(token.content, token.type === 'latex-block')
+  }
 
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity
   for (const n of nodes) {
@@ -132,7 +137,7 @@ export function buildExportSVG(
       const fontSize = node.depth === 1 ? theme.level1.fontSize : theme.node.fontSize
       const fontWeight = node.depth === 1 ? theme.level1.fontWeight : theme.node.fontWeight
       const textW = node.width - theme.node.paddingH * 2
-      const underlineY = fontSize / 2 + 4
+      const underlineY = Math.max(fontSize / 2 + 4, measureNodeContent(node, fontSize, fontWeight, theme.node.fontFamily, plugins).main.bottom + 4)
 
       parts.push(`<g class="mindmap-node-g mindmap-node-child" transform="translate(${nx}, ${ny})"${branchAttr}>`)
       parts.push(buildSvgNodeTextString(node.text, fontSize, fontWeight, theme.node.fontFamily, theme.node.textColor, node.taskStatus, node.remark, plugins, theme.highlight.textColor, theme.highlight.bgColor, pngSafe))
@@ -199,42 +204,74 @@ export function exportMindMapToSVG({
   )
 }
 
-export function exportToPNG(
+function collectFormulas(nodes: LayoutNode[], plugins?: MindMapPlugin[]) {
+  return nodes.flatMap((node) => [node.text, ...(node.multiLineContent ?? [])])
+    .flatMap((text) => parseInlineMarkdown(text, plugins))
+    .filter((token) => token.type === 'latex-inline' || token.type === 'latex-block')
+}
+
+interface PreparedPNGOptions extends ExportOptions {
+  data: MindMapData[]
+  direction: LayoutDirection
+  colorMap: Record<string, string>
+  splitIndices: Record<string, number>
+  foldOverrides: Record<string, boolean>
+  readonly: boolean
+  theme: ThemeColors
+  plugins?: MindMapPlugin[]
+}
+
+/** Snapshot geometry is recomputed AFTER math readiness; a first-click export cannot use stale sizes. */
+export async function exportPreparedPNG(options: PreparedPNGOptions): Promise<Blob> {
+  const { data, direction, colorMap, splitIndices, foldOverrides, readonly, theme, plugins } = options
+  const layout = () => layoutMultiRoot(data, direction, colorMap, splitIndices, plugins, readonly, foldOverrides)
+  const formulas = collectFormulas(layout().nodes, plugins)
+  if (formulas.length) {
+    await initFormulaEngine()
+    for (const token of formulas) requireFormula(token.content, token.type === 'latex-block')
+  }
+  const { nodes, edges } = layout()
+  return exportToPNG(buildExportSVG(nodes, edges, { ...options, pngSafe: true }, theme, plugins), options)
+}
+
+export async function exportToPNG(
   svgString: string,
   options: ExportOptions = {},
 ): Promise<Blob> {
   const defaultScale = typeof window !== 'undefined' ? Math.max(window.devicePixelRatio ?? 1, 2) : 2
   const { scale = defaultScale } = options
-  return new Promise((resolve, reject) => {
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(svgString, 'image/svg+xml')
-    const svgEl = doc.documentElement
-    const width = parseFloat(svgEl.getAttribute('width') || '800')
-    const height = parseFloat(svgEl.getAttribute('height') || '600')
-
-    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
+  const doc = new DOMParser().parseFromString(svgString, 'image/svg+xml')
+  if (doc.querySelector('parsererror')) throw new Error('Invalid export SVG')
+  const svgEl = doc.documentElement
+  const width = parseFloat(svgEl.getAttribute('width') || '800')
+  const height = parseFloat(svgEl.getAttribute('height') || '600')
+  if (![width, height, scale].every((value) => Number.isFinite(value) && value > 0)) {
+    throw new Error('Invalid PNG dimensions or scale')
+  }
+  const pixelWidth = Math.ceil(width * scale)
+  const pixelHeight = Math.ceil(height * scale)
+  if (pixelWidth > 32767 || pixelHeight > 32767 || pixelWidth * pixelHeight > 64 * 1024 * 1024) {
+    throw new Error('PNG 图片过大，请降低导出倍率。')
+  }
+  const url = URL.createObjectURL(new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' }))
+  try {
     const img = new Image()
-
-    img.onload = () => {
-      const canvas = document.createElement('canvas')
-      canvas.width = width * scale
-      canvas.height = height * scale
-      const ctx = canvas.getContext('2d')!
-      ctx.scale(scale, scale)
-      ctx.drawImage(img, 0, 0, width, height)
-      URL.revokeObjectURL(url)
-      canvas.toBlob((b) => {
-        if (b) resolve(b)
-        else reject(new Error('Failed to create PNG blob'))
-      }, 'image/png')
-    }
-
-    img.onerror = () => {
-      URL.revokeObjectURL(url)
-      reject(new Error('Failed to load SVG image'))
-    }
-
-    img.src = url
-  })
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve()
+      img.onerror = () => reject(new Error('Failed to load SVG image'))
+      img.src = url
+    })
+    const canvas = document.createElement('canvas')
+    canvas.width = pixelWidth
+    canvas.height = pixelHeight
+    const ctx = canvas.getContext('2d')
+    if (!ctx) throw new Error('Canvas is unavailable for PNG export')
+    ctx.scale(scale, scale)
+    ctx.drawImage(img, 0, 0, width, height)
+    return await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Failed to create PNG blob')), 'image/png')
+    })
+  } finally {
+    URL.revokeObjectURL(url)
+  }
 }

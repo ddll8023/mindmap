@@ -101,15 +101,13 @@
   fill: color-mix(in srgb, currentColor 14%, transparent);
 }
 
-/* LaTeX overlays */
-.mindmap-latex {
-  overflow: visible;
+/* Math glyphs are self-contained SVG paths (also used by PNG export). */
+.mindmap-formula-overlays {
   pointer-events: none;
 }
 
-.mindmap-latex-content {
-  white-space: nowrap;
-  text-align: center;
+.mindmap-formula {
+  overflow: visible;
 }
 
 /* Node animation for smooth transitions */

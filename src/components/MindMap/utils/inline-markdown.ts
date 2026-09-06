@@ -1,4 +1,6 @@
 import type { MindMapPlugin } from "../plugins/types";
+import { buildFormulaSvg, measureFormula } from './formula';
+import type { FormulaMetrics } from './formula';
 
 export type InlineToken =
   | { type: "text"; content: string }
@@ -232,6 +234,7 @@ export interface TokenLayout {
   token: InlineToken;
   x: number;
   width: number;
+  formula?: FormulaMetrics;
 }
 
 /**
@@ -248,6 +251,7 @@ export function computeTokenLayouts(
 
   for (const token of tokens) {
     let width: number;
+    let formula: FormulaMetrics | undefined;
 
     switch (token.type) {
       case "bold":
@@ -269,8 +273,8 @@ export function computeTokenLayouts(
         break;
       case "latex-inline":
       case "latex-block":
-        // Approximate measurement for formulas
-        width = measureTokenText(
+        formula = measureFormula(token.content, token.type === 'latex-block', fontSize);
+        width = formula?.width ?? measureTokenText(
           token.content,
           fontSize * 0.9,
           fontWeight,
@@ -287,11 +291,17 @@ export function computeTokenLayouts(
         break;
     }
 
-    layouts.push({ token, x, width });
+    layouts.push({ token, x, width, ...(formula ? { formula } : {}) });
     x += width;
   }
 
   return layouts;
+}
+
+export function buildFormulaOverlays(layouts: TokenLayout[], startX: number, y: number, fontSize: number, color: string): string {
+  return layouts.map((layout) => layout.formula && 'content' in layout.token
+    ? buildFormulaSvg(layout.formula, startX + layout.x, y + fontSize * 0.3, color, layout.token.content)
+    : '').join('');
 }
 
 // --- SVG string builder for export ---
@@ -379,13 +389,15 @@ export function buildSvgNodeTextString(
     }
   }
 
+  parts.push(buildFormulaOverlays(layouts, textStartX, 0, fontSize, textColor));
+
   // Text element with tspan segments
   parts.push(
-    `<text text-anchor="start" dominant-baseline="central" x="${textStartX}" fill="${textColor}" font-size="${fontSize}" font-weight="${fontWeight}" font-family="${fontFamily}">`,
+    `<text xml:space="preserve" text-anchor="start" dominant-baseline="central" x="${textStartX}" fill="${textColor}" font-size="${fontSize}" font-weight="${fontWeight}" font-family="${fontFamily}">`,
   );
   for (const layout of layouts) {
     parts.push(
-      tokenToSvgTspan(layout, plugins, highlightTextColor, pngSafe),
+      `<tspan x="${textStartX + layout.x}">${tokenToSvgTspan(layout, plugins, highlightTextColor, pngSafe)}</tspan>`,
     );
   }
   parts.push(`</text>`);
@@ -424,6 +436,7 @@ function tokenToSvgTspan(
       return `<tspan dx="${layout.width}"></tspan>`;
     case "latex-inline":
     case "latex-block": {
+      if (layout.formula) return `<tspan dx="${layout.width}"></tspan>`;
       // Try plugin exportInlineToken first
       if (plugins) {
         for (const p of plugins) {
@@ -501,13 +514,16 @@ export function buildSvgTextLineString(
     }
   }
 
+  const formulaOverlays = buildFormulaOverlays(layouts, startX, y, fontSize, textColor);
+  parts.push(opacity === undefined ? formulaOverlays : `<g opacity="${opacity}">${formulaOverlays}</g>`);
+
   // Text element with tspan segments
   const opacityAttr = opacity !== undefined ? ` opacity="${opacity}"` : "";
   parts.push(
-    `<text x="${startX}" y="${y}" text-anchor="start" dominant-baseline="central" fill="${textColor}" font-size="${fontSize}" font-weight="${fontWeight}" font-family="${fontFamily}"${opacityAttr}>`,
+    `<text xml:space="preserve" x="${startX}" y="${y}" text-anchor="start" dominant-baseline="central" fill="${textColor}" font-size="${fontSize}" font-weight="${fontWeight}" font-family="${fontFamily}"${opacityAttr}>`,
   );
   for (const layout of layouts) {
-    parts.push(tokenToSvgTspan(layout, plugins, highlightTextColor));
+    parts.push(`<tspan x="${startX + layout.x}">${tokenToSvgTspan(layout, plugins, highlightTextColor)}</tspan>`);
   }
   parts.push(`</text>`);
 

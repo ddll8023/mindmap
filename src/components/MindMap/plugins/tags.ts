@@ -1,5 +1,6 @@
 import type { MindMapPlugin } from "./types";
 import { escapeXml } from "../utils/inline-markdown";
+import { measureNodeContent } from '../utils/content-layout';
 
 const TAG_TRAILING_RE = /((?:\s+#[\w-]+)+)$/;
 const TAG_COLORS = [
@@ -54,7 +55,7 @@ export const tagsPlugin: MindMapPlugin = {
     return { width: newWidth, height: height + tagRowHeight };
   },
 
-  exportNodeDecoration(node, theme) {
+  exportNodeDecoration(node, theme, plugins) {
     if (!node.tags || node.tags.length === 0) return "";
 
     const fontSize =
@@ -66,11 +67,8 @@ export const tagsPlugin: MindMapPlugin = {
     const fontFamily =
       node.depth === 0 ? theme.root.fontFamily : theme.node.fontFamily;
     const tagFontSize = fontSize * 0.65;
-    const lineHeight = fontSize * 1.4;
-    const multiLineOffset = node.multiLineContent
-      ? node.multiLineContent.length * lineHeight
-      : 0;
-    const tagY = fontSize / 2 + 6 + multiLineOffset;
+    const fontWeight = node.depth === 0 ? theme.root.fontWeight : node.depth === 1 ? theme.level1.fontWeight : theme.node.fontWeight;
+    const { tagY } = measureNodeContent(node, fontSize, fontWeight, fontFamily, plugins);
     const tagHeight = tagFontSize + 6;
 
     // Calculate total tag row width to center it

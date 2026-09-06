@@ -1,6 +1,7 @@
 import type { MindMapPlugin } from './types'
 import type { MindMapData } from '../types'
 import { buildSvgTextLineString } from '../utils/inline-markdown'
+import { measureNodeContent } from '../utils/content-layout'
 
 export const multiLinePlugin: MindMapPlugin = {
   name: 'multi-line',
@@ -50,12 +51,12 @@ export const multiLinePlugin: MindMapPlugin = {
     const fontFamily = node.depth === 0 ? theme.root.fontFamily : theme.node.fontFamily
     const textColor = node.depth === 0 ? theme.root.textColor : theme.node.textColor
     const mlFontSize = fontSize * 0.85
-    const lineHeight = fontSize * 1.4
-    const multiLineStartY = fontSize / 2 + 8
+    const fontWeight = node.depth === 0 ? theme.root.fontWeight : node.depth === 1 ? theme.level1.fontWeight : theme.node.fontWeight
+    const content = measureNodeContent(node, fontSize, fontWeight, fontFamily, plugins)
 
     const parts: string[] = []
     for (let i = 0; i < node.multiLineContent.length; i++) {
-      const y = multiLineStartY + i * lineHeight
+      const y = content.multiLines[i].y
       parts.push(buildSvgTextLineString(
         node.multiLineContent[i], mlFontSize, 400, fontFamily, textColor, y,
         plugins, theme.highlight.textColor, theme.highlight.bgColor, 0.8,

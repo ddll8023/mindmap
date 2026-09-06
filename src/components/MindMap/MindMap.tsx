@@ -19,7 +19,7 @@ import type {
   ThemeMode,
 } from "./types";
 import { computeEdgePath } from "./utils/layout";
-import { buildExportSVG, buildExportSVGForPNG, exportToPNG } from "./utils/export";
+import { buildExportSVG, exportPreparedPNG } from "./utils/export";
 import { toMarkdownMultiRoot } from "./utils/markdown";
 import { parseInitialMindMapInput, parseMindMapMarkdownInput } from "./utils/input";
 import type { ParsedMindMapInput } from "./utils/input";
@@ -45,7 +45,6 @@ import { useMindMapView } from "./hooks/useMindMapView";
 import { useDrag } from "./hooks/useDrag";
 import { useNodeEdit } from "./hooks/useNodeEdit";
 import { MindMapNode } from "./components/MindMapNode";
-import type { LatexRenderer } from "./components/MindMapNode";
 import { MindMapCanvas } from "./components/MindMapCanvas";
 import { MindMapControls } from "./components/MindMapControls";
 import type { MindMapImportOptions } from "./utils/import";
@@ -268,26 +267,6 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
     },
     [onDataChange, pushCurrentHistory],
   );
-
-  // --- LaTeX renderer (loaded on demand only when the latex plugin is used) ---
-  const [latexRenderer, setLatexRenderer] = useState<LatexRenderer | undefined>(undefined);
-  useEffect(() => {
-    if (!plugins?.some((p) => p.name === "latex")) return;
-    let cancelled = false;
-    import("./plugins/latex").then((m) => {
-      if (cancelled) return;
-      m.initKatex(); // begin loading KaTeX now that the plugin is in use
-      setLatexRenderer({
-        getKatexSync: m.getKatexSync,
-        onKatexReady: m.onKatexReady,
-        renderLatexToHtml: m.renderLatexToHtml,
-        loadKatexStyle: m.loadKatexStyle,
-      });
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [plugins]);
 
   // --- Theme ---
   const activeTheme = useTheme(fmTheme ?? themeProp);
@@ -684,14 +663,21 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
     closeContextMenu();
   }, [nodes, edges, activeTheme, closeContextMenu, plugins]);
 
+  const createPNG = useCallback((options?: MindMapPNGExportOptions) => exportPreparedPNG({
+    ...options,
+    data: mapData, direction, colorMap, splitIndices, foldOverrides,
+    readonly: readonlyProp, theme: activeTheme, plugins,
+  }), [mapData, direction, colorMap, splitIndices, foldOverrides, readonlyProp, activeTheme, plugins]);
+
   const handleExportPNG = useCallback(async () => {
-    const svg = buildExportSVGForPNG(
-      nodes, edges, { pngSafe: true }, activeTheme, plugins,
-    );
-    const blob = await exportToPNG(svg);
-    downloadBlob(blob, "mindmap.png");
-    closeContextMenu();
-  }, [nodes, edges, activeTheme, closeContextMenu, plugins]);
+    try {
+      const blob = await createPNG();
+      downloadBlob(blob, "mindmap.png");
+      closeContextMenu();
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : String(error));
+    }
+  }, [createPNG, closeContextMenu]);
 
   const handleExportMarkdown = useCallback(() => {
     const md = toMarkdownMultiRoot(mapData, plugins);
@@ -957,19 +943,8 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
           nodes, edges, {}, activeTheme, plugins,
         );
       },
-      async exportToPNG(options?: MindMapPNGExportOptions) {
-        const svg = buildExportSVGForPNG(
-          nodes,
-          edges,
-          {
-            padding: options?.padding,
-            background: options?.background,
-            pngSafe: true,
-          },
-          activeTheme,
-          plugins,
-        );
-        return exportToPNG(svg, options);
+      exportToPNG(options?: MindMapPNGExportOptions) {
+        return createPNG(options);
       },
       exportToOutline() {
         return toMarkdownMultiRoot(mapData, plugins);
@@ -1030,7 +1005,7 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
       },
     }),
     [
-      nodes, edges, mapData, plugins,
+      nodes, edges, mapData, plugins, createPNG,
       handleAutoFit, handleDirectionChange, activeTheme,
       pushCurrentHistory, handleImportData, setSelectedNodeIdControlled,
       emit, handleFocusNode, handleExpandNode, handleCollapseNode, handleUndo, handleRedo,
@@ -1106,7 +1081,6 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
           newNodeIds={newNodeIds}
           dimmedNodes={tagFilterState.dimmedNodes}
           readonly={readonlyProp}
-          latexRenderer={latexRenderer}
           selectedNodeId={readonlyProp ? null : selectedNodeId}
           editingId={editingId}
           pendingEditId={pendingEditId}
@@ -1186,7 +1160,6 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
                       onEditCancel={() => {}}
                       onAddChild={() => {}}
                       readonly
-                      latexRenderer={latexRenderer}
                     />
                   ))}
               </g>
