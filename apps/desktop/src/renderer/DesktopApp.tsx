@@ -3,6 +3,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
+  FileArchive,
   FileImage,
   FileUp,
   RotateCcw,
@@ -15,6 +16,7 @@ import {
 } from "@mindmap/core";
 import type { LayoutDirection, MindMapEvent, MindMapRef } from "@mindmap/core";
 import type { DesktopCommand } from "../shared/types";
+import { exportMindMapToXMind } from "../shared/xmind-export";
 import { CustomSelect, type CustomSelectOption } from "./components/CustomSelect";
 
 const DEFAULT_MARKDOWN = `思维导图
@@ -26,7 +28,8 @@ const DEFAULT_MARKDOWN = `思维导图
   - 添加 **粗体** 或 #标签
 - 导出结果
   - SVG 在任意尺寸都清晰
-  - PNG 支持 2x、3x 和 4x`;
+  - PNG 支持 2x、3x 和 4x
+  - XMind 可继续编辑`;
 
 type ExportScale = 2 | 3 | 4;
 
@@ -61,7 +64,7 @@ function DesktopApp() {
   const [direction, setDirection] = useState<LayoutDirection>("right");
   const [status, setStatus] = useState("实时预览");
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState<"import" | "svg" | "png" | null>(null);
+  const [busy, setBusy] = useState<"import" | "svg" | "png" | "xmind" | null>(null);
   const [editorCollapsed, setEditorCollapsed] = useState(false);
 
   const baseName = useMemo(() => getBaseName(fileName), [fileName]);
@@ -133,6 +136,21 @@ function DesktopApp() {
     }, "png");
   }, [baseName, pngScale, runAction]);
 
+  const handleExportXMind = useCallback(async () => {
+    await runAction(async () => {
+      const data = mindMapRef.current?.getData();
+      if (!data || data.length === 0) throw new Error("思维导图尚未准备好。");
+      const xmindBuffer = exportMindMapToXMind(data);
+      const exportBaseName = getExportBaseName(mindMapRef.current, baseName);
+      const result = await window.desktopApi.saveXMind(
+        xmindBuffer,
+        `${exportBaseName}.xmind`,
+      );
+      if (result.canceled) return;
+      setStatus(`XMind 已导出到 ${result.filePath ?? "目标文件"}`);
+    }, "xmind");
+  }, [baseName, runAction]);
+
   const handleReset = useCallback(() => {
     if (busy) return;
     setMarkdown(DEFAULT_MARKDOWN);
@@ -152,8 +170,9 @@ function DesktopApp() {
       if (command === "import-xmind") void handleImportXMind();
       if (command === "export-svg") void handleExportSvg();
       if (command === "export-png") void handleExportPng();
+      if (command === "export-xmind") void handleExportXMind();
     },
-    [handleExportPng, handleExportSvg, handleImportXMind],
+    [handleExportPng, handleExportSvg, handleExportXMind, handleImportXMind],
   );
 
   useEffect(() => window.desktopApi.onCommand(handleCommand), [handleCommand]);
@@ -227,6 +246,15 @@ function DesktopApp() {
               title="PNG 导出倍数"
             />
           </div>
+          <button
+            className="toolbar-button"
+            type="button"
+            onClick={() => void handleExportXMind()}
+            disabled={busy !== null}
+          >
+            <FileArchive size={16} />
+            <span>XMind</span>
+          </button>
         </div>
       </header>
 

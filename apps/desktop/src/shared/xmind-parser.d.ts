@@ -25,8 +25,18 @@ declare module "@ljheee/xmind-parser" {
     theme?: string;
   }
 
+  export interface XMindExportOptions {
+    format?: "xmind8" | "xmind2020";
+    sheetName?: string;
+  }
+
   export function xmindBufferToKm(
     buffer: ArrayBuffer,
     options?: { firstSheetOnly?: boolean },
   ): Promise<XMindDocument[]>;
+
+  export function kmToXmindBuffer(
+    kmData: XMindDocument | XMindDocument[],
+    options?: XMindExportOptions,
+  ): ArrayBuffer;
 }

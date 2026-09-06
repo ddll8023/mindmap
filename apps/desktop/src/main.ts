@@ -130,6 +130,24 @@ async function savePng(payload: {
   return { canceled: false, filePath: result.filePath };
 }
 
+async function saveXMind(payload: {
+  data: ArrayBuffer;
+  suggestedName: string;
+}): Promise<{ canceled: boolean; filePath?: string }> {
+  const result = await dialog.showSaveDialog({
+    title: "导出 XMind",
+    defaultPath: path.join(
+      app.getPath("downloads"),
+      withExtension(getSafeName(payload.suggestedName, "mindmap"), ".xmind"),
+    ),
+    filters: [{ name: "XMind 文件", extensions: ["xmind"] }],
+  });
+
+  if (result.canceled || !result.filePath) return { canceled: true };
+  await writeFileAtomically(result.filePath, new Uint8Array(payload.data));
+  return { canceled: false, filePath: result.filePath };
+}
+
 function registerIpcHandlers(): void {
   ipcMain.handle("document:open-xmind", openXMind);
   ipcMain.handle("export:save-svg", (_event, payload: Parameters<typeof saveSvg>[0]) =>
@@ -137,6 +155,9 @@ function registerIpcHandlers(): void {
   );
   ipcMain.handle("export:save-png", (_event, payload: Parameters<typeof savePng>[0]) =>
     savePng(payload),
+  );
+  ipcMain.handle("export:save-xmind", (_event, payload: Parameters<typeof saveXMind>[0]) =>
+    saveXMind(payload),
   );
 }
 
@@ -164,6 +185,11 @@ function buildApplicationMenu(): void {
         label: "导出 PNG…",
         accelerator: "CmdOrCtrl+Alt+Shift+S",
         click: () => sendCommand("export-png"),
+      },
+      {
+        label: "导出 XMind…",
+        accelerator: "CmdOrCtrl+Shift+X",
+        click: () => sendCommand("export-xmind"),
       },
       { type: "separator" },
       { role: "quit" },

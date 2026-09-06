@@ -7,6 +7,8 @@ const desktopApi: DesktopApi = {
     ipcRenderer.invoke("export:save-svg", { content, suggestedName }),
   savePng: (data, suggestedName) =>
     ipcRenderer.invoke("export:save-png", { data, suggestedName }),
+  saveXMind: (data, suggestedName) =>
+    ipcRenderer.invoke("export:save-xmind", { data, suggestedName }),
   onCommand: (listener) => {
     const handler = (_event: unknown, command: DesktopCommand) => {
       listener(command);

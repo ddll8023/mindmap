@@ -163,3 +163,20 @@ Machine Learning
 ```
 
 ---
+
+## Desktop XMind Export
+
+The Electron desktop workspace can export the current Markdown-derived node tree as an XMind 2020+ file. This is a desktop-only capability; it is not part of the public `@xiangfa/mindmap` API.
+
+| Markdown or mindmap data | XMind output | Notes |
+| --- | --- | --- |
+| Multiple root trees | Separate XMind sheets | Each root becomes one sheet |
+| Node text | Plain topic title | Inline Markdown visual formatting is removed |
+| `[text](url)` | Topic hyperlink | The first link in a topic is used |
+| `![alt](path)` | Topic image | The first image in a topic is used |
+| `> remark` and `\| continuation` | Topic note | Both forms are combined into the XMind note |
+| `#tag` | XMind label | Labels remain separate from topic text |
+| `[ ]`, `[-]`, `[x]` | XMind task progress | Todo, in-progress, and done states are mapped |
+| `+` folding marker | Folded topic | The persisted collapsed state is exported |
+
+The export is structure-oriented rather than a screenshot of the current canvas. CSS themes, the current left/right/balanced layout, dotted-line styling, cross-links, frontmatter visual options, and LaTeX visual glyphs are not guaranteed to round-trip to XMind. Use SVG or PNG when preserving the rendered appearance is the priority.

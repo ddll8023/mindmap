@@ -1,7 +1,8 @@
 export type DesktopCommand =
   | "import-xmind"
   | "export-svg"
-  | "export-png";
+  | "export-png"
+  | "export-xmind";
 
 export interface OpenXMindResult {
   canceled: boolean;
@@ -20,6 +21,7 @@ export interface DesktopApi {
   openXMind(): Promise<OpenXMindResult>;
   saveSvg(content: string, suggestedName: string): Promise<SaveExportResult>;
   savePng(data: ArrayBuffer, suggestedName: string): Promise<SaveExportResult>;
+  saveXMind(data: ArrayBuffer, suggestedName: string): Promise<SaveExportResult>;
   onCommand(listener: (command: DesktopCommand) => void): () => void;
 }
 
