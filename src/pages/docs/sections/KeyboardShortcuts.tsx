@@ -42,6 +42,12 @@ export default function KeyboardShortcuts() {
                 </tr>
                 <tr>
                   <td>
+                    <code>Cmd/Ctrl + B</code>
+                  </td>
+                  <td>切换选中节点文本加粗</td>
+                </tr>
+                <tr>
+                  <td>
                     <code>Delete</code> / <code>Backspace</code>
                   </td>
                   <td>删除选中节点</td>

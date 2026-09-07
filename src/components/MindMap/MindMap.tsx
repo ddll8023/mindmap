@@ -30,6 +30,7 @@ import {
   addChildMulti,
   addSiblingMulti,
   removeNodeMulti,
+  updateNodeFieldsMulti,
   findSubtreeMulti,
   regenerateIds,
   addChildToSide,
@@ -382,6 +383,7 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
     (e: React.MouseEvent, nodeId: string) => {
       e.stopPropagation();
       if (readonlyProp || didDragRef.current) return;
+      svgRef.current?.focus();
       setSelectedNodeIdControlled(nodeId);
       emit({ type: 'nodeSelect', nodeId });
     },
@@ -459,6 +461,22 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
     if (readonlyProp) return;
     beginEdit(nodeId);
   }, [readonlyProp, beginEdit]);
+
+  const handleToggleNodeBold = useCallback((nodeId: string) => {
+    if (readonlyProp) return;
+    const node = nodeMap[nodeId];
+    if (!node || !node.text.trim()) return;
+
+    const oldText = node.text;
+    const boldMatch = oldText.match(/^(\s*)\*\*([\s\S]+?)\*\*(\s*)$/);
+    const newText = boldMatch
+      ? `${boldMatch[1]}${boldMatch[2]}${boldMatch[3]}`
+      : `**${oldText}**`;
+
+    if (newText === oldText) return;
+    updateData((prev) => updateNodeFieldsMulti(prev, nodeId, { text: newText }));
+    emit({ type: 'nodeTextChange', nodeId, oldText, newText });
+  }, [emit, nodeMap, readonlyProp, updateData]);
 
   // Create a child under the given node (keyboard Tab + Enter-on-new flows).
   const handleCreateChild = useCallback((parentId: string) => {
@@ -826,6 +844,13 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
         return;
       }
 
+      // Ctrl/Cmd+B — toggle bold on the selected node
+      if (isMeta && !e.shiftKey && e.key.toLowerCase() === "b" && selectedNodeId && !readonlyProp) {
+        e.preventDefault();
+        handleToggleNodeBold(selectedNodeId);
+        return;
+      }
+
       // Shift shortcuts for zoom and layout
       if (e.shiftKey && !isMeta) {
         if (e.code === "Equal") {
@@ -936,8 +961,9 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
       editingId, selectedNodeId, contextMenu, closeContextMenu, readonlyProp,
       zoomIn, zoomOut, handleAutoFit, handleDirectionChange,
       handleUndo, handleRedo,
-      selectInDirection, handleEditNode, handleCreateChild, handleCreateSibling,
-      handleDeleteNode, handleCopyNode, handleCutNode, handlePasteNode,
+      selectInDirection, handleEditNode, handleToggleNodeBold,
+      handleCreateChild, handleCreateSibling, handleDeleteNode,
+      handleCopyNode, handleCutNode, handlePasteNode,
     ],
   );
 

@@ -720,6 +720,7 @@ interface CrossLink {
 | `Tab`                  | Create a child node under the selected node |
 | `Shift + Enter`        | Create a sibling node after the selected node |
 | `Enter` / `F2`         | Edit the selected node                      |
+| `Cmd/Ctrl + B`         | Toggle bold on the selected node            |
 | `Delete` / `Backspace` | Delete the selected node                    |
 | `Double-click`         | Edit node text                              |
 | `Cmd/Ctrl + C`         | Copy subtree                                |

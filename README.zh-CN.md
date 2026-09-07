@@ -720,6 +720,7 @@ interface CrossLink {
 | `Tab`                  | 在选中节点下创建子节点   |
 | `Shift + Enter`        | 在选中节点后创建兄弟节点 |
 | `Enter` / `F2`         | 编辑选中的节点           |
+| `Cmd/Ctrl + B`         | 切换选中节点文本加粗     |
 | `Delete` / `Backspace` | 删除选中的节点           |
 | `双击`                 | 编辑节点文本             |
 | `Cmd/Ctrl + C`         | 复制子树                 |
