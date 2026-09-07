@@ -170,6 +170,11 @@ function DesktopApp() {
     requestAnimationFrame(() => mindMapRef.current?.fitView());
   }, []);
 
+  const handleMarkdownPaste = useCallback(() => {
+    setEditorCollapsed(true);
+    requestAnimationFrame(() => mindMapRef.current?.fitView());
+  }, []);
+
   const handleCommand = useCallback(
     (command: DesktopCommand) => {
       if (command === "import-xmind") void handleImportXMind();
@@ -304,6 +309,7 @@ function DesktopApp() {
             <MindMapTextEditor
               value={markdown}
               onChange={setMarkdown}
+              onPaste={handleMarkdownPaste}
               className="desktop-markdown-editor"
             />
           </div>

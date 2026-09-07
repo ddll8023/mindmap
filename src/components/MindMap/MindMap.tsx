@@ -336,11 +336,18 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
 
   // --- Initial entrance state ---
   const [initialReady, setInitialReady] = useState(false);
+  const floatingNodeIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    floatingNodeIdRef.current = floatingNodeId;
+  }, [floatingNodeId]);
 
   // --- Auto-fit on initial render and view-layout changes ---
   // Markdown edits update the layout but must not move the user's viewport.
+  // A node click briefly enters the drag state, so keep that transient state
+  // out of this effect's dependencies to avoid resetting the viewport on click.
   useEffect(() => {
-    if (floatingNodeId) return;
+    if (floatingNodeIdRef.current) return;
     if (pendingEditId) return;
     const fit = autoFit();
     if (fit) {
@@ -360,7 +367,7 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(function MindMap(
     } else if (!initialReady) {
       requestAnimationFrame(() => setInitialReady(true));
     }
-  }, [direction, splitIndices, plugins, readonlyProp, autoFit, floatingNodeId, pendingEditId, setZoom, setPan, initialReady, animateTo]);
+  }, [direction, splitIndices, plugins, readonlyProp, autoFit, pendingEditId, setZoom, setPan, initialReady, animateTo]);
 
   // Pan to newly created node (keep zoom, only pan)
   useEffect(() => {

@@ -144,6 +144,7 @@ function getPlainText(el: HTMLElement): string {
 export interface MindMapTextEditorProps {
   value: string
   onChange: (text: string) => void
+  onPaste?: (text: string) => void
   readOnly?: boolean
   className?: string
   style?: React.CSSProperties
@@ -152,6 +153,7 @@ export interface MindMapTextEditorProps {
 export function MindMapTextEditor({
   value,
   onChange,
+  onPaste,
   readOnly,
   className,
   style,
@@ -333,8 +335,9 @@ export function MindMapTextEditor({
       restoreCaret(el, newPos)
       pushUndo(newText, newPos)
       onChange(newText)
+      if (pastedText) onPaste?.(pastedText)
     },
-    [onChange, pushUndo],
+    [onChange, onPaste, pushUndo],
   )
 
   // --- IME composition handlers ---
