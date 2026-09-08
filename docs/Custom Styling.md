@@ -26,15 +26,15 @@ Override these on `.mindmap-container` (or any ancestor) to change theme values:
 
 | Variable | Description | Light Default | Dark Default |
 |----------|-------------|---------------|--------------|
-| `--mindmap-canvas-bg` | Canvas background color | `#fafafa` | `#1a1a2e` |
+| `--mindmap-canvas-bg` | Canvas background color | `#FFFFFF` | `#1a1a2e` |
 
 ### Root Node
 
 | Variable | Description | Light Default | Dark Default |
 |----------|-------------|---------------|--------------|
-| `--mindmap-root-bg` | Root node background | `#2C3E50` | `#4A6FA5` |
+| `--mindmap-root-bg` | Root node background | `#3E4553` | `#4A6FA5` |
 | `--mindmap-root-text` | Root node text color | `#FFFFFF` | `#FFFFFF` |
-| `--mindmap-root-font-size` | Root node font size | `32px` | `32px` |
+| `--mindmap-root-font-size` | Root node font size | `40px` | `40px` |
 | `--mindmap-root-font-weight` | Root node font weight | `600` | `600` |
 | `--mindmap-root-font-family` | Root node font family | `system-ui, 'Segoe UI', Roboto, sans-serif` | _(same)_ |
 
@@ -42,7 +42,7 @@ Override these on `.mindmap-container` (or any ancestor) to change theme values:
 
 | Variable | Description | Light Default | Dark Default |
 |----------|-------------|---------------|--------------|
-| `--mindmap-node-text` | Child node text color | `#333333` | `#E0E0E0` |
+| `--mindmap-node-text` | Child node text color | `#4B4B4B` | `#E0E0E0` |
 | `--mindmap-node-font-size` | Child node font size | `18px` | `18px` |
 | `--mindmap-node-font-weight` | Child node font weight | `400` | `400` |
 | `--mindmap-node-font-family` | Child node font family | `system-ui, 'Segoe UI', Roboto, sans-serif` | _(same)_ |
@@ -53,6 +53,8 @@ Override these on `.mindmap-container` (or any ancestor) to change theme values:
 |----------|-------------|---------|
 | `--mindmap-level1-font-size` | Level 1 font size | `24px` |
 | `--mindmap-level1-font-weight` | Level 1 font weight | `500` |
+
+一级节点使用所属分支色作为圆角背景；二级及更深节点保持纯文本，并在文字下方显示对应分支色的横线。
 
 ### Edges / Connections
 
@@ -104,16 +106,16 @@ Override these on `.mindmap-container` (or any ancestor) to change theme values:
 
 | Variable | Default Color |
 |----------|---------------|
-| `--mindmap-branch-0` | `#FF6B6B` (coral) |
-| `--mindmap-branch-1` | `#4ECDC4` (mint) |
-| `--mindmap-branch-2` | `#45B7D1` (sky blue) |
-| `--mindmap-branch-3` | `#96CEB4` (sage) |
-| `--mindmap-branch-4` | `#FFEAA7` (lemon) |
-| `--mindmap-branch-5` | `#DDA0DD` (plum) |
-| `--mindmap-branch-6` | `#98D8C8` (aqua) |
-| `--mindmap-branch-7` | `#F7DC6F` (gold) |
-| `--mindmap-branch-8` | `#BB8FCE` (purple) |
-| `--mindmap-branch-9` | `#F0B27A` (orange) |
+| `--mindmap-branch-0` | `#8B9E6F` (olive) |
+| `--mindmap-branch-1` | `#CF7465` (coral) |
+| `--mindmap-branch-2` | `#DAB16D` (gold) |
+| `--mindmap-branch-3` | `#738BBC` (blue) |
+| `--mindmap-branch-4` | `#9F80B2` (purple) |
+| `--mindmap-branch-5` | `#79A39A` (teal) |
+| `--mindmap-branch-6` | `#C28B9E` (rose) |
+| `--mindmap-branch-7` | `#8B9FBF` (steel blue) |
+| `--mindmap-branch-8` | `#C58E63` (terracotta) |
+| `--mindmap-branch-9` | `#829A78` (sage) |
 
 ## CSS Class Selectors
 
@@ -134,6 +136,7 @@ All SVG elements have semantic CSS classes. Since SVG presentation attributes (e
 | `.mindmap-node-g` | Any node group (root or child) |
 | `.mindmap-node-root` | Root node group (depth = 0) |
 | `.mindmap-node-child` | Child node group (depth > 0) |
+| `.mindmap-node-level1` | First-level colored card group |
 | `.mindmap-node-bg` | Node background `<rect>` |
 | `.mindmap-node-text` | Node text `<text>` element |
 | `.mindmap-node-content` | Node content wrapper `<g>` |
@@ -294,6 +297,8 @@ interface ThemeColors {
   level1: {
     fontSize: number;
     fontWeight: number;
+    paddingH: number;
+    paddingV: number;
   };
   connection: {
     strokeWidth: number;

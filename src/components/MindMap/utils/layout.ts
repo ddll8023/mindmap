@@ -116,8 +116,12 @@ function buildInternal(
   const isLevel1 = depth === 1
   const fontSize = isRoot ? THEME.root.fontSize : isLevel1 ? THEME.level1.fontSize : THEME.node.fontSize
   const fontWeight = isRoot ? THEME.root.fontWeight : isLevel1 ? THEME.level1.fontWeight : THEME.node.fontWeight
-  const paddingH = isRoot ? THEME.root.paddingH : THEME.node.paddingH
-  const paddingV = isRoot ? THEME.root.paddingV : THEME.node.paddingV
+  const paddingH = isRoot
+    ? THEME.root.paddingH
+    : isLevel1 ? THEME.level1.paddingH : THEME.node.paddingH
+  const paddingV = isRoot
+    ? THEME.root.paddingV
+    : isLevel1 ? THEME.level1.paddingV : THEME.node.paddingV
 
   const content = !data.placeholder && plugins?.some((plugin) => plugin.name === 'latex')
     ? measureNodeContent(data, fontSize, fontWeight, isRoot ? THEME.root.fontFamily : THEME.node.fontFamily, plugins)

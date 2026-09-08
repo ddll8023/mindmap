@@ -171,6 +171,12 @@ export default function CustomStyling() {
                 </tr>
                 <tr>
                   <td>
+                    <code>.mindmap-node-level1</code>
+                  </td>
+                  <td>一级分支彩色卡片组</td>
+                </tr>
+                <tr>
+                  <td>
                     <code>.mindmap-node-bg</code>
                   </td>
                   <td>节点背景矩形</td>

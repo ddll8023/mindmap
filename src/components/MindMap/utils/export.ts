@@ -1,7 +1,7 @@
 import type { LayoutDirection, LayoutNode, Edge, MindMapData, ThemeMode } from '../types'
 import type { ThemeColors } from './theme'
 import type { MindMapPlugin } from '../plugins/types'
-import { THEME, generateExportStyles, getTheme } from './theme'
+import { THEME, generateExportStyles, getLevel1TextColor, getTheme } from './theme'
 import { buildSvgNodeTextString, parseInlineMarkdown } from './inline-markdown'
 import { initFormulaEngine, requireFormula } from './formula'
 import { measureNodeContent } from './content-layout'
@@ -134,14 +134,23 @@ export function buildExportSVG(
       }
       parts.push(`</g>`)
     } else {
-      const fontSize = node.depth === 1 ? theme.level1.fontSize : theme.node.fontSize
-      const fontWeight = node.depth === 1 ? theme.level1.fontWeight : theme.node.fontWeight
-      const textW = node.width - theme.node.paddingH * 2
-      const underlineY = Math.max(fontSize / 2 + 4, measureNodeContent(node, fontSize, fontWeight, theme.node.fontFamily, plugins).main.bottom + 4)
+      const isLevel1 = node.depth === 1
+      const fontSize = isLevel1 ? theme.level1.fontSize : theme.node.fontSize
+      const fontWeight = isLevel1 ? theme.level1.fontWeight : theme.node.fontWeight
+      const textColor = isLevel1
+        ? getLevel1TextColor(node.color, node.branchIndex)
+        : theme.node.textColor
 
-      parts.push(`<g class="mindmap-node-g mindmap-node-child" transform="translate(${nx}, ${ny})"${branchAttr}>`)
-      parts.push(buildSvgNodeTextString(node.text, fontSize, fontWeight, theme.node.fontFamily, theme.node.textColor, node.taskStatus, node.remark, plugins, theme.highlight.textColor, theme.highlight.bgColor, pngSafe))
-      parts.push(`<line class="mindmap-node-underline" x1="${-textW / 2}" y1="${underlineY}" x2="${textW / 2}" y2="${underlineY}" stroke="${node.color}"/>`)
+      parts.push(`<g class="mindmap-node-g mindmap-node-child${isLevel1 ? ' mindmap-node-level1' : ''}" transform="translate(${nx}, ${ny})"${branchAttr}>`)
+      if (isLevel1) {
+        parts.push(`<rect class="mindmap-node-bg" x="${-node.width / 2}" y="${-node.height / 2}" width="${node.width}" height="${node.height}" rx="8" ry="8" fill="${node.color}"/>`)
+      }
+      parts.push(buildSvgNodeTextString(node.text, fontSize, fontWeight, theme.node.fontFamily, textColor, node.taskStatus, node.remark, plugins, theme.highlight.textColor, theme.highlight.bgColor, pngSafe))
+      if (!isLevel1) {
+        const textW = node.width - theme.node.paddingH * 2
+        const underlineY = Math.max(fontSize / 2 + 4, measureNodeContent(node, fontSize, fontWeight, theme.node.fontFamily, plugins).main.bottom + 4)
+        parts.push(`<line class="mindmap-node-underline" x1="${-textW / 2}" y1="${underlineY}" x2="${textW / 2}" y2="${underlineY}" stroke="${node.color}"/>`)
+      }
       // Plugin: export node decorations
       if (plugins && plugins.length > 0) {
         parts.push(runExportNodeDecoration(plugins, node, theme, plugins, pngSafe))

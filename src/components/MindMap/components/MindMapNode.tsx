@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { measureNodeContent } from '../utils/content-layout';
 import { buildFormulaOverlays } from '../utils/inline-markdown';
 import type { LayoutNode, LayoutDirection } from "../types";
+import { getLevel1TextColor } from "../utils/theme";
 import type { ThemeColors } from "../utils/theme";
 import type { MindMapPlugin } from "../plugins/types";
 import type { TokenLayout } from "../utils/inline-markdown";
@@ -789,10 +790,12 @@ export function MindMapNode({
   }
 
   // Child node rendering
-  const fontSize =
-    node.depth === 1 ? theme.level1.fontSize : theme.node.fontSize;
-  const fontWeight =
-    node.depth === 1 ? theme.level1.fontWeight : theme.node.fontWeight;
+  const isLevel1 = node.depth === 1;
+  const fontSize = isLevel1 ? theme.level1.fontSize : theme.node.fontSize;
+  const fontWeight = isLevel1 ? theme.level1.fontWeight : theme.node.fontWeight;
+  const nodeTextColor = isLevel1
+    ? getLevel1TextColor(node.color, node.branchIndex)
+    : theme.node.textColor;
   const textW = node.width - theme.node.paddingH * 2;
   const underlineY = Math.max(fontSize / 2 + 4, measureNodeContent(node, fontSize, fontWeight, theme.node.fontFamily, plugins).main.bottom + 4);
   const addBtnOffset =
@@ -802,7 +805,7 @@ export function MindMapNode({
     <g
       key={node.id}
       transform={`translate(${nx}, ${ny})`}
-      className={`mindmap-node-g mindmap-node-child ${animClass} ${newClass} ${placeholderClass} ${expandClass}${isGhost ? ' mindmap-node-ghost' : ''}${dimmedClass}${dropTargetClass}`}
+      className={`mindmap-node-g mindmap-node-child${isLevel1 ? " mindmap-node-level1" : ""} ${animClass} ${newClass} ${placeholderClass} ${expandClass}${isGhost ? ' mindmap-node-ghost' : ''}${dimmedClass}${dropTargetClass}`}
       style={expandStyle}
       data-branch-index={node.branchIndex}
       role="treeitem"
@@ -813,18 +816,19 @@ export function MindMapNode({
       onDoubleClick={(e) => onDoubleClick(e, node.id, rawEditText)}
       onContextMenu={(e) => onContextMenu?.(e, node.id)}
     >
-      {/* Invisible hit area */}
+      {/* First-level cards and transparent descendant hit areas */}
       <rect
         className="mindmap-node-bg"
         x={-node.width / 2}
         y={-node.height / 2}
         width={node.width}
         height={node.height}
-        fill={isDropTarget || isSelected ? theme.selection.fillColor : "transparent"}
+        fill={isLevel1 ? node.color : isDropTarget || isSelected ? theme.selection.fillColor : "transparent"}
         stroke={isDropTarget || isSelected ? theme.selection.strokeColor : "none"}
         strokeWidth={isDropTarget ? 2.5 : isSelected ? 1.5 : 0}
         strokeDasharray={isDropTarget ? "6 4" : undefined}
-        rx={4}
+        rx={isLevel1 ? 8 : 4}
+        ry={isLevel1 ? 8 : 4}
       />
       {showInput ? (
         <foreignObject
@@ -847,9 +851,9 @@ export function MindMapNode({
               fontSize,
               fontWeight,
               fontFamily: theme.node.fontFamily,
-              color: theme.node.textColor,
+              color: nodeTextColor,
               textAlign: "center",
-              borderBottom: `2.5px solid ${node.color}`,
+              borderBottom: isLevel1 ? "none" : `2.5px solid ${node.color}`,
             }}
           />
         </foreignObject>
@@ -860,22 +864,24 @@ export function MindMapNode({
             fontSize={fontSize}
             fontWeight={fontWeight}
             fontFamily={theme.node.fontFamily}
-            textColor={theme.node.textColor}
+            textColor={nodeTextColor}
             onRemarkHover={onRemarkHover}
             plugins={plugins}
             highlightTextColor={theme.highlight.textColor}
             highlightBgColor={theme.highlight.bgColor}
           />
-          <line
-            className="mindmap-node-underline"
-            x1={-textW / 2}
-            y1={underlineY}
-            x2={textW / 2}
-            y2={underlineY}
-            stroke={node.color}
-            strokeWidth={2.5}
-            strokeLinecap="round"
-          />
+          {!isLevel1 && (
+            <line
+              className="mindmap-node-underline"
+              x1={-textW / 2}
+              y1={underlineY}
+              x2={textW / 2}
+              y2={underlineY}
+              stroke={node.color}
+              strokeWidth={2.5}
+              strokeLinecap="round"
+            />
+          )}
         </>
       )}
       {/* Plugin decorations */}

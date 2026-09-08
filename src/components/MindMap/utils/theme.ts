@@ -1,14 +1,15 @@
+// Muted branch palette matching the reference mind-map style.
 export const BRANCH_COLORS = [
-  "#FF6B6B", // 珊瑚红
-  "#4ECDC4", // 薄荷绿
-  "#45B7D1", // 天蓝
-  "#96CEB4", // 灰绿
-  "#FFEAA7", // 柠黄
-  "#DDA0DD", // 梅红
-  "#98D8C8", // 水绿
-  "#F7DC6F", // 金黄
-  "#BB8FCE", // 紫藤
-  "#F0B27A", // 柑橙
+  "#8B9E6F", // 橄榄绿
+  "#CF7465", // 珊瑚红
+  "#DAB16D", // 暖金色
+  "#738BBC", // 灰蓝色
+  "#9F80B2", // 雾紫色
+  "#79A39A", // 灰青色
+  "#C28B9E", // 藕粉色
+  "#8B9FBF", // 钢蓝色
+  "#C58E63", // 陶土色
+  "#829A78", // 鼠尾草绿
 ];
 
 export interface ThemeColors {
@@ -32,6 +33,8 @@ export interface ThemeColors {
   level1: {
     fontSize: number;
     fontWeight: number;
+    paddingH: number;
+    paddingV: number;
   };
   connection: {
     strokeWidth: number;
@@ -73,11 +76,11 @@ export interface ThemeColors {
 
 const SHARED = {
   root: {
-    fontSize: 32,
+    fontSize: 40,
     fontWeight: 600,
     fontFamily: "system-ui, 'Segoe UI', Roboto, sans-serif",
-    paddingH: 24,
-    paddingV: 12,
+    paddingH: 36,
+    paddingV: 20,
   },
   node: {
     fontSize: 18,
@@ -89,6 +92,8 @@ const SHARED = {
   level1: {
     fontSize: 24,
     fontWeight: 500,
+    paddingH: 18,
+    paddingV: 9,
   },
   connection: {
     strokeWidth: 2.5,
@@ -101,9 +106,9 @@ const SHARED = {
 
 const LIGHT_THEME: ThemeColors = {
   ...SHARED,
-  root: { ...SHARED.root, bgColor: "#2C3E50", textColor: "#FFFFFF" },
-  node: { ...SHARED.node, textColor: "#333333" },
-  canvas: { bgColor: "#fafafa" },
+  root: { ...SHARED.root, bgColor: "#3E4553", textColor: "#FFFFFF" },
+  node: { ...SHARED.node, textColor: "#4B4B4B" },
+  canvas: { bgColor: "#FFFFFF" },
   controls: {
     bgColor: "rgba(255, 255, 255, 0.9)",
     textColor: "#555",
@@ -167,6 +172,45 @@ const DARK_THEME: ThemeColors = {
 
 export function getTheme(mode: "light" | "dark"): ThemeColors {
   return mode === "dark" ? DARK_THEME : LIGHT_THEME;
+}
+
+// The reference palette uses dark text on the olive and gold cards, and light
+// text on the remaining first-level branch colors.
+const LEVEL1_TEXT_COLORS = [
+  "#20291A",
+  "#FFFFFF",
+  "#242016",
+  "#FFFFFF",
+  "#FFFFFF",
+  "#FFFFFF",
+  "#20291A",
+  "#FFFFFF",
+  "#242016",
+  "#FFFFFF",
+];
+
+function getFallbackLevel1TextColor(color: string): string {
+  const match = color.trim().match(/^#([0-9a-f]{6})$/i);
+  if (!match) return "#FFFFFF";
+
+  const channels = [0, 2, 4].map((offset) => {
+    const value = parseInt(match[1].slice(offset, offset + 2), 16) / 255;
+    return value <= 0.04045
+      ? value / 12.92
+      : Math.pow((value + 0.055) / 1.055, 2.4);
+  });
+  const luminance = 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+  return luminance > 0.42 ? "#242016" : "#FFFFFF";
+}
+
+export function getLevel1TextColor(color: string, branchIndex?: number): string {
+  const paletteColor = branchIndex === undefined
+    ? undefined
+    : BRANCH_COLORS[branchIndex % BRANCH_COLORS.length];
+  if (paletteColor?.toLowerCase() === color.trim().toLowerCase()) {
+    return LEVEL1_TEXT_COLORS[branchIndex! % LEVEL1_TEXT_COLORS.length];
+  }
+  return getFallbackLevel1TextColor(color);
 }
 
 // Backward compatible default export
