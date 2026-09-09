@@ -34,7 +34,7 @@ English | [中文](README.zh-CN.md)
 - **Remarks** — multi-line remarks attached to nodes via `>` syntax
 - **Text editing mode** — toggle between visual mind map and plain-text markdown editing
 - **Full-screen mode** — expand the component to fill the viewport
-- **LaTeX math** — render `$...$` inline and `$$...$$` display formulas as SVG paths, including high-resolution PNG export
+- **LaTeX math** — render `$...$` inline plus same-line or standard multi-line `$$...$$` display formulas as SVG paths, including high-resolution PNG export
 - **Cross-links** — draw edges between arbitrary nodes via `{#anchor}` / `-> {#target}`
 - **Lightweight Viewer** — a standalone read-only component (`MindMapViewer`) with ~48% smaller bundle; import via `@xiangfa/mindmap/viewer` for minimal footprint
 - **Readonly mode** — display-only with pan/zoom/select but no editing; ideal for presentations and embeds
@@ -574,7 +574,11 @@ Render mathematical formulas using local [MathJax](https://www.mathjax.org/) SVG
 
 ```
 - Inline math: $E = mc^2$
-- Display math: $$\sum_{i=1}^{n} x_i$$
+- Same-line display math: $$\sum_{i=1}^{n} x_i$$
+- Multi-line display math:
+  $$
+  \sum_{i=1}^{n} x_i
+  $$
 ```
 
 ## API Reference

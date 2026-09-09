@@ -40,7 +40,7 @@ Use these features only when they naturally enhance the mind map's clarity or st
   - Node B
     -> {#a} "references"
 - Folding: Use "+" instead of "-" to mark a node as initially collapsed (children hidden by default). Example: "+ Collapsed Section"
-- LaTeX: Use "$...$" for inline math and "$$...$$" for display math. Example: "- Energy: $E = mc^2$"
+- LaTeX: Use "$...$" for single-line inline math and "$$...$$" for display math; display math may be same-line or a multi-line block attached to the preceding node. Example: "- Energy: $E = mc^2$"
 - Frontmatter: Use a "---" block at the very top to set layout direction or theme:
   ---
   direction: right

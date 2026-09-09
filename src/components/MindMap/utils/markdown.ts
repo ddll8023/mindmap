@@ -23,6 +23,93 @@ interface ParsedItem {
   placeholder?: boolean
 }
 
+interface FencedCodeState {
+  char: '`' | '~'
+  length: number
+}
+
+function parseFenceStart(line: string): FencedCodeState | null {
+  const match = line.match(/^[ \t]*(`{3,}|~{3,})/)
+  if (!match) return null
+  return { char: match[1][0] as '`' | '~', length: match[1].length }
+}
+
+function isFenceClose(line: string, fence: FencedCodeState): boolean {
+  const match = line.match(/^[ \t]*(`{3,}|~{3,})[ \t]*$/)
+  return Boolean(
+    match &&
+    match[1][0] === fence.char &&
+    match[1].length >= fence.length,
+  )
+}
+
+function isStandaloneMathDelimiter(line: string): boolean {
+  return /^[ \t]*\$\$[ \t]*$/.test(line)
+}
+
+/** Mark fenced-code and multi-line display-math lines before heading normalization. */
+function getProtectedMarkdownLines(lines: string[]): boolean[] {
+  const protectedLines = lines.map(() => false)
+  let fencedCode: FencedCodeState | null = null
+  let blockMath = false
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    if (fencedCode) {
+      protectedLines[i] = true
+      if (isFenceClose(line, fencedCode)) fencedCode = null
+      continue
+    }
+
+    if (blockMath) {
+      protectedLines[i] = true
+      if (isStandaloneMathDelimiter(line)) blockMath = false
+      continue
+    }
+
+    const fenceStart = parseFenceStart(line)
+    if (fenceStart) {
+      protectedLines[i] = true
+      fencedCode = fenceStart
+      continue
+    }
+    if (isStandaloneMathDelimiter(line)) {
+      protectedLines[i] = true
+      blockMath = true
+    }
+  }
+
+  return protectedLines
+}
+
+/** Keep blank lines inside protected blocks, while retaining the parser's old outline behavior elsewhere. */
+function removeBlankLinesOutsideProtectedBlocks(md: string): string {
+  const lines = md.split('\n')
+  const protectedLines = getProtectedMarkdownLines(lines)
+  return lines
+    .filter((line, index) => protectedLines[index] || (line.trim() && !/^\s*%%/.test(line)))
+    .join('\n')
+}
+
+/** Split outline roots without treating blank lines inside code/math blocks as separators. */
+function splitMarkdownBlocks(md: string): string[] {
+  const lines = md.split('\n')
+  const protectedLines = getProtectedMarkdownLines(lines)
+  const blocks: string[][] = []
+  let current: string[] = []
+
+  for (let i = 0; i < lines.length; i++) {
+    if (!protectedLines[i] && lines[i].trim() === '') {
+      if (current.some((line) => line.trim())) blocks.push(current)
+      current = []
+      continue
+    }
+    current.push(lines[i])
+  }
+  if (current.some((line) => line.trim())) blocks.push(current)
+  return blocks.map((block) => block.join('\n'))
+}
+
 /**
  * Extract task status prefix from text.
  * Returns the task status and the remaining text.
@@ -73,7 +160,8 @@ function isListNodeLine(line: string): boolean {
 
 function normalizeMarkdownHeadings(md: string): string {
   const lines = md.split('\n')
-  const headings = lines.map(parseMarkdownHeading)
+  const protectedLines = getProtectedMarkdownLines(lines)
+  const headings = lines.map((line, index) => protectedLines[index] ? null : parseMarkdownHeading(line))
   const firstHeadingIndex = headings.findIndex(Boolean)
   if (firstHeadingIndex === -1) return md
 
@@ -81,7 +169,8 @@ function normalizeMarkdownHeadings(md: string): string {
   // syntax. Treat headings after it as children instead of replacing it.
   const hasBareRootBeforeHeading = lines
     .slice(0, firstHeadingIndex)
-    .some((line) => {
+    .some((line, index) => {
+      if (protectedLines[index]) return false
       const trimmed = line.trim()
       return Boolean(
         trimmed &&
@@ -97,6 +186,8 @@ function normalizeMarkdownHeadings(md: string): string {
 
   return lines
     .map((line, index) => {
+      if (protectedLines[index]) return line
+
       const heading = headings[index]
       if (heading) {
         while (
@@ -135,20 +226,35 @@ export function parseMarkdownList(md: string, plugins?: MindMapPlugin[]): MindMa
 
   // Step 1: Pre-process (e.g. frontmatter extraction)
   const ctx = activePlugins ? { lines: [] as string[], frontMatter: {} as Record<string, string> } : undefined
-  let processedMd = md
+  let processedMd = md.replace(/\r\n?/g, '\n')
   if (activePlugins && ctx) {
     processedMd = runPreParseMarkdown(activePlugins, processedMd, ctx)
   }
+  processedMd = processedMd.replace(/\r\n?/g, '\n')
 
   const lines = normalizeMarkdownHeadings(processedMd).split('\n')
   if (ctx) ctx.lines = lines
   const items: ParsedItem[] = []
   let bareRootText: string | null = null
+  let bareRootMultiLineContent: string[] | undefined
   const bareRootRemarkLines: string[] = []
+  let fencedCode: FencedCodeState | null = null
 
   let i = 0
   while (i < lines.length) {
     const line = lines[i]
+
+    if (fencedCode) {
+      if (isFenceClose(line, fencedCode)) fencedCode = null
+      i++
+      continue
+    }
+    const fenceStart = parseFenceStart(line)
+    if (fenceStart) {
+      fencedCode = fenceStart
+      i++
+      continue
+    }
 
     // Skip comment lines (lines starting with %%, optionally preceded by whitespace)
     if (/^\s*%%/.test(line)) {
@@ -263,6 +369,14 @@ export function parseMarkdownList(md: string, plugins?: MindMapPlugin[]): MindMa
             break
           }
         }
+        if (activePlugins && ctx) {
+          const tempNode: MindMapData = { id: 'temp', text: bareRootText }
+          const consumed = runCollectFollowLines(activePlugins, lines, j, tempNode, ctx)
+          if (tempNode.multiLineContent?.length) {
+            bareRootMultiLineContent = tempNode.multiLineContent
+          }
+          j += consumed
+        }
         i = j
         continue
       }
@@ -302,6 +416,7 @@ export function parseMarkdownList(md: string, plugins?: MindMapPlugin[]): MindMa
       text: bareRootText,
       children: [],
       ...(bareRootRemarkLines.length > 0 ? { remark: bareRootRemarkLines.join('\n') } : {}),
+      ...(bareRootMultiLineContent ? { multiLineContent: bareRootMultiLineContent } : {}),
     }
 
     // Apply plugin transforms to bare root
@@ -527,17 +642,18 @@ export function parseMarkdownMultiRoot(md: string, plugins?: MindMapPlugin[]): M
   const activePlugins = plugins && plugins.length > 0 ? plugins : undefined
 
   // Pre-process for frontmatter before splitting
-  let processedMd = md
+  let processedMd = md.replace(/\r\n?/g, '\n')
   const ctx = activePlugins ? { lines: [] as string[], frontMatter: {} as Record<string, string> } : undefined
   if (activePlugins && ctx) {
     processedMd = runPreParseMarkdown(activePlugins, processedMd, ctx)
   }
 
-  // Remove empty lines and comment lines — the mindmap syntax has no blank-line semantics
-  processedMd = processedMd.split('\n').filter(line => line.trim().length > 0 && !/^\s*%%/.test(line)).join('\n')
+  // Keep blank lines inside fenced code and display-math blocks; other blank
+  // lines have no outline semantics and retain the previous behavior.
+  processedMd = removeBlankLinesOutsideProtectedBlocks(processedMd)
 
-  // Split on blank lines (one or more empty lines)
-  const blocks = processedMd.split(/\n[ \t]*\n/).filter((block) => block.trim())
+  // Split on blank lines outside protected code/math blocks.
+  const blocks = splitMarkdownBlocks(processedMd)
   if (blocks.length === 0) {
     return [{ id: 'md-0', text: 'Root' }]
   }
@@ -605,17 +721,19 @@ export function parseMarkdownWithFrontMatter(
   plugins: MindMapPlugin[],
 ): { roots: MindMapData[]; frontMatter: Record<string, string> } {
   const ctx = { lines: [] as string[], frontMatter: {} as Record<string, string> }
-  let processedMd = runPreParseMarkdown(plugins, md, ctx)
+  let processedMd = md.replace(/\r\n?/g, '\n')
+  processedMd = runPreParseMarkdown(plugins, processedMd, ctx)
 
-  // Remove empty lines and comment lines — the mindmap syntax has no blank-line semantics
-  processedMd = processedMd.split('\n').filter(line => line.trim().length > 0 && !/^\s*%%/.test(line)).join('\n')
+  // Keep blank lines inside fenced code and display-math blocks; other blank
+  // lines have no outline semantics and retain the previous behavior.
+  processedMd = removeBlankLinesOutsideProtectedBlocks(processedMd)
 
   const blockPlugins = plugins.map(p => ({
     ...p,
     preParseMarkdown: undefined,
   })) as MindMapPlugin[]
 
-  const blocks = processedMd.split(/\n[ \t]*\n/).filter((block) => block.trim())
+  const blocks = splitMarkdownBlocks(processedMd)
   if (blocks.length === 0) {
     return { roots: [{ id: 'md-0', text: 'Root' }], frontMatter: ctx.frontMatter }
   }

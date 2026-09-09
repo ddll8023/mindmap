@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { frontMatterPlugin } from '../plugins/front-matter'
+import { latexPlugin } from '../plugins/latex'
+import { multiLinePlugin } from '../plugins/multi-line'
 import {
   parseInitialMindMapInput,
   parseMindMapMarkdownInput,
@@ -34,6 +36,17 @@ describe('mind map input parsing', () => {
 
     expect(result.direction).toBeUndefined()
     expect(result.theme).toBeUndefined()
+  })
+
+  it('parses multi-line display math through the application input path', () => {
+    const result = parseMindMapMarkdownInput(
+      '- CPU 执行时间\n\n  $$\n  CPU执行时间=\\frac{指令条数\\times CPI}{主频}\n  $$',
+      [latexPlugin, multiLinePlugin],
+    )
+
+    expect(result.roots[0].multiLineContent).toEqual([
+      '$$\nCPU执行时间=\\frac{指令条数\\times CPI}{主频}\n$$',
+    ])
   })
 
   it('lets controlled data take priority over initial markdown parsing', () => {

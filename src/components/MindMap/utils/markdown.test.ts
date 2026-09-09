@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import type { MindMapData } from '../types'
+import { latexPlugin } from '../plugins/latex'
+import { multiLinePlugin } from '../plugins/multi-line'
+import { parseInlineMarkdown } from './inline-markdown'
 import { parseMarkdownMultiRoot, toMarkdownMultiRoot } from './markdown'
+
+const latexPlugins = [latexPlugin, multiLinePlugin]
 
 // Compare structure only — parsing assigns fresh ids, so ids are ignored.
 const shape = (n: MindMapData): unknown => ({
@@ -66,6 +71,101 @@ describe('markdown round-trip', () => {
     ])
     expect(md).toContain('Topic')
     expect(md).toContain('Detail')
+  })
+
+  it('parses inline, same-line block, and multi-line block formulas', () => {
+    const tokens = parseInlineMarkdown(
+      'inline $M=2^{20}$ and $$M=2^{20}$$',
+      latexPlugins,
+    )
+
+    expect(tokens.map((token) => token.type)).toEqual([
+      'text', 'latex-inline', 'text', 'latex-block',
+    ])
+    expect(tokens[1]).toEqual({ type: 'latex-inline', content: 'M=2^{20}' })
+    expect(tokens[3]).toEqual({ type: 'latex-block', content: 'M=2^{20}' })
+
+    const multiLineTokens = parseInlineMarkdown(
+      '$$\n\nline1\nline2\n\n$$',
+      latexPlugins,
+    )
+    expect(multiLineTokens).toEqual([
+      { type: 'latex-block', content: 'line1\nline2' },
+    ])
+    expect(parseInlineMarkdown('$M\n=2^{20}$', latexPlugins)).not.toContainEqual(
+      expect.objectContaining({ type: 'latex-inline' }),
+    )
+  })
+
+  it('keeps a standard block formula attached to its parent node', () => {
+    const roots = parseMarkdownMultiRoot(
+      '- CPU 执行时间\n\n  $$\n  CPU执行时间=\\frac{指令条数\\times CPI}{主频}\n  $$\n\n  - 子节点',
+      latexPlugins,
+    )
+    const node = roots[0]
+
+    expect(node.text).toBe('CPU 执行时间')
+    expect(node.multiLineContent).toEqual([
+      '$$\nCPU执行时间=\\frac{指令条数\\times CPI}{主频}\n$$',
+    ])
+    expect(node.children?.map((child) => child.text)).toEqual(['子节点'])
+    expect(parseInlineMarkdown(node.multiLineContent![0], latexPlugins)).toEqual([
+      { type: 'latex-block', content: 'CPU执行时间=\\frac{指令条数\\times CPI}{主频}' },
+    ])
+  })
+
+  it('collects multiple block formulas and round-trips their standard syntax', () => {
+    const roots = parseMarkdownMultiRoot(
+      '- Formulae\n\n  $$\n  M=2^{20}\n  $$\n\n  $$\n  G=2^{30}\n  $$',
+      latexPlugins,
+    )
+    expect(roots[0].multiLineContent).toEqual([
+      '$$\nM=2^{20}\n$$',
+      '$$\nG=2^{30}\n$$',
+    ])
+
+    const serialized = toMarkdownMultiRoot(roots, latexPlugins)
+    expect(serialized).toContain('- Formulae\n  $$\n  M=2^{20}\n  $$\n  $$\n  G=2^{30}\n  $$')
+    expect(parseMarkdownMultiRoot(serialized, latexPlugins)[0].multiLineContent)
+      .toEqual(roots[0].multiLineContent)
+
+    const preserved = parseMarkdownMultiRoot(
+      '- Multi-line\n\n  $$\n  line1\n\n  line2\n  $$',
+      latexPlugins,
+    )
+    expect(preserved[0].multiLineContent).toEqual([
+      '$$\nline1\n\nline2\n$$',
+    ])
+  })
+
+  it('parses formulas nested inside formatted text without parsing code', () => {
+    const tokens = parseInlineMarkdown(
+      '**补码 $+0$ 和 $-0$ 相同**',
+      latexPlugins,
+    )
+    expect(tokens).toEqual([
+      { type: 'bold', content: '补码 ' },
+      { type: 'latex-inline', content: '+0' },
+      { type: 'bold', content: ' 和 ' },
+      { type: 'latex-inline', content: '-0' },
+      { type: 'bold', content: ' 相同' },
+    ])
+  })
+
+  it('does not parse formulas inside inline or fenced code', () => {
+    expect(parseInlineMarkdown('`$M=2^{20}$`', latexPlugins)).toEqual([
+      { type: 'code', content: '$M=2^{20}$' },
+    ])
+    expect(parseInlineMarkdown('```markdown\n$test$\n$$\ntest\n$$\n```', latexPlugins))
+      .not.toContainEqual(expect.objectContaining({ type: 'latex-block' }))
+    expect(parseInlineMarkdown('```markdown\n$test$\n```', latexPlugins))
+      .not.toContainEqual(expect.objectContaining({ type: 'latex-inline' }))
+
+    const roots = parseMarkdownMultiRoot(
+      '- Code sample\n  ```markdown\n  - $test$\n  $$\n  test\n  $$\n  ```\n- Next',
+      latexPlugins,
+    )
+    expect(roots[0].children?.map((child) => child.text)).toEqual(['Next'])
   })
 
   it('parses nested and flat-title conventions to the same structure', () => {

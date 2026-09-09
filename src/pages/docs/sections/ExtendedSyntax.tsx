@@ -195,11 +195,15 @@ export default function ExtendedSyntax() {
 - 交叉熵
   | $L = -\\sum_{i} y_i \\log(\\hat{y}_i)$
 - KL 散度
-  | $D_{KL}(P \\| Q) = \\sum P(x) \\log\\frac{P(x)}{Q(x)}$`}</CodeBlock>
+  | $D_{KL}(P \\| Q) = \\sum P(x) \\log\\frac{P(x)}{Q(x)}$
+- CPU 执行时间
+  $$
+  CPU执行时间 = \\frac{指令条数 \\times CPI}{主频}
+  $$`}</CodeBlock>
 
           <p className="text-sm text-slate-500 dark:text-slate-500 mt-3 mb-6">
-            支持使用 <code className="text-xs">$...$</code> 编写行内公式，使用
-            <code className="text-xs">$$...$$</code> 编写块级公式。预览与 PNG 导出使用同一份 SVG 字形路径；无效公式会阻止 PNG 导出并提示错误。
+            支持 <code className="text-xs">$...$</code> 行内公式，以及同行或标准跨行的
+            <code className="text-xs">$$...$$</code> 块级公式。行内公式不能跨行；预览与 PNG 导出使用同一份 SVG 字形路径；无效公式会阻止 PNG 导出并提示错误。
           </p>
 
           {/* 前置元数据 */}

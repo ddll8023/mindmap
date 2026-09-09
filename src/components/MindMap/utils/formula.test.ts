@@ -2,8 +2,9 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import { initFormulaEngine, requireFormula } from './formula'
 import { buildExportSVG, exportPreparedPNG } from './export'
 import { layoutMultiRoot } from './layout'
-import { parseInlineMarkdown, computeTokenLayouts } from './inline-markdown'
+import { buildSvgNodeTextString, parseInlineMarkdown, computeTokenLayouts } from './inline-markdown'
 import { measureNodeContent } from './content-layout'
+import { parseMarkdownMultiRoot } from './markdown'
 import { latexPlugin } from '../plugins/latex'
 import { multiLinePlugin } from '../plugins/multi-line'
 import { tagsPlugin } from '../plugins/tags'
@@ -35,6 +36,104 @@ describe('formula paths for PNG', () => {
   it('uses full inline expressions rather than the first MathJax line-break segment', () => {
     const expression = requireFormula('x=1+2+3', false)
     expect(expression.width).toBeGreaterThan(requireFormula('x', false).width * 4)
+  })
+
+  it('renders inline formulas nested inside bold text', () => {
+    const svg = buildSvgNodeTextString(
+      '**补码 $+0$ 和 $-0$ 相同**',
+      16,
+      400,
+      'sans-serif',
+      '#111',
+      undefined,
+      undefined,
+      plugins,
+    )
+    expect(svg.match(/class="mindmap-formula"/g)).toHaveLength(2)
+    expect(svg).not.toContain('$+0$')
+    expect(svg).toContain('font-weight="700"')
+  })
+
+  it('renders a standard multi-line block formula without changing list hierarchy', () => {
+    const roots = parseMarkdownMultiRoot(
+      String.raw`# 计算机性能指标
+
+## CPU 执行时间
+
+* 时钟周期为 $T=\frac{1}{f}$
+
+* CPU 执行时间
+
+  $$
+  CPU执行时间=\frac{指令条数\times CPI}{主频}
+  $$
+
+## 常用数量单位
+
+* $K=2^{10}$
+* $M=2^{20}$
+* $G=2^{30}$
+* $T=2^{40}$`,
+      plugins,
+    )
+    const cpuSection = roots[0].children?.[0]
+    const executionNode = cpuSection?.children?.[1]
+    expect(executionNode?.text).toBe('CPU 执行时间')
+    expect(executionNode?.children).toBeUndefined()
+    expect(executionNode?.multiLineContent).toEqual([
+      '$$\nCPU执行时间=\\frac{指令条数\\times CPI}{主频}\n$$',
+    ])
+    const metrics = measureNodeContent(
+      executionNode!,
+      THEME.node.fontSize,
+      THEME.node.fontWeight,
+      THEME.node.fontFamily,
+      plugins,
+    )
+    expect(metrics.multiLines[0].isDisplayMath).toBe(true)
+    expect(metrics.multiLines[0].isMergedIntoMain).toBe(true)
+    expect(metrics.multiLines[0].fontSize).toBe(THEME.node.fontSize)
+    expect(metrics.bottom).toBe(metrics.multiLines[0].y + metrics.multiLines[0].bottom)
+
+    const { nodes, edges } = layoutMultiRoot(roots, 'right', {}, {}, plugins)
+    const svg = buildExportSVG(nodes, edges, { pngSafe: true }, THEME, plugins)
+    expect(svg.match(/class="mindmap-formula"/g)).toHaveLength(6)
+    expect(svg).not.toContain('$$\n')
+    expect(svg).toContain('<path')
+  })
+
+  it('renders a parsed block formula when only latexPlugin is enabled', () => {
+    const roots = parseMarkdownMultiRoot(
+      '- Formula\n\n  $$\n  M=2^{20}\n  $$',
+      [latexPlugin],
+    )
+    const { nodes, edges } = layoutMultiRoot(roots, 'right', {}, {}, [latexPlugin])
+    const svg = buildExportSVG(nodes, edges, { pngSafe: true }, THEME, [latexPlugin])
+    expect(svg.match(/class="mindmap-formula"/g)).toHaveLength(1)
+  })
+
+  it('places a child underline below its display formula content', () => {
+    const data = [{
+      id: 'root',
+      text: 'Root',
+      children: [{
+        id: 'section',
+        text: 'Section',
+        children: [{
+          id: 'formula-node',
+          text: 'Formula',
+          multiLineContent: ['$$\nM=2^{20}\n$$'],
+        }],
+      }],
+    }]
+    const { nodes, edges } = layoutMultiRoot(data, 'right', {}, {}, plugins)
+    const svg = buildExportSVG(nodes, edges, { pngSafe: true }, THEME, plugins)
+    const formula = svg.match(/<svg class="mindmap-formula"[^>]* y="([^"]+)"[^>]* height="([^"]+)"/)
+    const underline = svg.match(/<line class="mindmap-node-underline"[^>]* y1="([^"]+)"/)
+
+    expect(formula).not.toBeNull()
+    expect(underline).not.toBeNull()
+    expect(Number(underline![1])).toBeGreaterThan(Number(formula![1]) + Number(formula![2]))
   })
 
   it('emits paths in pngSafe mode, including multi-line formulas', () => {

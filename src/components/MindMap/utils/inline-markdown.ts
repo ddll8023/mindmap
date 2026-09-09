@@ -14,6 +14,19 @@ export type InlineToken =
   | { type: "latex-inline"; content: string }
   | { type: "latex-block"; content: string };
 
+/** Remove only blank lines around a display formula, preserving internal line breaks. */
+export function normalizeFormulaContent(content: string): string {
+  const lines = content.replace(/\r\n?/g, "\n").split("\n");
+  while (lines.length > 0 && lines[0].trim() === "") lines.shift();
+  while (lines.length > 0 && lines[lines.length - 1].trim() === "") lines.pop();
+  return lines.join("\n");
+}
+
+/** Internal representation used for a parsed multi-line display formula. */
+export function isMultilineBlockFormula(text: string): boolean {
+  return /^\$\$\n[\s\S]*\n\$\$$/.test(text);
+}
+
 // Base regex pattern
 const BASE_PATTERN =
   "!\\[([^\\]]*)\\]\\(([^)]+)\\)|\\[([^\\]]+)\\]\\(([^)]+)\\)|`([^`]+)`|\\*\\*(.+?)\\*\\*|\\*(.+?)\\*|~~(.+?)~~|==(.+?)==";
@@ -132,13 +145,13 @@ export function parseInlineMarkdown(
       } else if (g(5) !== undefined) {
         tokens.push({ type: "code", content: g(5) });
       } else if (g(6) !== undefined) {
-        tokens.push({ type: "bold", content: g(6) });
+        appendFormattedTokens(tokens, "bold", g(6), plugins);
       } else if (g(7) !== undefined) {
-        tokens.push({ type: "italic", content: g(7) });
+        appendFormattedTokens(tokens, "italic", g(7), plugins);
       } else if (g(8) !== undefined) {
-        tokens.push({ type: "strikethrough", content: g(8) });
+        appendFormattedTokens(tokens, "strikethrough", g(8), plugins);
       } else if (g(9) !== undefined) {
-        tokens.push({ type: "highlight", content: g(9) });
+        appendFormattedTokens(tokens, "highlight", g(9), plugins);
       }
     }
 
@@ -154,6 +167,35 @@ export function parseInlineMarkdown(
   }
 
   return tokens;
+}
+
+/** Whether a line contains a display-math token, including a multi-line block source. */
+export function hasBlockFormula(text: string, plugins?: MindMapPlugin[]): boolean {
+  return parseInlineMarkdown(text, plugins).some((token) => token.type === "latex-block");
+}
+
+type FormattedTokenType = "bold" | "italic" | "strikethrough" | "highlight";
+
+/** Parse formulas nested inside a formatting span without opening code spans to LaTeX parsing. */
+function appendFormattedTokens(
+  tokens: InlineToken[],
+  type: FormattedTokenType,
+  content: string,
+  plugins?: MindMapPlugin[],
+): void {
+  const nested = parseInlineMarkdown(content, plugins);
+  if (!nested.some((token) => token.type === "latex-inline" || token.type === "latex-block")) {
+    tokens.push({ type, content } as InlineToken);
+    return;
+  }
+
+  for (const token of nested) {
+    if (token.type === "text") {
+      tokens.push({ type, content: token.content } as InlineToken);
+    } else {
+      tokens.push(token);
+    }
+  }
 }
 
 /** Count capture groups in a regex pattern string */
@@ -182,8 +224,8 @@ export function stripInlineMarkdown(text: string): string {
     .replace(/\*(.+?)\*/g, "$1")
     .replace(/~~(.+?)~~/g, "$1")
     .replace(/==(.+?)==/g, "$1")
-    .replace(/\$\$(.+?)\$\$/g, "$1")
-    .replace(/\$([^$]+?)\$/g, "$1");
+    .replace(/\$\$([\s\S]+?)\$\$/g, (_match, content: string) => normalizeFormulaContent(content))
+    .replace(/\$([^$\r\n]+?)\$/g, "$1");
 }
 
 // --- Canvas text measurement for per-token layout ---

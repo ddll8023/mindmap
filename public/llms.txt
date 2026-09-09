@@ -109,7 +109,7 @@ Plugins extend ~20 hook points across parsing, serialization, layout, rendering,
 - **Multi-line** (plugin): `|` continuation lines
 - **Tags** (plugin): `#tag` at end of node text
 - **Cross-links** (plugin): `{#anchor}` and `-> {#target}`
-- **LaTeX** (plugin): `$...$` inline, `$$...$$` display; rendered with local MathJax SVG paths and included in PNG exports
+- **LaTeX** (plugin): `$...$` inline (single-line only), same-line or standard multi-line `$$...$$` display; rendered with local MathJax SVG paths and included in PNG exports
 
 ## Data Structure
 

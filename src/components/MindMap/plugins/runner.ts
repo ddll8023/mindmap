@@ -28,14 +28,24 @@ export function runParseLine(plugins: MindMapPlugin[], line: string, index: numb
 }
 
 export function runCollectFollowLines(plugins: MindMapPlugin[], lines: string[], startIdx: number, node: MindMapData, ctx: ParseContext): number {
+  // A follow-line block may be composed of extensions from different plugins
+  // (for example, `|` lines followed by a display-math block). Re-run the
+  // ordered collectors from the new cursor until no plugin consumes anything,
+  // while keeping each consumed line indivisible for the tree parser.
   let total = 0
-  for (const p of plugins) {
-    if (p.collectFollowLines) {
+  while (true) {
+    let consumedAny = false
+    for (const p of plugins) {
+      if (!p.collectFollowLines) continue
       const consumed = p.collectFollowLines(lines, startIdx + total, node, ctx)
-      total += consumed
+      if (consumed > 0) {
+        total += consumed
+        consumedAny = true
+        break
+      }
     }
+    if (!consumedAny) return total
   }
-  return total
 }
 
 export function runTransformNodeData(plugins: MindMapPlugin[], node: MindMapData, rawText: string, ctx: ParseContext): MindMapData {

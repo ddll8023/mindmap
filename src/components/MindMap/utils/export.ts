@@ -125,9 +125,10 @@ export function buildExportSVG(
     if (node.depth === 0) {
       const { fontSize, fontWeight, fontFamily, textColor } = theme.root
       const bgColor = theme.root.bgColor
+      const content = measureNodeContent(node, fontSize, fontWeight, fontFamily, plugins)
       parts.push(`<g class="mindmap-node-g mindmap-node-root" transform="translate(${nx}, ${ny})"${branchAttr}>`)
       parts.push(`<rect class="mindmap-node-bg" x="${-node.width / 2}" y="${-node.height / 2}" width="${node.width}" height="${node.height}" rx="${node.height / 2}" ry="${node.height / 2}" fill="${bgColor}"/>`)
-      parts.push(buildSvgNodeTextString(node.text, fontSize, fontWeight, fontFamily, textColor, node.taskStatus, node.remark, plugins, theme.highlight.textColor, theme.highlight.bgColor, pngSafe))
+      parts.push(buildSvgNodeTextString(content.mainText, fontSize, fontWeight, fontFamily, textColor, node.taskStatus, node.remark, plugins, theme.highlight.textColor, theme.highlight.bgColor, pngSafe))
       // Plugin: export node decorations
       if (plugins && plugins.length > 0) {
         parts.push(runExportNodeDecoration(plugins, node, theme, plugins, pngSafe))
@@ -145,10 +146,14 @@ export function buildExportSVG(
       if (isLevel1) {
         parts.push(`<rect class="mindmap-node-bg" x="${-node.width / 2}" y="${-node.height / 2}" width="${node.width}" height="${node.height}" rx="8" ry="8" fill="${node.color}"/>`)
       }
-      parts.push(buildSvgNodeTextString(node.text, fontSize, fontWeight, theme.node.fontFamily, textColor, node.taskStatus, node.remark, plugins, theme.highlight.textColor, theme.highlight.bgColor, pngSafe))
+      const content = measureNodeContent(node, fontSize, fontWeight, theme.node.fontFamily, plugins)
+      parts.push(buildSvgNodeTextString(content.mainText, fontSize, fontWeight, theme.node.fontFamily, textColor, node.taskStatus, node.remark, plugins, theme.highlight.textColor, theme.highlight.bgColor, pngSafe))
       if (!isLevel1) {
         const textW = node.width - theme.node.paddingH * 2
-        const underlineY = Math.max(fontSize / 2 + 4, measureNodeContent(node, fontSize, fontWeight, theme.node.fontFamily, plugins).main.bottom + 4)
+        const hasDisplayMathFollowLine = content.multiLines.some((line) => line.isDisplayMath)
+        const underlineY = hasDisplayMathFollowLine
+          ? Math.max(fontSize / 2 + 4, content.bottom + 4)
+          : Math.max(fontSize / 2 + 4, content.main.bottom + 4)
         parts.push(`<line class="mindmap-node-underline" x1="${-textW / 2}" y1="${underlineY}" x2="${textW / 2}" y2="${underlineY}" stroke="${node.color}"/>`)
       }
       // Plugin: export node decorations

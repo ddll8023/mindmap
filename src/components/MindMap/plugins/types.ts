@@ -43,7 +43,7 @@ export interface MindMapPlugin {
     ctx: ParseContext,
   ): ParsedLineResult | null;
 
-  /** Collect follow-up lines after a node (e.g. | text). Return count of consumed lines. */
+  /** Collect follow-up lines after a node (e.g. `|` text or a multi-line `$$` block). Return count of consumed lines. */
   collectFollowLines?(
     lines: string[],
     startIdx: number,

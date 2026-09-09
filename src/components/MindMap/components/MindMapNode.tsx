@@ -418,11 +418,13 @@ function SvgNodeContent({
         __html: buildFormulaOverlays(layouts, textStartX, 0, fontSize, textColor),
       }} />
 
-      {/* Multi-line content (from | lines) with inline markdown support */}
+      {/* Follow-line content (`|` text or a display-math block) with inline markdown support */}
       {multiLineContent &&
         multiLineContent.length > 0 &&
         content.multiLines.map((line, i) => {
-          const mlFontSize = fontSize * 0.85;
+          if (line.isMergedIntoMain) return null;
+          const mlFontSize = line.fontSize;
+          const lineOpacity = line.isDisplayMath ? undefined : 0.8;
           const mlLayouts = line.layouts;
           const mlStartX = -line.width / 2;
           const mlY = line.y;
@@ -473,7 +475,7 @@ function SvgNodeContent({
                 fontSize={mlFontSize}
                 fontWeight={400}
                 fontFamily={fontFamily}
-                opacity={0.8}
+                opacity={lineOpacity}
               >
                 {mlLayouts.map((layout, j) => (
                   <tspan key={j} x={mlStartX + layout.x}>
@@ -499,7 +501,7 @@ function SvgNodeContent({
                   </image>
                 );
               })}
-              <g className="mindmap-formula-overlays" opacity={0.8} dangerouslySetInnerHTML={{
+              <g className="mindmap-formula-overlays" opacity={lineOpacity} dangerouslySetInnerHTML={{
                 __html: buildFormulaOverlays(mlLayouts, mlStartX, mlY, mlFontSize, textColor),
               }} />
             </g>
@@ -797,7 +799,11 @@ export function MindMapNode({
     ? getLevel1TextColor(node.color, node.branchIndex)
     : theme.node.textColor;
   const textW = node.width - theme.node.paddingH * 2;
-  const underlineY = Math.max(fontSize / 2 + 4, measureNodeContent(node, fontSize, fontWeight, theme.node.fontFamily, plugins).main.bottom + 4);
+  const content = measureNodeContent(node, fontSize, fontWeight, theme.node.fontFamily, plugins);
+  const hasDisplayMathFollowLine = content.multiLines.some((line) => line.isDisplayMath);
+  const underlineY = hasDisplayMathFollowLine
+    ? Math.max(fontSize / 2 + 4, content.bottom + 4)
+    : Math.max(fontSize / 2 + 4, content.main.bottom + 4);
   const addBtnOffset =
     node.side === "left" ? -node.width / 2 - 18 : node.width / 2 + 18;
 

@@ -130,9 +130,18 @@ Loss Functions
   | $D_{KL}(P \| Q) = \sum P(x) \log\frac{P(x)}{Q(x)}$
 ```
 
-Supports inline formulas with `$...$` and display-mode formulas with `$$...$$`. The LaTeX plugin uses locally bundled MathJax to generate self-contained SVG paths, so formulas remain available in SVG and PNG exports without a CDN or external math fonts. The React ref PNG export waits for formula rendering and layout to finish; invalid formulas reject the export instead of silently exporting the source text.
+Supports inline formulas with `$...$`, same-line display formulas with `$$...$$`, and standard multi-line display formulas:
 
-The delimiters are recognized by the mindmap inline parser. A formula must be contained in one parsed text line; it is not a standalone Markdown block outside a node.
+```mindmap
+- CPU execution time
+  $$
+  CPU execution time = \frac{instruction count \times CPI}{frequency}
+  $$
+```
+
+The LaTeX plugin uses locally bundled MathJax to generate self-contained SVG paths, so formulas remain available in SVG and PNG exports without a CDN or external math fonts. The React ref PNG export waits for formula rendering and layout to finish; invalid formulas reject the export instead of silently exporting the source text.
+
+Inline formulas cannot cross lines. A multi-line display formula is attached to the preceding mindmap node; its outer blank lines are removed while internal line breaks are preserved. Fenced code blocks and inline code are not parsed as formulas.
 
 ---
 
