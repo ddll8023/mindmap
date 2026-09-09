@@ -180,12 +180,16 @@ The Electron desktop workspace can export the current Markdown-derived node tree
 | Markdown or mindmap data | XMind output | Notes |
 | --- | --- | --- |
 | Multiple root trees | Separate XMind sheets | Each root becomes one sheet |
-| Node text | Plain topic title | Inline Markdown visual formatting is removed |
+| Node text | Topic title | Inline visual formatting is removed; math delimiters and code-span backticks are preserved to prevent formula misclassification |
 | `[text](url)` | Topic hyperlink | The first link in a topic is used |
 | `![alt](path)` | Topic image | The first image in a topic is used |
 | `> remark` and `\| continuation` | Topic note | Both forms are combined into the XMind note |
 | `#tag` | XMind label | Labels remain separate from topic text |
 | `[ ]`, `[-]`, `[x]` | XMind task progress | Todo, in-progress, and done states are mapped |
 | `+` folding marker | Folded topic | The persisted collapsed state is exported |
+
+On import, complete standalone `$$...$$` blocks in topic notes become formula follow-lines; other note text stays in remarks. Legacy titles without math delimiters receive conservative, import-only recovery for recognizable TeX commands and powers, with a warning to review the inferred formulas. Existing math, code spans, links and URLs are not inferred. Ambiguous expressions can remain plain text. Formula topics with hyperlinks use a separate `↗` link so the formula is not swallowed by a Markdown link label.
+
+Preserved math delimiters support this application's export/import cycle; they do not create native XMind Equation objects.
 
 The export is structure-oriented rather than a screenshot of the current canvas. CSS themes, the current left/right/balanced layout, dotted-line styling, cross-links, frontmatter visual options, and LaTeX visual glyphs are not guaranteed to round-trip to XMind. Use SVG or PNG when preserving the rendered appearance is the priority.

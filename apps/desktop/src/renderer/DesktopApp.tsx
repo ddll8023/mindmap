@@ -110,7 +110,7 @@ function DesktopApp() {
       if (result.canceled || !result.content) return;
       setMarkdown(result.content);
       setFileName(result.fileName ?? "未命名.xmind");
-      const warningSuffix = result.warnings?.length ? "（部分内容未转换）" : "";
+      const warningSuffix = result.warnings?.length ? `（${result.warnings.join("；")}）` : "";
       setStatus(`已导入 ${result.fileName ?? "XMind"}${warningSuffix}`);
       requestAnimationFrame(() => mindMapRef.current?.fitView());
     }, "import");

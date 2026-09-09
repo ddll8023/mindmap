@@ -38,6 +38,12 @@ describe('formula paths for PNG', () => {
     expect(expression.width).toBeGreaterThan(requireFormula('x', false).width * 4)
   })
 
+  it('removes raw TeX source attributes that make comparison formulas invalid XML', () => {
+    const expression = requireFormula(String.raw`\frac{1}{2}\leq |M|<1`, false)
+    expect(expression.body).not.toContain('data-latex=')
+    expect(expression.body).not.toMatch(/data-[^=]+="[^"]*[<>]/)
+  })
+
   it('renders inline formulas nested inside bold text', () => {
     const svg = buildSvgNodeTextString(
       '**补码 $+0$ 和 $-0$ 相同**',

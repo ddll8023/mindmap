@@ -1,4 +1,5 @@
 import type { XMindDocument, XMindNode, XMindNodeData } from "@ljheee/xmind-parser";
+import { recoverXMindTitleFormulas, splitXMindNote } from "./xmind-formula";
 
 export interface XMindMarkdownResult {
   markdown: string;
@@ -14,7 +15,11 @@ function normalizeText(value: unknown, fallback: string): string {
 }
 
 function getTopicText(data: XMindNodeData, fallback: string): string {
-  return normalizeText(data.text, fallback);
+  if (typeof data.text !== "string") return fallback;
+  // Do not normalize whitespace inside an explicitly delimited formula.
+  return data.text.split(/(\$\$[\s\S]*?\$\$|\$[^$\r\n]+\$)/g)
+    .map((part, index) => index % 2 ? part : part.replace(/\s+/g, " "))
+    .join("").trim() || fallback;
 }
 
 function formatLink(text: string, hyperlink: string): string {
@@ -40,12 +45,17 @@ function formatNodeText(
   fallback: string,
   warnings: Set<string>,
 ): string {
-  let text = getTopicText(data, fallback);
+  const restored = recoverXMindTitleFormulas(getTopicText(data, fallback));
+  let text = restored.text;
+  if (restored.recovered) addWarning(warnings, "已推断并补全部分公式标记，请核对");
   const hyperlink = typeof data.hyperlink === "string" ? data.hyperlink.trim() : "";
 
   if (hyperlink) {
     if (EXTERNAL_LINK_RE.test(hyperlink)) {
-      text = formatLink(text, hyperlink);
+      // Link labels are not recursively parsed by the core Markdown renderer.
+      text = text.includes("$")
+        ? `${text} ${formatLink("↗", hyperlink)}`
+        : formatLink(text, hyperlink);
     } else {
       addWarning(warnings, "内部链接或附件链接");
     }
@@ -77,9 +87,14 @@ function formatNodeText(
 function appendRemark(lines: string[], level: number, note: unknown): void {
   if (typeof note !== "string" || !note.trim()) return;
   const indentation = "  ".repeat(level);
-  const noteLines = note.replace(/\r\n|\r/g, "\n").split("\n");
-  for (const line of noteLines) {
-    lines.push(`${indentation}> ${line.trim()}`.trimEnd());
+  const { remarks, formulas } = splitXMindNote(note);
+  // Core parsing consumes remarks before formula follow-lines.
+  if (remarks.some((line) => line.trim())) {
+    for (const line of remarks) lines.push(`${indentation}> ${line}`.trimEnd());
+  }
+  for (const formula of formulas) {
+    const block = formula.includes("\n") ? formula : `$$\n${formula.slice(2, -2)}\n$$`;
+    for (const line of block.split("\n")) lines.push(`${indentation}${line}`);
   }
 }
 
@@ -90,7 +105,15 @@ function appendNode(
   nodeIndex: number,
   warnings: Set<string>,
 ): void {
-  const data = node.data ?? {};
+  const data = { ...(node.data ?? {}) };
+  // Multiline display blocks cannot live inside the outline's title line.
+  if (typeof data.text === "string" && /[\r\n]/.test(data.text)) {
+    const titleParts = splitXMindNote(data.text);
+    if (titleParts.formulas.length) {
+      data.text = titleParts.remarks.join(" ").trim() || "公式";
+      data.note = [typeof data.note === "string" ? data.note : "", ...titleParts.formulas].filter(Boolean).join("\n");
+    }
+  }
   const text = formatNodeText(data, `未命名主题 ${nodeIndex + 1}`, warnings);
   const marker = data.expandState === "collapse" ? "+" : "-";
   lines.push(`${"  ".repeat(level)}${marker} ${text}`);

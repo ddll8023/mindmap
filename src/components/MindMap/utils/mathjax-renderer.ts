@@ -39,6 +39,12 @@ export function renderFormulaPaths(content: string, display: boolean) {
     throw new Error('Invalid formula dimensions')
   }
   const [x, y, width, height] = viewBox
+  // MathJax keeps the original TeX in data-latex attributes. Its lite
+  // serializer can emit raw `<`/`>` from TeX comparisons, which is tolerated
+  // by the live HTML preview but makes the SVG invalid when loaded as an image
+  // for PNG export. These attributes are metadata only and are not needed for
+  // rendering, so remove them before embedding the paths.
+  removeMathJaxSourceAttributes(svg)
   const body = adaptor.innerHTML(svg)
   if (/<(?:foreignObject|script|image)\b|(?:href|xlink:href)=/i.test(body)) {
     throw new Error('Formula contains unsupported external content')
@@ -51,5 +57,12 @@ export function renderFormulaPaths(content: string, display: boolean) {
     width: (width + padding * 2) / 1000,
     ascent: (-y + padding) / 1000,
     descent: (y + height + padding) / 1000,
+  }
+}
+
+function removeMathJaxSourceAttributes(node: LiteElement): void {
+  if (adaptor.hasAttribute(node, 'data-latex')) adaptor.removeAttribute(node, 'data-latex')
+  for (const child of adaptor.childNodes(node)) {
+    if (child instanceof LiteElement) removeMathJaxSourceAttributes(child)
   }
 }

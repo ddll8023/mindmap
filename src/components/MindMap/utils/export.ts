@@ -271,8 +271,14 @@ export async function exportToPNG(
   try {
     const img = new Image()
     await new Promise<void>((resolve, reject) => {
-      img.onload = () => resolve()
-      img.onerror = () => reject(new Error('Failed to load SVG image'))
+      const timeout = window.setTimeout(() => reject(new Error('SVG 图片加载超时，请检查公式或图片内容。')), 15000)
+      const finish = (error?: Error) => {
+        window.clearTimeout(timeout)
+        if (error) reject(error)
+        else resolve()
+      }
+      img.onload = () => finish()
+      img.onerror = () => finish(new Error('SVG 图片加载失败，请检查公式或图片内容。'))
       img.src = url
     })
     const canvas = document.createElement('canvas')

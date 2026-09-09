@@ -2,7 +2,6 @@ import { kmToXmindBuffer } from "@ljheee/xmind-parser";
 import {
   allPlugins,
   parseInlineMarkdown,
-  stripInlineMarkdown,
 } from "@mindmap/core";
 import type { MindMapData, TaskStatus } from "@mindmap/core";
 import type { XMindDocument, XMindNode, XMindNodeData } from "@ljheee/xmind-parser";
@@ -24,22 +23,28 @@ function getExportText(source: string): ExportText {
   let hyperlink: string | undefined;
   let image: string | undefined;
 
-  const text = stripInlineMarkdown(
-    tokens
-      .map((token) => {
-        switch (token.type) {
-          case "link":
-            hyperlink ??= token.url;
-            return token.text;
-          case "image":
-            image ??= token.url;
-            return token.alt;
-          default:
-            return "content" in token ? token.content : "";
-        }
-      })
-      .join(""),
-  ).trim();
+  const hasFormula = tokens.some((token) => token.type === "latex-inline" || token.type === "latex-block");
+  const text = tokens
+    .map((token) => {
+      switch (token.type) {
+        case "link":
+          hyperlink ??= token.url;
+          // Import uses a separate link marker to keep formulas out of link labels.
+          return hasFormula && token.text === "↗" ? "" : token.text;
+        case "image":
+          image ??= token.url;
+          return token.alt;
+        case "code":
+          return `\`${token.content}\``;
+        case "latex-inline":
+          return `$${token.content}$`;
+        case "latex-block":
+          return `$$${token.content}$$`;
+        default:
+          return "content" in token ? token.content : "";
+      }
+    })
+    .join("").trim();
 
   return {
     text: text || "未命名主题",
